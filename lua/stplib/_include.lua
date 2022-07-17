@@ -50,5 +50,6 @@ function STPLib.IncludeDir(dir, recursive)
 end
 
 STPLib.IncludeList("stplib/", {
-    "debug_sh.lua"
+    "debug_sh.lua",
+    "class_sh.lua"
 })
