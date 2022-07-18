@@ -62,11 +62,11 @@ function STPLib.DefineClass(name, parents)
         return setmetatable(base, meta)
     end
 
-    STPLib.RegisterType(name, { IsInstance = function(val)
+    --[[STPLib.RegisterType(name, { IsInstance = function(val)
         if not istable(val) then return false end
 
         return debug.getmetatable(val) == meta
-    end})
+    end})]]
 
     return meta, ctor
 end
