@@ -1,6 +1,7 @@
 local check_ty = STPLib.CheckType
 
 local ClassMetas = ClassMetas or {}
+local ClassMetasInv = ClassMetasInv or {}
 
 function STPLib.DefineClass(name, parents)
     check_ty(name, "name", "string")
@@ -28,39 +29,16 @@ function STPLib.DefineClass(name, parents)
         end
     end
 
+
+    STPLib.AddIndexBefore(name, parent_index)
+
     local meta = STPLib.GetClassMeta(name)
-
-    local old_index = meta.__index
-    local new_index
-
-    if istable(old_index) then
-        new_index = function(self, k)
-            local parent_v = parent_index(self, k)
-            if parent_v ~= nil then return parent_v end
-
-            return old_index[k]
-        end
-    elseif isfunction(old_index) then
-        new_index = function(self, k)
-            local parent_v = parent_index(self, k)
-            if parent_v ~= nil then return parent_v end
-
-            return old_index(self, k)
-        end
-    else
-        new_index = function(self, k)
-            local parent_v = parent_index(self, k)
-            if parent_v ~= nil then return parent_v end
-
-            return meta[k]
-        end
-    end
-
-    meta.__index = new_index
 
     local ctor = function(base)
         return setmetatable(base, meta)
     end
+
+    ClassMetasInv[meta] = name
 
     --[[STPLib.RegisterType(name, { IsInstance = function(val)
         if not istable(val) then return false end
@@ -68,7 +46,7 @@ function STPLib.DefineClass(name, parents)
         return debug.getmetatable(val) == meta
     end})]]
 
-    return meta, ctor
+    return meta, ctor, unpack(parent_metas)
 end
 
 function STPLib.GetClassMeta(name)
@@ -83,4 +61,67 @@ function STPLib.GetClassMeta(name)
 
     ClassMetas[name] = meta
     return meta
+end
+
+function STPLib.GetClassName(obj)
+    check_ty(obj, "obj", "table")
+
+    local meta = debug.getmetatable(obj)
+
+    if meta == nil then return nil end
+
+    return ClassMetasInv[meta]
+end
+
+function STPLib.AddIndexBefore(name, index_fn)
+    local meta = STPLib.GetClassMeta(name)
+    local old_index = meta.__index
+
+    local new_index
+
+    if istable(old_index) then
+        new_index = function(self, k)
+            local parent_v = index_fn(self, k)
+            if parent_v ~= nil then return parent_v end
+
+            return old_index[k]
+        end
+    elseif isfunction(old_index) then
+        new_index = function(self, k)
+            local parent_v = index_fn(self, k)
+            if parent_v ~= nil then return parent_v end
+
+            return old_index(self, k)
+        end
+    else
+        new_index = index_fn
+    end
+
+    meta.__index = new_index
+end
+
+function STPLib.AddIndexAfter(name, index_fn)
+    local meta = STPLib.GetClassMeta(name)
+    local old_index = meta.__index
+
+    local new_index
+
+    if istable(old_index) then
+        new_index = function(self, k)
+            if old_index[k] ~= nil then return old_index[k] end
+
+            return index_fn(self, k)
+        end
+    elseif isfunction(old_index) then
+        new_index = function(self, k)
+            local val = old_index(self, k)
+            if val ~= nil then return val end
+
+            return index_fn(self, k)
+        end
+    else
+        new_index = index_fn
+    end
+
+    meta.__index = new_index
 end
