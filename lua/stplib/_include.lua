@@ -51,5 +51,6 @@ end
 
 STPLib.IncludeList("stplib/", {
     "debug_sh.lua",
-    "class_sh.lua"
+    "class_sh.lua",
+    "misc_sh.lua"
 })

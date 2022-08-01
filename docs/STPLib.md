@@ -39,3 +39,34 @@ fn .AddIndexBefore(name: .ClassIdent, index: fn(self, key: any) -> value: any|ni
 fn .AddIndexAfter(name: .ClassIdent, index: fn(self, key: any) -> value: any|nil)
 
 ```
+
+## Table utils
+```
+fn .ReverseArrayInplace(tbl: array(any))
+
+-- `local val =  .IndexWithFill(tbl, "first", "second", 3, false)`  
+-- is same as
+-- `local val = tbl.first.second[3][false]`
+-- but if value not exists, table value is created
+fn .IndexWithFill(tbl: table, indices: ...(any)) -> any
+
+-- `.AddToTable(tbl, "value", "k1", 2, true)`
+-- is same as
+-- `tbl.k1[2][true] = "value"`
+-- but it creates all the intermediate tables if they not exist
+fn .AddToTable(tbl: table, value: any, indices: ...(any))
+
+-- `.AddToArray(tbl, "value", "first", 40)`
+-- is same as
+-- `table.insert(tbl.first[40], "value")`
+-- but it creates all the intermediate tables if they not exist
+fn .AddToArray(tbl: table, value: any, indices: ...(any))
+
+-- `.RemoveFromTable(tbl, "a", "b")`
+-- is same as
+-- `
+-- tbl.a.b = nil
+-- if table.IsEmpty(a) then tbl.a = nil end
+-- `
+fn .RemoveFromTable(tbl, indices:)
+```
