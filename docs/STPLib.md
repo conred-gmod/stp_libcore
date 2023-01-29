@@ -69,4 +69,7 @@ fn .AddToArray(tbl: table, value: any, indices: ...(any))
 -- if table.IsEmpty(a) then tbl.a = nil end
 -- `
 fn .RemoveFromTable(tbl, indices:)
+
+-- Same as #tbl but has no undefined behaviour if tbl is not-sequential
+fn .SeqCount(tbl: table) -> uint
 ```

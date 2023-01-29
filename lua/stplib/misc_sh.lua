@@ -80,3 +80,13 @@ function STPLib.RemoveFromTable(tbl, ...)
 
     CascadeRemove(keys, child_stack)
 end
+
+function STPLib.SeqCount(tbl)
+    local i = 0
+
+    repeat
+        i = i + 1
+    until tbl[i] == nil
+
+    return i
+end
