@@ -90,3 +90,11 @@ function STPLib.SeqCount(tbl)
 
     return i
 end
+
+function table.SeqFindValue(tbl, value)
+    for i, val in ipairs(tbl) do
+        if val == value then return i end
+    end
+
+    return nil
+end

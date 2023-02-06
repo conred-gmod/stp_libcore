@@ -72,4 +72,7 @@ fn .RemoveFromTable(tbl, indices:)
 
 -- Same as #tbl but has no undefined behaviour if tbl is not-sequential
 fn .SeqCount(tbl: table) -> uint
+
+-- Returns index of value in tbl
+fn table.SeqFindValue(tbl: table, value: any) -> pint|nil
 ```
