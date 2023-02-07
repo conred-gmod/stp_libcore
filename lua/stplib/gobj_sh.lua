@@ -133,6 +133,7 @@ function COMP:AddInterface(params)
 
     local iface = setmetatable({
         TypeName = typename,
+        _type = type,
         Side = side,
         _owner = setmetatable({ val = self}, WEAKMETA),
         Data = data,
@@ -236,17 +237,17 @@ function NET:CanConnect(val)
     if meta == IFACE then
         return self:_CanConnectInterface(val)
     elseif val.typename ~= nil and IfTypes[val.typename] == val then
-        return self:_CanConnectType(val)
+        return CanConnectType(self.TypeName, val)
     else
         STPLib.Error("Unsupported type passed")
     end
 end
 
-function NET:_CanConnectType(ty)
+local function CanConnectType(selfty, ty)
     if istable(ty) then ty = ty.typename end
 
-    if ty ~= self.TypeName then
-        return false, "Incompatible types: required '"..self.TypeName.."', got '"..ty.."'"
+    if ty ~= selfty then
+        return false, "Incompatible types: required '"..selfty.."', got '"..ty.."'"
     else
         return true
     end
@@ -259,7 +260,7 @@ function NET:_CanConnectInterface(iface)
 
     local ty = iface.TypeName
 
-    local ok, error = self:_CanConnectType(ty)
+    local ok, error = CanConnectType(self.TypeName, ty)
     if not ok then return false, error end
 
     local side = iface.Side
@@ -390,17 +391,71 @@ function IFACE:_OnPreDetached(other)
     end
 end
 
---[[
-    TODO:
+function NET:GetConnected(side)
+    return self._connected[side]
+end
 
-    NET:GetConnected
-    NET:GetConnectedSingle
+function NET:GetConnectedSingle(side)
+    local sidedesc = self._types.sides[side]
 
-    IFACE:GetAttached
-    IFACE:GetAttachedSingle
+    if not sidedesc.allow_manyand and sidedesc.track_connected then
+        return self._connected[side][1]
+    else
+        return nil
+    end 
+end
 
-    IFACE:CanAttach
+function IFACE:GetAttached(side)
+    if self._network == nil and self._type.sides[side].track_connected then
+        return {}
+    end
 
-    IFACE:Attach
-    IFACE:Detach
-]]
+    return self._network:GetConnected(side)
+end
+
+function IFACE:GetAttachedSingle(side)
+    if self._network == nil then
+        return nil
+    end
+
+    return self._network:GetConnectedSingle(side)
+end
+
+
+function IFACE:Attach(other)
+    local ok, err = self:CanAttach(other)
+    if not ok then return err end
+
+    local net = Lib.CreateNetwork(self.TypeName)
+    
+    local err = net:Connect(self)
+    if err ~= nil then return err end
+
+    local err = net:Connect(other)
+    return err
+end
+
+function IFACE:Detach()
+    local err = self:SetNetwork(nil)
+    assert(err ~= nil, err)
+end
+
+function IFACE:CanAttach(val)
+    checkty(val, "val", {"string", "table"})
+
+    if isstring(val) then
+        val = IfTypes[val]
+        assert(val ~= nil, "Unknown interface type checked")
+    end
+
+    local meta = getmetatable(val)
+    if meta == IFACE then
+        -- TODO
+    elseif meta == NET then
+        -- TODO
+    elseif val.typename ~= nil and IfTypes[val.typename] == val then
+        -- TODO
+    else
+        STPLib.Error("Unsupported type passed")
+    end
+end
