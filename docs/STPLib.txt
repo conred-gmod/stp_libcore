@@ -1,6 +1,5 @@
 # STPLib
 
-```
 hook .PreFileIncluded(filename: string, realm: "sv"|"sh"|"cl")
 fn .GetRealmFromFilename(filename: string) -> "sv"|"sh"|"cl"
 fn .IncludeFile(filename: string) -> file_return: ...|nil
@@ -38,10 +37,8 @@ fn .GetClassName(obj: table(any,any)) -> string|nil
 fn .AddIndexBefore(name: .ClassIdent, index: fn(self, key: any) -> value: any|nil)
 fn .AddIndexAfter(name: .ClassIdent, index: fn(self, key: any) -> value: any|nil)
 
-```
 
 ## Table utils
-```
 fn .ReverseArrayInplace(tbl: array(any))
 
 -- `local val =  .IndexWithFill(tbl, "first", "second", 3, false)`  
@@ -75,4 +72,3 @@ fn .SeqCount(tbl: table) -> uint
 
 -- Returns index of value in tbl
 fn table.SeqFindValue(tbl: table, value: any) -> pint|nil
-```
