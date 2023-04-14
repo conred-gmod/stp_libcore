@@ -49,6 +49,9 @@ fn .Remove(obj: .RemovableObject, cascade: bool)
 
 type .ObjectId = nonzero_uint24
 
+const .OBJECT_ID_BITS: uint
+const .OBJECT_ID_MAX: uint
+
 trait .TrackableObject: .RemovableObject {
     <<< 
         'arg' in STPLib.Obj.Create can have key
@@ -78,6 +81,8 @@ class .Tracker {
 
     hook :OnRegistered(obj: .TrackableObject)
     hook :OnPreUnregistered(obj: .TrackableObject, cascaded: bool)
+
+    fn :IsTracked(typename: string) -> bool
 }
 
 hook .OnRegistered(obj: .TrackableObject, tracker: .Tracker)

@@ -2,6 +2,11 @@ local check_ty = STPLib.CheckType
 
 local LIB = STPLib.Obj
 
+LIB.OBJECT_ID_BITS = 24
+LIB.OBJECT_ID_MAX = bit.lshift(1, LIB.OBJECT_ID_BITS) - 1
+
+
+
 local TRACKER = TRACKER or {}
 TRACKER.__index = TRACKER
 
@@ -49,7 +54,20 @@ function TRACKER:GetId(obj)
 end
 
 function TRACKER:_GenerateId()
-    return STPLib.SeqCount(self.Objects) + 1
+    local newidx = STPLib.SeqCount(self.Objects) + 1
+
+    if newidx > LIB.OBJECT_ID_MAX then
+        STPLib.Error("Too many active objects tracked in '",self.Name,"'")
+    end
+
+    return newidx
+end
+
+function TRACKER:IsTracked(typename)
+    local trks = TrackersForTypes[typename]
+    if trks == nil then return false end
+
+    return trks[self.Name] ~= nil
 end
 
 hook.Add("STPLib.Obj._InternalCreate", "Trackable", function(obj, arg)

@@ -56,5 +56,7 @@ STPLib.IncludeList("stplib/", {
     "object/core_sh.lua",
     "object/instantiantable_sh.lua",
     "object/destructable_sh.lua",
-    "object/trackable_sh.lua"
+    "object/trackable_sh.lua",
+    "objnet/core_sh.lua",
+    "objnet/parenting_sv.lua"
 })

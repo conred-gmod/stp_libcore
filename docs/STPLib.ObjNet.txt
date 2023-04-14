@@ -1,0 +1,55 @@
+namespace STPLib.ObjNet
+
+//////////////////////////////////////////////////
+// Generic networkable object 
+
+trait Networkable: STPLib.Obj.TrackableObject {
+    <<<
+        You can not create instance of .Networkable
+        (without using internal functions).
+
+        Instance can be created clientside by STPLib when it is networked from server.
+    >>>
+
+    hook :Net_Write(bytesLeft: uint)
+    hook :Net_Read(bytesLeft: uint)
+
+    fn :Net_GetId() -> .Obj.ObjectId
+
+    SV fn :Net_GetParent() -> Networkable | nil
+    SV fn :Net_SetParent(parent: Networkable | nil)
+
+    // If returns nil, caller assumes that 'recip' was modified
+    SV hook :Net_GetRecipients(recip: CRecipientList) -> nil | "all" | "none" 
+}
+
+fn .RegisterNetworkable(meta: metatable(.Networkable))
+fn .IsNetworkable(name: string | metatable(.Obj.Object) | .Obj.Object) -> bool
+
+fn .GetObjectById(id: .Obj.ObjectId | 0) -> .Networkable | nil
+
+hook .OnRegistered(obj: .Networkable)
+hook .OnPreUnregisterd(obj: .Networkable, cascaded: bool)
+
+//////////////////////////////////////////////////
+// Network Parenting
+// Unrelated to parenting of Source entities
+//
+// If object is parented to other object, child will not be sent to players who do not receive parent
+
+SV fn .SetParent(obj: .Networkable, parent: .Networkable | nil) 
+
+SV readonly .Parents: table(child: .Obj.ObjectId, parent: .Obj.ObjectId)
+SV readonly .Children: table(parent: .Obj.ObjectId, children: table(.Obj.ObjectId, true))
+
+SV readonly .Unparented: table(obj: .Obj.ObjectId, true)
+
+//////////////////////////////////////////////////
+// Awareness management
+
+internal fn ._AwarenessUpdate()
+
+// Дети всегда идут после родителей.
+// Если `aware` - пустой список, элемент возвращаться не будет.
+internal fn ._AwarenessGet() -> 
+    <iterator> -> ( .Networkable, aware: CRecipientList, newly_aware: CRecipientList ) 
