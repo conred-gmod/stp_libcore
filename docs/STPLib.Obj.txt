@@ -1,0 +1,84 @@
+namespace STPLib.Obj;
+
+trait .Object {
+    const var .Type: string // Typename
+}
+
+// typename(SomeTrait) means you can pass string corresponding to .Type of SomeTrait that implements .Object
+
+fn .Register(meta: metatable(.Object))
+
+fn .GetMeta(typename: string) -> metatable(.Object)|nil
+
+internal hook ._InternalRegister(meta: metatable(.Object))
+
+//////////////////////////////////////////////////
+// Instantiantible objects
+
+trait .InstantiantibleObject : .Object {
+    required hook :Initialize(arg: table)
+}
+
+fn .Create(typename: typename(.InstantiantibleObject), arg: table) -> .InstantiantibleObject
+
+hook .OnPreCreate(typename: typename(.InstantiantibleObject), arg: table)
+
+hook .OnPostCreate(obj: .InstantiantibleObject)
+
+internal ._InternalCreate(obj: .InstantiantibleObject, arg: table)
+
+//////////////////////////////////////////////////
+// Destructable (removable) objects
+
+// Cascaded removal: object removed because other object was removed.
+
+trait .RemovableObject : .InstantiantibleObject {
+    required hook :OnPreRemoved(cascaded: bool)
+
+    bool :IsValid()
+}
+
+hook .OnPreRemoved(obj: .RemovableObject, cascaded: bool)
+hook .OnPostRemoved(obj: .RemovableObject, cascaded: bool)
+
+fn .Remove(obj: .RemovableObject, cascade: bool)
+
+
+//////////////////////////////////////////////////
+// Object tracking
+
+type .ObjectId = nonzero_uint24
+
+trait .TrackableObject: .RemovableObject {
+    <<< 
+        'arg' in STPLib.Obj.Create can have key
+        .Tracker_CustomIndices: nil | table(tracker_name: string, .ObjectId)
+
+        For trackers not specified there indices will be generated.
+        If table has value 0, object will not be tracked in given tracker
+    >>>
+        
+
+}
+
+
+fn .CreateTracker(name: string) -> .Tracker
+fn .GetTracker(name: string) -> nil|.Tracker
+
+class .Tracker {
+    fn :RegisterType(meta: metatable(.TrackableObject))
+
+    fn :GetObject(id: .ObjectId|0) -> nil | .TrackableObject
+    fn :GetId(object: .TrackableObject) -> .ObjectId
+
+    // It will sometimes have non-sequential indices
+    readonly .Objects: table(.ObjectId, .TrackableObject)
+
+    readonly .Name: string
+
+    hook :OnRegistered(obj: .TrackableObject)
+    hook :OnPreUnregistered(obj: .TrackableObject, cascaded: bool)
+}
+
+hook .OnRegistered(obj: .TrackableObject, tracker: .Tracker)
+hook .OnPreUnregistered(obj: .TrackableObject, tracker: .Tracker, cascaded: bool)
