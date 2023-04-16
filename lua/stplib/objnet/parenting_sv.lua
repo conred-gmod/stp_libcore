@@ -63,3 +63,17 @@ hook.Add("STPLib.Obj.OnPostRemoved", "aaaab___STPLib.ObjNet.Parenting", function
 
     Children[obj_id] = nil
 end)
+
+local META = META or {}
+
+function META:Net_GetParent()
+    return LIB.GetObjectById(Parents[self:Net_GetId()] or 0)
+end
+
+function META:Net_SetParent(parent)
+    LIB.SetParent(self, parent)
+end
+
+hook.Add("STPLib.ObjNet._OnPreRegisterNetworkable", "Parenting", function(meta)
+    table.Merge(meta, META)
+end)
