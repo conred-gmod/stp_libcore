@@ -52,4 +52,6 @@ internal fn ._AwarenessUpdate()
 // Дети всегда идут после родителей.
 // Если `aware` - пустой список, элемент возвращаться не будет.
 internal fn ._AwarenessGet() -> 
-    <iterator> -> ( .Networkable, aware: CRecipientList, newly_aware: CRecipientList ) 
+    <iterator> -> ( .Networkable, aware: CRecipientList, newly_aware: array(Player), depth: uint ) 
+
+internal fn ._AwarenessMarkAware(oid: .Obj.ObjectId, plys: array(Player))
