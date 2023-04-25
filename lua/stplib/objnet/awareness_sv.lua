@@ -42,7 +42,6 @@ local function ProcessObject(oid, parent_recip, depth)
 
     local newly_aware = {}
 
-    -- TODO: find players who just became aware of obj
     local aware = AwarePlys[oid]
     for _, ply in ipairs(recip:GetPlayers()) do
         if aware[ply] then continue end
@@ -88,4 +87,10 @@ hook.Run("PlayerDisconnected", "STPLib.ObjNet.Awareness", function(ply)
     for _, plys in pairs(AwarePlys) do
         plys[ply] = nil
     end
+end)
+
+hook.Add("STPLib.Obj._InternalCreate", "zzzz_ObjNet.Awareness", function(obj, _)
+    local id = obj:Net_GetId()
+
+    AwarePlys[id] = {}
 end)
