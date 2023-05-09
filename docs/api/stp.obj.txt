@@ -1,5 +1,6 @@
 namespace stp.obj;
 
+------- Objects/Traits
 interface .Object {
     const .TypeName: string,
     const .IsFullyRegistered: bool -- Modified by .BeginMeta / .Register
@@ -7,6 +8,10 @@ interface .Object {
 
     if .IsTrait {
         operator .__call = stp.obj.ApplyTrait
+    }
+
+    if not .IsTrait {
+        const .FinalMeta: metatable(.Object) = self
     }
 }
 
@@ -26,8 +31,7 @@ hook .OnMetaRegistered(meta: metatable(.Object))
 fn .GetObjectMetatables() -> table(typename: string, metatable(.Object))
 fn .GetTraitMetatables() -> table(typename: string, metatable(.Object))
 
--- Trait application stuff
-
+------- Trait application stuff
 internal fn ._MergablesInit() -> table
 
 -- `traitmeta` should be a registered trait.
@@ -39,6 +43,8 @@ fn .ApplyTrait(traitmeta: metatable(.Object), targetmeta: metatable(.Object))
 -- `impl_name` is similar to second argument of `hook.Add`.
 -- Mergables respect addition order.
 fn .MergablesAdd(meta: metatable(.Object), keyname: string, impl_name: string, merger_name: string, value: any|nil)
+
+fn .MergablesDeclare(meta: metatable(.Object), keyname: string, merger_name: string)
 
 type .MergablesDesc = {
     .MaxIdx: uint,
@@ -55,3 +61,29 @@ fn .MergerRegister(name: string, fn: fn(meta: metatable(.Object), key: string, v
 -- `array[i].Key` is an `impl_name`. Index is `Idx`, see `.MergablesDesc`
 fn .MergerRegisterArray(name: string, fn: fn(
     meta: metatable(.Object), key: string, array: array({Key: string, Value: any|nil})))
+
+
+------- Utilities
+fn .ApplyMany(target: metatable(.Object), callables: ...fn(meta: metatable(.Object))) -> metatable(.Object)
+
+merger CallInOrder_Member
+-- values should be fn(self, ...args)
+-- merged into fn(self, ...args) that calls values in addition order
+
+------- Instantiatable Objects
+trait .Instantiatable {
+    fn .Create(args: table) -> .Instantiatable
+    virtual fn :Init(args: table)
+
+    fn :Remove(cascaded: bool)
+    virtual fn :OnPreRemove(cascaded: bool)
+
+    -- Object considered to be valid after :Init and before :Remove
+    fn :IsValid() -> bool
+}
+
+hook .PreInit(obj: .Instantiatable, args: table)
+hook .PostInit(obj: .Instantiatable, args: table)
+
+hook .PreRemove(obj: .Instantiatable, cascaded: bool)
+hook .PostRemove(obj: .Instantiatable, cascaded: bool)

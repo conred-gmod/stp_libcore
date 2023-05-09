@@ -28,6 +28,7 @@ function LIB.BeginObject(typename)
     meta.IsTrait = false
     setmetatable(meta, meta)
 
+    meta.FinalMeta = meta
     meta.TypeName = typename
     meta.IsFullyRegistered = false
     hook.Run("stp.obj._OnMetaCreated", meta)
@@ -46,6 +47,7 @@ function LIBOB.BeginExistingObject(meta)
     end
 
     meta.___mergables = LIB._MergablesInit()
+    meta.FinalMeta = meta
     meta.IsTrait = false
     meta.IsFullyRegistered = false
     hook.Run("stp.obj._OnMetaCreated", meta)

@@ -23,10 +23,24 @@ function LIB._MergablesInit()
     return {}
 end
 
+function LIB.MergablesDeclare(meta, keyname, merger_name)
+    if meta.IsFullyRegistered then 
+        stp.Error("Attempt to declare a mergable '",keyname,"' ",
+            "in an already-registered object '",meta.TypeName,"'")
+    end
+
+    assert(Mergers[merger] ~= nil, "Attempt to use undefined merger '"..merger.."'")
+
+    local mrg = meta.___mergables[keyname] or { MaxIdx = 0, MergerName = merger_name }
+    meta.___mergables[keyname] = mrg
+
+    assert(mrg.MergerName == merger) -- TODO: error message: consistency check
+end
+
 function LIB.MergablesAdd(meta, keyname, impl_name, merger, value)
     if meta.IsFullyRegistered then 
         stp.Error("Attempt to add a mergable '",keyname,":",impl_name,"' ",
-            "to a already-registered object '",meta.TypeName,"'")
+            "to an already-registered object '",meta.TypeName,"'")
     end
 
     assert(Mergers[merger] ~= nil, "Attempt to use undefined merger '"..merger.."'")
