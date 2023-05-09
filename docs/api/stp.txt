@@ -1,0 +1,33 @@
+namespace stp
+
+--[[
+    File name:
+    _cl = runs AddCSLuaFile, includes on client only
+    _sh = runs AddCSLuaFile, includes both on client and server
+    _sv = includes on server only
+]]
+
+-- Returns nil if not a lua file
+fn .GetRealmFromFilename(filename: string) -> "sv"|"cl"|"sh"|nil
+
+
+fn .IncludeFile(path: string) -> any|nil
+-- includes (prefix..files[1], prefix..files[2], ...)
+fn .IncludeList(prefix: string, files: array(string))
+
+-- Includes lua subfiles of `dir` and (subdirectory..module_name) where they exist
+fn .IncludeModules(dir: string, module_name: string)
+
+
+fn .Error(msgparts: ...(any)) -- Unlike GMod Error(), this actually errors and halts execution
+
+-- Uses typenames registered by .RegisterType
+fn .CheckType(val: any|nil, valname: string, allowed_types: array(string)|string) -> val: any|nil
+
+fn .RegisterType(name: string, {
+    IsInstance: fn(value: any|nil) -> bool
+})
+
+fn .IsType(val: any|nil, type: string) -> bool
+
+fn .ToString(val: any|nil, pretty_print: bool|nil = false) -> string

@@ -1,0 +1,57 @@
+namespace stp.obj;
+
+interface .Object {
+    const .TypeName: string,
+    const .IsFullyRegistered: bool -- Modified by .BeginMeta / .Register
+    const .IsTrait: bool
+
+    if .IsTrait {
+        operator .__call = stp.obj.ApplyTrait
+    }
+}
+
+-- Creates a stub metatable
+fn .BeginObject(typename: string) -> metatable(.Object)
+fn .BeginTrait(typename: string) -> metatable(.Object)
+
+-- Makes existing metatable registrable. You need to set `.TypeName`.
+fn .BeginExistingObject(meta: metatable(.Object)) -> metatable(.Object)
+
+internal hook ._OnMetaCreated(meta: metatable(.Object))
+
+-- Registers an object
+fn .Register(meta: metatable(.Object))
+hook .OnMetaRegistered(meta: metatable(.Object))
+
+fn .GetObjectMetatables() -> table(typename: string, metatable(.Object))
+fn .GetTraitMetatables() -> table(typename: string, metatable(.Object))
+
+-- Trait application stuff
+
+internal fn ._MergablesInit() -> table
+
+-- `traitmeta` should be a registered trait.
+-- `targetmeta` should be a not-fully-registered object or trait.
+fn .ApplyTrait(traitmeta: metatable(.Object), targetmeta: metatable(.Object))
+
+-- `meta` shoud be a non-fully-registered object/trait
+-- `keyname` is a name of key that all mergables of `keyname` will be merged into.
+-- `impl_name` is similar to second argument of `hook.Add`.
+-- Mergables respect addition order.
+fn .MergablesAdd(meta: metatable(.Object), keyname: string, impl_name: string, merger_name: string, value: any|nil)
+
+type .MergablesDesc = {
+    .MaxIdx: uint,
+    .MergerName: string
+    .[impl_name: string]: {
+        Idx: uint,
+        Value: any|nil
+    }
+}
+
+-- A low-level function.
+fn .MergerRegister(name: string, fn: fn(meta: metatable(.Object), key: string, values: .MergablesDesc))
+
+-- `array[i].Key` is an `impl_name`. Index is `Idx`, see `.MergablesDesc`
+fn .MergerRegisterArray(name: string, fn: fn(
+    meta: metatable(.Object), key: string, array: array({Key: string, Value: any|nil})))
