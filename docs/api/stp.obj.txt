@@ -87,3 +87,20 @@ hook .PostInit(obj: .Instantiatable, args: table)
 
 hook .PreRemove(obj: .Instantiatable, cascaded: bool)
 hook .PostRemove(obj: .Instantiatable, cascaded: bool)
+------- Trackable objects
+trait .Trackable: .Instantiatable {
+    const .IsTrackable: bool = true
+}
+
+type .TrackId = uint23
+const .TRACK_ID_BITS = 23
+const .TRACK_ID_MAX: uint
+
+
+fn .MakeTracker() -> .Tracker
+
+object .Tracker: .Instantiatable {
+    fn .Register(obj: .Trackable)
+    fn .Unregister(obj: .Trackable)
+    fn .GetAll() -> table(.)
+}
