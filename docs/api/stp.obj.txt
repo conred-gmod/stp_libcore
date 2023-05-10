@@ -70,6 +70,9 @@ merger CallInOrder_Member
 -- values should be fn(self, ...args)
 -- merged into fn(self, ...args) that calls values in addition order
 
+-- Throws an error if fully registered
+fn .CheckNotFullyRegistered(meta: metatable(.Objects))
+
 ------- Instantiatable Objects
 trait .Initializable {
     hook :Init(args: table)
@@ -99,7 +102,7 @@ hook .PreRemove(obj: .Instantiatable, cascaded: bool)
 hook .PostRemove(obj: .Instantiatable, cascaded: bool)
 ------- Generic Managers
 struct .ManagerDesc = {
-    GenerateKey: fn(mgr: .Removable + .Manager(self), item: .Object + ManagedItem(self)) -> any,
+    GenerateKey: fn(mgr: .Initializable + .Manager(self), item: .Removable + ManagedItem(self), userdata: ...any) -> any,
 
     -- Following fields are used for generated functions' names
     ItemSg: string, -- Item name in singular
@@ -109,19 +112,19 @@ struct .ManagerDesc = {
 
 struct .ManagerData = {
     Item: metatable(.Removable + .ManagedItem(Desc)),
-    Manager: metatable(.Object + .Manager(Desc)),
+    Manager: metatable(.Initializable + .Manager(Desc)),
     Desc: .ManagerDesc
 }
 
 nonpubctor mixin(md: .ManagerDesc) .Manager {
-    require .Object
+    require .Initializable
 
     type Item: .ManagedItem(md);
     type Key;
 
-    fn :Register{md.ItemSg}(item: Item) -> Key
-    hook :OnPreRegistered{md.ItemSg}(item: Item, key: Key)
-    hook :OnPostRegistered{md.ItemSg}(item: Item, key: Key)
+    fn :Register{md.ItemSg}(item: Item, userdata: ...any) -> Key
+    hook :OnPreRegistered{md.ItemSg}(item: Item, key: Key, userdata: ...any)
+    hook :OnPostRegistered{md.ItemSg}(item: Item, key: Key, userdata: ...any)
 
     fn :Unregister{md.ItemSg}(item: Item)
     fn :Unregister{md.ItemSg}ByKey(key: Key)
@@ -148,8 +151,8 @@ nonpubctor mixin(md: .ManagerDesc) .ManagedItem {
     fn :Get{md.ItemSg}Key() -> Key|nil
 
     
-    hook :OnPreRegistered{md.ItemSg}(mgr: Manager, key: Key)
-    hook :OnPostRegistered{md.ItemSg}(mgr: Manager, key: Key)
+    hook :OnPreRegistered{md.ItemSg}(mgr: Manager, key: Key, userdata: ...any)
+    hook :OnPostRegistered{md.ItemSg}(mgr: Manager, key: Key, userdata: ...any)
     hook :OnPreUnregistered{md.ItemSg}(mgr: Manager, key: Key)
     hook :OnPostUnregistered{md.ItemSg}(mgr: Manager, key: Key)
 }

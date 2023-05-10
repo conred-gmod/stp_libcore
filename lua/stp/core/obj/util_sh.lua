@@ -20,3 +20,13 @@ LIB.MergerRegisterArray("CallInOrder_Member", function(meta, key, values)
         end
     end
 end)
+
+
+
+function LIB.CheckNotFullyRegistered(meta)
+    if meta.IsFullyRegistered == nil or meta.IsTrait == nil then
+        stp.Error("Passed non-trait/object '",meta,"'")
+    elseif meta.IsFullyRegistered then
+        stp.Error("Passed fully-registered ",meta)
+    end
+end
