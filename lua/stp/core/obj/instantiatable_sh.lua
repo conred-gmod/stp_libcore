@@ -1,6 +1,23 @@
 local LIB = stp.obj
 
+local INITABLE = LIB.BeginTrait("stp.obj.Initializable")
+
+LIB.MergablesDeclare(INITABLE, "Init", "CallInOrder")
+
+LIB.Register(INITABLE)
+LIB.Initializable = INITABLE
+
+
+local REMOVABLE = LIB.BeginTrait("stp.obj.Removable")
+INITABLE(REMOVABLE)
+
+LIB.MergablesDeclare(INST, "OnPreRemove", "CallInOrder")
+
+LIB.Register(REMOVABLE)
+LIB.Removable = REMOVABLE
+
 local INST = LIB.BeginTrait("stp.obj.Instantiatable")
+REMOVABLE(INST)
 
 function INST.Create(args)
     local meta = self.FinalMeta
@@ -31,7 +48,6 @@ function INST:Remove(cascaded)
     hook.Run("stp.obj.PostRemoved", self, cascaded)
 end
 
-LIB.MergablesDeclare(INST, "Init", "CallInOrder")
-LIB.MergablesDeclare(INST, "OnPreRemove", "CallInOrder")
 
 LIB.Register(INST)
+LIB.Instantiatable = INST

@@ -71,12 +71,22 @@ merger CallInOrder_Member
 -- merged into fn(self, ...args) that calls values in addition order
 
 ------- Instantiatable Objects
+trait .Initializable {
+    hook :Init(args: table)
+}
+
+trait .Removable {
+    impl .Initializable
+
+    hook :OnPreRemove(cascaded: bool)
+}
+
 trait .Instantiatable {
+    impl .Removable
+
     fn .Create(args: table) -> .Instantiatable
-    virtual fn :Init(args: table)
 
     fn :Remove(cascaded: bool)
-    virtual fn :OnPreRemove(cascaded: bool)
 
     -- Object considered to be valid after :Init and before :Remove
     fn :IsValid() -> bool
@@ -87,8 +97,70 @@ hook .PostInit(obj: .Instantiatable, args: table)
 
 hook .PreRemove(obj: .Instantiatable, cascaded: bool)
 hook .PostRemove(obj: .Instantiatable, cascaded: bool)
+------- Generic Managers
+struct .ManagerDesc = {
+    GenerateKey: fn(mgr: .Removable + .Manager(self), item: .Object + ManagedItem(self)) -> any,
+
+    -- Following fields are used for generated functions' names
+    ItemSg: string, -- Item name in singular
+    ItemPl: string, -- Item name in plural
+    ManagerSg: string, -- Manager name in singular
+}
+
+struct .ManagerData = {
+    Item: metatable(.Removable + .ManagedItem(Desc)),
+    Manager: metatable(.Object + .Manager(Desc)),
+    Desc: .ManagerDesc
+}
+
+nonpubctor mixin(md: .ManagerDesc) .Manager {
+    require .Object
+
+    type Item: .ManagedItem(md);
+    type Key;
+
+    fn :Register{md.ItemSg}(item: Item) -> Key
+    hook :OnPreRegistered{md.ItemSg}(item: Item, key: Key)
+    hook :OnPostRegistered{md.ItemSg}(item: Item, key: Key)
+
+    fn :Unregister{md.ItemSg}(item: Item)
+    fn :Unregister{md.ItemSg}ByKey(key: Key)
+    fn :UnregisterAll{md.ItemPl}()
+    hook :OnPreUnregistered{md.ItemSg}(item: Item, key: Key)
+    hook :OnPostUnregistered{md.ItemSg}(item: Item, key: Key)
+
+    fn :GetAll{md.ItemPl}() -> table(Key, Item)
+
+    -- If not an item, returns nil
+    fn :Get{md.ItemSg}Key(item: Item|table) -> Key|nil
+    -- If not a valid key, returns nil
+    fn :Get{md.ItemSg}ByKey(key: Key|any) -> Item|nil
+}
+
+nonpubctor mixin(md: .ManagerDesc) .ManagedItem {
+    require .Removable
+
+    type Key;
+    type Manager: .Manager(md);
+
+    -- Following functions return nil if this item is not currently registered
+    fn :GetUsed{md.ManagerSg}() -> Manager|nil
+    fn :Get{md.ItemSg}Key() -> Key|nil
+
+    
+    hook :OnPreRegistered{md.ItemSg}(mgr: Manager, key: Key)
+    hook :OnPostRegistered{md.ItemSg}(mgr: Manager, key: Key)
+    hook :OnPreUnregistered{md.ItemSg}(mgr: Manager, key: Key)
+    hook :OnPostUnregistered{md.ItemSg}(mgr: Manager, key: Key)
+}
+
+fn .MakeManager(
+    item: metatable(.Removable), manager: metatable(.Object),
+    desc: .ManagerDesc) -> .ManagerData
+
 ------- Trackable objects
-trait .Trackable: .Instantiatable {
+trait .Trackable {
+    impl .Instantiatable
     const .IsTrackable: bool = true
 }
 
@@ -99,7 +171,9 @@ const .TRACK_ID_MAX: uint
 
 fn .MakeTracker() -> .Tracker
 
-object .Tracker: .Instantiatable {
+object .Tracker  {
+    impl .Instantiatable
+
     fn .Register(obj: .Trackable)
     fn .Unregister(obj: .Trackable)
     fn .GetAll() -> table(.)
