@@ -70,4 +70,5 @@ stp.IncludeList("stp/core/", {
     "obj/instantiatable_sh.lua",
     "obj/manager_sh.lua",
     "obj/tracker_sh.lua",
+    "obj/subobject_sh.lua",
 })

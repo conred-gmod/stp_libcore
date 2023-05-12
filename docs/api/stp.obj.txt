@@ -46,6 +46,8 @@ fn .MergablesAdd(meta: metatable(.Object), keyname: string, impl_name: string, m
 
 fn .MergablesDeclare(meta: metatable(.Object), keyname: string, merger_name: string)
 
+-- Special fields in .MergablesDesc
+const .MergableSpecialFields: table(key: string, true)
 type .MergablesDesc = {
     .MaxIdx: uint,
     .MergerName: string
@@ -161,6 +163,7 @@ nonpubctor mixin(md: .ManagerDesc) .ManagedItem {
     hook :OnPostUnregistered{md.ItemSg}(mgr: Manager, key: Key)
 }
 
+-- Adds .Manager(desc) to manager, .ManagedItem(desc) to item
 fn .MakeManager(
     item: metatable(.Removable), manager: metatable(.Object),
     desc: .ManagerDesc) -> .ManagerData
@@ -205,3 +208,53 @@ namespace .Tracker = {
 
     fn .IsNetworkable(arg: .Id|.Trackable) -> bool
 }
+
+------- Subobjects
+-- Subobject can only be stored in one subobject container and only in one subobject slot.
+-- Subobject loops are not allowed.
+
+nonpubctor mixin(key: string) .SubobjectContainer {
+    const .Is{key}SubobjContainer = true
+
+    -- Following functions should be used only before .obj.Register.
+    -- They should be called on metatable, not on instance.
+    fn :RegisterSubobj{key}(name: string)
+
+    -- Following values should be accessed only after .obj.Register
+    const .Subobj{key}Desc: struct {
+        final const .Count: uint,
+        -- Amount of bits needed to represent (index-1) of any of {key} subobjects
+        final const .Bits: uint, 
+
+        const .IdToName: table(uint, string)
+        const .NameToId: table(string, uint)
+    }
+
+    readonly .Subobj{key}: struct {
+        type .Item = .SubobjectStorable(key)
+
+        -- Do not replace values of following tables
+        readonly .ById: table(uint, .Item|nil)
+        readonly .ByName: table(string, .Item|nil)
+
+        fn :SetById(id: uint, val: .Item|nil)
+        fn :SetByName(name: string, val: .Item|nil)
+
+        fn :ClearAll()
+    }
+}
+
+nonpubctor mixin(key: string) .SubobjectStorable {
+    const .IsSubobj{key}Storable = true
+
+    readonly .Subobj{key}Owner: nil | struct {
+        readonly .Owner: .SubobjectContainer(key),
+        readonly .SlotName: string,
+        readonly .SlotId: uint
+    }
+}
+
+-- Adds .SubobjectContainer(key) to meta
+fn .MakeSubobjectContainer(meta: metatable(.Instantiatable), key: string)
+-- Adds .SubobjectStorable(key) to meta
+fn .MakeSubobjectStorable(meta: metatable(.Instantiatable), key: string)

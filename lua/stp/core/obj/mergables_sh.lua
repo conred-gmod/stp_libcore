@@ -2,6 +2,12 @@ local LIB = stp.obj
 
 local Mergers = Mergers or {}
 
+local MergableSpecialFields = {
+    ["MaxIdx"] = true,
+    ["MergerName"] = true
+}
+LIB.MergableSpecialFields = MergableSpecialFields
+
 function LIB.MergerRegister(name, fn)
     Mergers[name] = fn
 end
@@ -10,7 +16,7 @@ function LIB.MergerRegisterArray(name, fn)
     LIB.MergerRegister(name, function(meta, k, desc)
         local array = {}
         for itemk, itemdesc in pairs(desc) do
-            if itemk == "MaxIdx" or itemk == "MergerName" then continue end
+            if MergableSpecialFields[itemk] then continue end
 
             array[itemdesc.Idx] = { Key = itemk, Value = itemdesc.Value }
         end
@@ -44,7 +50,7 @@ function LIB.MergablesAdd(meta, keyname, impl_name, merger, value)
     end
 
     assert(Mergers[merger] ~= nil, "Attempt to use undefined merger '"..merger.."'")
-    assert(impl_name ~= "MaxIdx" and impl_name ~= "MergerName")
+    assert(not MergableSpecialFields[impl_name])
 
     local mrg = meta.___mergables[keyname] or { MaxIdx = 0, MergerName = merger }
     meta.___mergables[keyname] = mrg
