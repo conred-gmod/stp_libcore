@@ -64,14 +64,18 @@ fn .MergerRegisterArray(name: string, fn: fn(
 
 
 ------- Utilities
-fn .ApplyMany(target: metatable(.Object), callables: ...fn(meta: metatable(.Object))) -> metatable(.Object)
+fn .ApplyMany(target: metatable(.Object), callables: ...false | fn(meta: metatable(.Object))) -> metatable(.Object)
 
 merger CallInOrder_Member
 -- values should be fn(self, ...args)
 -- merged into fn(self, ...args) that calls values in addition order
 
 -- Throws an error if fully registered
-fn .CheckNotFullyRegistered(meta: metatable(.Objects))
+fn .CheckNotFullyRegistered(meta: metatable(.Object))
+fn .CheckFullyRegistered(meta: metatable(.Object))
+
+fn .HookDefine(meta: metatable(.Object), keyname: string)
+fn .HookAdd(meta: metatable(.Object), keyname: string, valname: string, fn: fn(self, ...args))
 
 ------- Instantiatable Objects
 trait .Initializable {
@@ -164,20 +168,40 @@ fn .MakeManager(
 ------- Trackable objects
 trait .Trackable {
     impl .Instantiatable
+
     const .IsTrackable: bool = true
+    -- Id is nil while object is not tracked
+    -- Set by .Tracker._Register
+    readonly .TrackId: .Tracker.Id | nil
+
+    hook :OnPreTracked(newid: .Tracker.Id)
+    hook :OnPostTracked()
+
+    hook :OnPreUntracked()
+    hook :OnPostUntracked(oldid: .Tracker.Id)
 }
 
-type .TrackId = uint23
-const .TRACK_ID_BITS = 23
-const .TRACK_ID_MAX: uint
+namespace .Tracker = {
+    -- Positive IDs are for networkable (shared) objects,
+    -- Negative - for local (client-only or server-only) objects
+    type .Id = nint24
+    const .ID_BITS_NET = 23
+    const .ID_MAX: uint
+    const .ID_MIN: int
 
 
-fn .MakeTracker() -> .Tracker
+    internal fn ._Track(obj: .Trackable, id: .Id)
+    hook .OnPreTracked(obj: .Trackable, newid: .Tracker.Id)
+    hook .OnPostTracked(obj: .Trackable)
 
-object .Tracker  {
-    impl .Instantiatable
+    internal fn ._Untrack(obj: .Trackable)
+    hook .OnPreUntracked(obj: .Trackable)
+    hook .OnPostUntracked(obj: .Trackable, oldid: .Tracker.Id)
 
-    fn .Register(obj: .Trackable)
-    fn .Unregister(obj: .Trackable)
-    fn .GetAll() -> table(.)
+    fn .Get(id: .Id|0) -> .Trackable|nil
+
+    fn .GetAllNetworkable() -> table(.Id > 0, .Trackable)
+    fn .GetAllLocal() -> table(-.Id > 0, .Trackable)
+
+    fn .IsNetworkable(arg: .Id|.Trackable) -> bool
 }

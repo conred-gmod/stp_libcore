@@ -36,7 +36,7 @@ function LIB.BeginObject(typename)
     return meta
 end
 
-function LIBOB.BeginExistingObject(meta)
+function LIB.BeginExistingObject(meta)
     local typename = meta.TypeName
     assert(typename ~= nil, "You need to set .TypeName")
 
@@ -55,7 +55,7 @@ function LIBOB.BeginExistingObject(meta)
     return meta
 end
 
-function LIBOB.BeginTrait(typename)
+function LIB.BeginTrait(typename)
     local meta = Traits[typename] or {}
     meta.__index = meta
     meta.__call = LIB.ApplyTrait
@@ -71,7 +71,7 @@ function LIBOB.BeginTrait(typename)
     return meta
 end
 
-function LIBOB.Register(meta)
+function LIB.Register(meta)
     local typename = meta.TypeName
     assert(typename ~= nil)
 

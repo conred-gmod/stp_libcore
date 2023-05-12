@@ -2,7 +2,9 @@ local LIB = stp.obj
 
 function LIB.ApplyMany(target, ...)
     for _, fn in ipairs({...}) do
-        fn(target)
+        if fn ~= false then
+            fn(target)
+        end
     end
 
     return target
@@ -21,6 +23,13 @@ LIB.MergerRegisterArray("CallInOrder_Member", function(meta, key, values)
     end
 end)
 
+function LIB.HookDefine(meta, keyname)
+    LIB.MergablesDeclare(meta, keyname, "CallInOrder_Member")
+end
+
+function LIB.HookAdd(meta, keyname, valname, fn)
+    LIB.MergablesAdd(meta, keyname, valname, "CallInOrder_Member", fn)
+end
 
 
 function LIB.CheckNotFullyRegistered(meta)
@@ -28,5 +37,13 @@ function LIB.CheckNotFullyRegistered(meta)
         stp.Error("Passed non-trait/object '",meta,"'")
     elseif meta.IsFullyRegistered then
         stp.Error("Passed fully-registered ",meta)
+    end
+end
+
+function LIB.CheckFullyRegistered(meta)
+    if meta.IsFullyRegistered == nil or meta.IsTrait == nil then
+        stp.Error("Passed non-trait/object '",meta,"'")
+    elseif not meta.IsFullyRegistered then
+        stp.Error("Passed non-fully-registered ",meta)
     end
 end

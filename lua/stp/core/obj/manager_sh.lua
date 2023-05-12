@@ -17,8 +17,8 @@ function LIB.MakeManager(item, manager, desc)
     LIB.Initializable(manager)
 
     local function makehook(prefix)
-        LIB.MergablesDeclare(item, prefix..isg, "CallInOrder")
-        LIB.MergablesDeclare(manager, prefix..isg, "CallInOrder")
+        LIB.HookDeclare(item, prefix..isg)
+        LIB.HookDeclare(manager, prefix..isg)
     end
 
     makehook("OnPreRegistered")

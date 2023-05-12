@@ -2,7 +2,7 @@ local LIB = stp.obj
 
 local INITABLE = LIB.BeginTrait("stp.obj.Initializable")
 
-LIB.MergablesDeclare(INITABLE, "Init", "CallInOrder")
+LIB.HookDeclare(INITABLE, "Init")
 
 LIB.Register(INITABLE)
 LIB.Initializable = INITABLE
@@ -11,7 +11,7 @@ LIB.Initializable = INITABLE
 local REMOVABLE = LIB.BeginTrait("stp.obj.Removable")
 INITABLE(REMOVABLE)
 
-LIB.MergablesDeclare(INST, "OnPreRemove", "CallInOrder")
+LIB.HookDeclare(INST, "OnPreRemove")
 
 LIB.Register(REMOVABLE)
 LIB.Removable = REMOVABLE
