@@ -74,5 +74,9 @@ stp.IncludeList("stp/core/", {
     "obj/subobject_sh.lua",
     "obj/variable_sh.lua",
     
-    "obj/net/traits_sh.lua"
+    "obj/net/traits_sh.lua",
+    "obj/net/restrictors_sv.lua",
+    "obj/net/awareness_sv.lua",
+    "obj/net/lowlevel_sh.lua",
+    "obj/net/highlevel_sh.lua",
 })

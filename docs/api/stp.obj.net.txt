@@ -1,0 +1,102 @@
+namespace stp.obj.net
+
+------- Networkable trait
+
+-- Can be sent to client from server
+trait .Networkable {
+    require .obj.SubobjectStorable("Network")
+
+    -- Restrictors can not have loops
+    SV fn :NetGetRestrictor() -> .Networkable|nil
+    SV fn :NetSetRestrictor(restr: .Networkable|nil)
+
+    SV abstract fn NetGetRecipients(recip: CRecipientList)
+}
+
+-- Can be sent to server from client
+trait .NetworkableRev {
+    require .obj.SubobjectStorable("NetworkRev")
+}
+
+trait .NetworkableComposite {
+    require .Networkable
+    require .obj.SubobjectContainer("Network")
+    require .obj.SubobjectContainer("NetworkRev")
+}
+
+------- Restrictors
+
+SV namespace .restrictors {
+    readonly .Unrestricted: table(.obj.Tracker.Id, true)
+
+    readonly .RestrictedByThis: table(
+        restrictor: .obj.Tracker.Id, table(restricted: .obj.Traker.Id, true))
+
+    internal fn ._Update()
+
+    internal fn ._Set(obj: .Networkable, restrictor: .Networkable|nil)
+}
+
+------- Awareness
+
+SV namespace .awareness {
+    -- Do not keep references at that array
+    readonly .Awareness: array({
+        Object: .Networkable,
+        Aware: CRecipientList, -- If this would be empty, entry is not added to array
+        NewlyAware: array(Player),
+        Depth: uint
+    })
+
+    internal fn ._Update()
+
+    internal fn ._MarkAware(id: .obj.Tracker.Id, ply: Player)
+}
+
+------- Low-level Sendable traits
+
+-- Has data to send to client
+trait .Sendable {
+    require .Networkable
+
+    SV abstract fn :NetTransmit(bytes_left: uint)
+    CL abstract fn :NetReceive(bytes: uint)
+}
+
+-- Has data to send to server
+trait .SendableRev {
+    require .NetworkableRev
+
+    CL abstract fn :NetTransmit(bytes_left: uint)
+    SV abstract fn :NetReceive(bytes: uint)
+}
+
+-- Can only be called on side where :NetTransmit exists
+-- Note that this depends on .awareness global state
+internal fn ._Send(obj: .Sendable | .SendableRev)
+
+
+------- High-level traits
+
+struct .Schema {
+    transmit: fn(data: any|nil, bytes_left: uint)
+    receive: fn(bytes_lef: uint) -> data: any|nil
+}
+
+trait .Var {
+    doconly param type .TData;
+
+    require .obj.Variable({ TData = .TData })
+    require .Sendable
+
+    abstract const .SCHEMA: .Schema
+}
+
+trait .VarRev {
+    doconly param type .TData;
+
+    require .obj.Variable({ TData = .TData })
+    require .SendableRev
+
+    abstract const .SCHEMA: .Schema
+}
