@@ -1,6 +1,7 @@
+
+
 stp = stp or {
-    obj = {}
-    trait = {}
+    obj = { net = {} }
 }
 
 local function IsLuaFile(filename)
@@ -71,4 +72,7 @@ stp.IncludeList("stp/core/", {
     "obj/manager_sh.lua",
     "obj/tracker_sh.lua",
     "obj/subobject_sh.lua",
+    "obj/variable_sh.lua",
+    
+    "obj/net/traits_sh.lua"
 })

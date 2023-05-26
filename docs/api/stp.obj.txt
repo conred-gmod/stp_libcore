@@ -210,7 +210,7 @@ namespace .Tracker = {
 }
 
 ------- Subobjects
--- Subobject can only be stored in one subobject container and only in one subobject slot.
+-- Subobject of one key can only be stored in one subobject container and only in one subobject slot.
 -- Subobject loops are not allowed.
 
 nonpubctor mixin(key: string) .SubobjectContainer {
@@ -258,3 +258,23 @@ nonpubctor mixin(key: string) .SubobjectStorable {
 fn .MakeSubobjectContainer(meta: metatable(.Instantiatable), key: string)
 -- Adds .SubobjectStorable(key) to meta
 fn .MakeSubobjectStorable(meta: metatable(.Instantiatable), key: string)
+
+------- Variables
+
+trait .VariableContainer {
+    require .Instantiatable
+    require .SubobjectContainer("Variable")
+}
+
+trait .Variable {
+    require .Instantiatable
+    require .SubobjectStorable("Variable")
+
+    doconly param type .TData
+
+    abstract fn :VariableInit(ctor_args: table) -> .TData
+    abstract fn :VariableGet() -> .TData
+    abstract fn :VariableSet(val: .TData)
+
+    hook :VariableOnSet(oldval: .TData, newval: .TData)
+}
