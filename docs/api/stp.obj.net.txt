@@ -40,7 +40,7 @@ SV namespace .restrictors {
 ------- Awareness
 
 SV namespace .awareness {
-    -- Do not keep references at that array
+    -- Do not keep references at that array, it is overwriten each ._Update
     readonly .Awareness: array({
         Object: .Networkable,
         Aware: CRecipientList, -- If this would be empty, entry is not added to array
