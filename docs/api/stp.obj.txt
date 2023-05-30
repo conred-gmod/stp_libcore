@@ -79,6 +79,11 @@ fn .CheckFullyRegistered(meta: metatable(.Object))
 fn .HookDefine(meta: metatable(.Object), keyname: string)
 fn .HookAdd(meta: metatable(.Object), keyname: string, valname: string, fn: fn(self, ...args))
 
+-- Final object registraiton will fail if field 'keyname' is not set anywhere.
+-- See stp.CheckType for type format.
+fn .MarkAbstract(meta: metatable(.Object), keyname: string, valtype: string | array(string))
+
+
 ------- Instantiatable Objects
 trait .Initializable {
     hook :Init(args: table)

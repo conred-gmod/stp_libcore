@@ -40,10 +40,8 @@ end
 function stp.CheckType(val, valname, allowed_types)
     if isstring(allowed_types) then allowed_types = {allowed_types} end
 
-    for _, allowed_ty in ipairs(allowed_types) do
-        if types[allowed_ty](val) then
-            return val
-        end
+    if stp.IsAnyType(val, allowed_types)
+        return val
     end
 
     error(ConcatToString({
@@ -57,6 +55,15 @@ function stp.IsType(val, type)
     if checker == nil then return false end
 
     return checker(val)
+end
+
+function stp.IsAnyType(val, types)
+    for _, ty in ipairs(types) do
+        if types[ty](val) then
+            return true 
+        end
+    end
+    return false
 end
 
 stp.RegisterType("nil", { IsInstance = function(v) return v == nil end})

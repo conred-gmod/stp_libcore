@@ -6,17 +6,9 @@ local VARCONT = LIB.BeginTrait("stp.obj.VariableContainer")
 LIB.MakeSubobjectStorable(VAR, "Variable")
 LIB.MakeSubobjectContainer(VARCONT, "Variable")
 
-function VAR:VariableInit()
-    stp.Error("Unimplemented!")
-end
-
-function VAR:VariableGet()
-    stp.Error("Unimplemented!")
-end
-
-function VAR:VariableSet(value)
-    stp.Error("Unimplemented!")
-end
+LIB.MarkAbstract(VAR, "VariableInit", "function")
+LIB.MarkAbstract(VAR, "VariableGet", "function")
+LIB.MarkAbstract(VAR, "VariableSet", "function")
 
 LIB.HookDefine(VAR, "VariableOnSet")
 

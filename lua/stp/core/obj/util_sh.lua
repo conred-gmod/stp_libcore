@@ -47,3 +47,31 @@ function LIB.CheckFullyRegistered(meta)
         stp.Error("Passed non-fully-registered ",meta)
     end
 end
+
+
+do
+    local MRG = "stp.core.obj.util.AbstractField"
+    local MRG_FIELD = "__abstract_fields"
+
+    LIB.MergerRegisterArray(MRG, function(meta, mrg_field, abstracts)
+        assert(mrg_field == MRG_FIELD)
+        if meta.IsTrait then return end
+
+        for _, pair in ipairs(abstracts) do
+            local key = pair.Key
+            local val = meta[key]
+            local tys = pair.Value
+
+            if not stp.IsAnyType(val, tys) then
+                stp.Error(meta,": abstract field '",key,"' has invalid type '",type(val),"',",
+                    " not ",table.concat(tys,"|"))
+            end
+        end
+    end)
+    
+    function LIB.MarkAbstract(meta, keyname, valtype)
+        if isstring(valtype) then valtype = { valtype } end
+
+        LIB.MergablesAdd(meta, MRG_FIELD, keyname, valtype)
+    end
+end

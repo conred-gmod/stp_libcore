@@ -33,5 +33,6 @@ fn .RegisterType(name: string, {
 })
 
 fn .IsType(val: any|nil, type: string) -> bool
+fn .IsAnyType(val: any|nil, types: array(string)) -> bool
 
 fn .ToString(val: any|nil, pretty_print: bool|nil = false) -> string
