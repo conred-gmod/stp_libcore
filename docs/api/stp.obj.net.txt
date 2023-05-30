@@ -75,6 +75,9 @@ trait .SendableRev {
 -- Note that this depends on .awareness global state
 internal fn ._Send(obj: .Sendable | .SendableRev)
 
+internal fn ._MarkDirty(obj: .Sendable | .SendableRev)
+
+--- ??? something meduim-level
 
 ------- High-level traits
 
@@ -83,6 +86,9 @@ struct .Schema {
     receive: fn(bytes_lef: uint) -> data: any|nil
 }
 
+-- Just a networkable variable (like ENTITY:NetworkVar)
+-- Stores it's value, transmits only when changed.
+-- When new player is connected, value is retransmitted
 trait .Var {
     doconly param type .TData;
 
@@ -92,11 +98,27 @@ trait .Var {
     abstract const .SCHEMA: .Schema
 }
 
-trait .VarRev {
+-- A server-to-client net message (like `net.Begin`/`net.Send(players)`).
+-- Can not be sent more than once a tick.
+-- Not retransmitted to newly-connected players
+trait .MsgUnbuffered {
     doconly param type .TData;
+    require .Sendable
 
-    require .obj.Variable({ TData = .TData })
+    abstract const .SCHEMA: .Schema
+
+    SV function :Send(data: .TData)
+    CL hook :OnReceived(data: .TData)
+}
+
+-- A client-to-server net message (like `net.Begin`/`net.SendToServer()`).
+-- Can not be sent more than once a tick.
+trait .MsgRevUnbuffered {
+    doconly param type .TData;
     require .SendableRev
 
     abstract const .SCHEMA: .Schema
+
+    CL function :Send(data: .TData)
+    SV hook :OnReceived(data: .TData)
 }
