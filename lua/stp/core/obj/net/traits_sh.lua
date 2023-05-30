@@ -23,9 +23,7 @@ function NETABLE:NetSetRestrictor(restrictor)
     NET.restrictor._Set(self, restrictor)
 end
 
-function NETABLE:NetGetRecipients(recip)
-    stp.Error("Unimplemented!")
-end
+OBJ.MarkAbstract(NETABLE, "NetGetRecipients", "function")
 
 OBJ.Register(NETABLE)
 NET.Networkable = NETABLE
