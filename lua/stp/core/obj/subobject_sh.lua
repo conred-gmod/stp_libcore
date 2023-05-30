@@ -28,7 +28,7 @@ function LIB.MakeSubobjectStorable(meta, key)
     meta["IsSubobj"..key.."Storable"] = true
 end
 
-local CONT = CONT or {}
+local CONT = {}
 CONT.__index = CONT
 
 local function MakeContainer(desc, owner, key)

@@ -25,7 +25,7 @@ function stp.ToString(val, pretty_print)
     return tostring(val)
 end
 
-local types = types or {}
+local types = stp.GetPersistedTable("stp.core.debug.Types", {})
 
 function stp.RegisterType(name, tbl)
     assert(isstring(name), "'name' is not a string")

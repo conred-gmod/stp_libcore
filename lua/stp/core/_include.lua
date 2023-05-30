@@ -63,6 +63,7 @@ function stp.IncludeModules(dir, module_name)
 end
 
 stp.IncludeList("stp/core/", {
+    "hotreload_sh.lua"
     "debug_sh.lua",
 
     "obj/registries_sh.lua",

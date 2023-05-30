@@ -1,5 +1,5 @@
 local LIB = stp.obj
-local TRK = TRK or {}
+local TRK = {}
 LIB.Tracker = TRK
 
 local ID_BITS_NET = 23
@@ -21,8 +21,8 @@ LIB.HookDefine(TRACKABLE, "OnPostUntracked")
 LIB.Register(TRACKABLE)
 LIB.Trackable = TRACKABLE
 
-local ObjectsNet = ObjectsNet or {}
-local ObjectsLocal = ObjectsLocal or {}
+local ObjectsNet = stp.GetPersistedTable("stp.core.obj.tracker.ObjectsNet", {})
+local ObjectsLocal = stp.GetPersistedTable("stp.core.obj.tracker.ObjectsLocal", {})
 
 function TRK._Track(obj, id)
     LIB.CheckFullyRegistered(obj)

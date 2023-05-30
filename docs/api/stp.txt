@@ -1,5 +1,9 @@
 namespace stp
 
+-- To be for tables that need to be persisted across hot reloads.
+-- Should only be called in root file scope (not in functions nor in hook handlers)
+fn .GetPersistedTable(name: string, default: table) -> table
+
 --[[
     File name:
     _cl = runs AddCSLuaFile, includes on client only

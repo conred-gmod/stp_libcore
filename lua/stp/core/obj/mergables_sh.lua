@@ -1,6 +1,6 @@
 local LIB = stp.obj
 
-local Mergers = Mergers or {}
+local Mergers = stp.GetPersistedTable("stp.core.obj.mergables.Mergers", {})
 
 local MergableSpecialFields = {
     ["MaxIdx"] = true,

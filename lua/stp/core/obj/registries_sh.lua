@@ -1,7 +1,7 @@
 local LIB = stp.obj
 
-local Metas = Metas or {}
-local Traits = Traits or {}
+local Metas = stp.GetPersistedTable("stp.core.obj.registries.Metas", {})
+local Traits = stp.GetPersistedTable("stp.core.obj.registries.Traits", {})
 
 local function ObjectToString(self)
     return "[stp_libcore Object '"..self.TypeName.."']"
