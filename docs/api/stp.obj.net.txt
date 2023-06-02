@@ -40,17 +40,17 @@ SV namespace .restrictors {
 ------- Awareness
 
 SV namespace .awareness {
-    -- Do not keep references at that array, it is overwriten each ._Update
-    readonly .Awareness: array({
+    -- Do not keep references at this array, it is overwriten each ._Update
+    readonly .NewlyAware: array({
         Object: .Networkable,
-        Aware: CRecipientList, -- If this would be empty, entry is not added to array
-        NewlyAware: array(Player),
-        Depth: uint
+        NewlyAware: array(Player)
     })
 
     internal fn ._Update()
 
     internal fn ._MarkAware(id: .obj.Tracker.Id, ply: Player)
+
+    internal fn ._GetRecipients(obj: .Networkable) -> CRecipientList | nil
 }
 
 ------- Low-level Sendable traits
@@ -59,32 +59,25 @@ SV namespace .awareness {
 trait .Sendable {
     require .Networkable
 
-    SV abstract fn :NetTransmit(bytes_left: uint)
-    CL abstract fn :NetReceive(bytes: uint)
+    SV abstract fn :NetTransmit()
+    CL abstract fn :NetReceive()
 }
 
 -- Has data to send to server
 trait .SendableRev {
     require .NetworkableRev
 
-    CL abstract fn :NetTransmit(bytes_left: uint)
-    SV abstract fn :NetReceive(bytes: uint)
+    CL abstract fn :NetTransmit()
+    SV abstract fn :NetReceive()
 }
 
--- Can only be called on side where :NetTransmit exists
--- Note that this depends on .awareness global state
-internal fn ._Send(obj: .Sendable | .SendableRev)
-
 internal fn ._MarkDirty(obj: .Sendable | .SendableRev)
+
+internal fn ._TransmitAll()
 
 --- ??? something meduim-level
 
 ------- High-level traits
-
-struct .Schema {
-    transmit: fn(data: any|nil, bytes_left: uint)
-    receive: fn(bytes_lef: uint) -> data: any|nil
-}
 
 -- Just a networkable variable (like ENTITY:NetworkVar)
 -- Stores it's value, transmits only when changed.
@@ -95,7 +88,7 @@ trait .Var {
     require .obj.Variable({ TData = .TData })
     require .Sendable
 
-    abstract const .SCHEMA: .Schema
+    abstract const .SCHEMA({ TData = .TData }): .Schema 
 }
 
 -- A server-to-client net message (like `net.Begin`/`net.Send(players)`).
@@ -105,7 +98,8 @@ trait .MsgUnbuffered {
     doconly param type .TData;
     require .Sendable
 
-    abstract const .SCHEMA: .Schema
+    abstract const .SCHEMA({ TData = .TData }): .Schema 
+
 
     SV function :Send(data: .TData)
     CL hook :OnReceived(data: .TData)
@@ -117,8 +111,65 @@ trait .MsgRevUnbuffered {
     doconly param type .TData;
     require .SendableRev
 
-    abstract const .SCHEMA: .Schema
+    abstract const .SCHEMA({ TData = .TData }): .Schema 
 
     CL function :Send(data: .TData)
     SV hook :OnReceived(data: .TData)
+}
+
+------- Standard Schemas
+
+namespace schema {
+    struct .Schema {
+        doconly param type .TData
+
+        transmit: fn(data: .TData)
+        receive: fn() -> .TData
+    }
+
+    -- All sizes are in bits
+
+    -- Size: (1 + string_length) * 8
+    var .String: .Schema({TData = string})
+
+    -- Size: 32
+    var .Float32: .Schema({TData = number})
+    -- Size: 64
+    var .Float64: .Schema({TData = number})
+
+    -- Size: 0 (transmits nothing, returns `defualt` on receive)
+    fn .Nothing_ReturnDefault(default: any|nil) -> .Schema({TData = typeof(default)})
+
+    -- Size: `bits` (transmits nothing and receives 0 when `bits` == 0)
+    fn .Int(bits: 0..32) -> .Schema({TData = int(bits) })
+    fn .UInt(bits: 0..32) -> .Schema({TData = uint(bits) })
+
+    -- Size: 1
+    var .Bool: .Schema({TData = bool})
+
+    -- Size: currently 16
+    var .Entity: .Schema({TData = Entity})
+    -- Size: depends on maximum amount of players on this server, 0..8 AFAIK
+    var .EntityPlayer: .Schema({TData = Player})
+
+    -- Size: ??
+    -- Not works for vectors with components outside of -16384..16384
+    var .VectorWorldPos: .Schema({TData = Vector})
+
+    -- Size: ??
+    -- Vector must have length of 1
+    ver .VectorUnit: .Schema({TData = Vector})
+
+    -- Size: ??
+    var .Angle: .Schema({TData = Angle})
+
+    -- Size: ??
+    var .Matrix4x4: .Schema({TData = Matrix})
+
+    -- Size: 24
+    -- Not transmits alpha, receives alpha of 255
+    var .ColorRGB: .Schema({TData = Color})
+
+    -- Size: 32
+    var .ColorRGBA: .Schema({TData = Color})
 }

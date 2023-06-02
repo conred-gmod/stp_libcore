@@ -1,7 +1,9 @@
 
 
 stp = stp or {
-    obj = { net = {} }
+    obj = { net = {
+        schema = {}
+    } }
 }
 
 local function IsLuaFile(filename)
@@ -76,6 +78,7 @@ stp.IncludeList("stp/core/", {
     "obj/variable_sh.lua",
     
     "obj/net/traits_sh.lua",
+    "obj/net/schema_sh.lua",
     "obj/net/restrictors_sv.lua",
     "obj/net/awareness_sv.lua",
     "obj/net/lowlevel_sh.lua",

@@ -257,6 +257,8 @@ nonpubctor mixin(key: string) .SubobjectStorable {
         readonly .SlotName: string,
         readonly .SlotId: uint
     }
+
+    
 }
 
 -- Adds .SubobjectContainer(key) to meta
