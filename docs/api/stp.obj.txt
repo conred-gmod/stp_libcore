@@ -90,13 +90,14 @@ trait .Initializable {
 }
 
 trait .Removable {
-    impl .Initializable
+    require .Initializable
 
     hook :OnPreRemove(cascaded: bool)
 }
 
 trait .Instantiatable {
-    impl .Removable
+    require .Removable
+    require .Initializable
 
     fn .Create(args: table) -> .Instantiatable
 
@@ -175,7 +176,7 @@ fn .MakeManager(
 
 ------- Trackable objects
 trait .Trackable {
-    impl .Instantiatable
+    require .Instantiatable
 
     const .IsTrackable: bool = true
     -- Id is nil while object is not tracked

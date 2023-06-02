@@ -183,9 +183,8 @@ end
 
 LIB.ReadNetworkableAny_FinalId = ReadStpObject_FinalId
 
-local function ReadStpObject(revnet)
-    local parent, id = ReadStpObject_FinalId(revnet)
 
+local function GetStpObject(parent, id, revnet)
     if parent == nil then
         return libobj.Tracker.Get(id)
     elseif revnet then
@@ -193,6 +192,15 @@ local function ReadStpObject(revnet)
     else
         return parent.SubobjNetwork.ById[id]
     end
+end
+
+stp.obj.net._GetNetworkableFromParentAndId = GetStpObject
+
+
+local function ReadStpObject(revnet)
+    local parent, id = ReadStpObject_FinalId(revnet)
+
+    return GetStpObject(parent, id, revnet)
 end
 
 LIB.StpNetworkable = {

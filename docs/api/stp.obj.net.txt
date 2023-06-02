@@ -60,6 +60,7 @@ trait .Sendable {
     require .Networkable
 
     SV abstract fn :NetTransmit()
+    SV abatract fn :NetIsUnreliable() -> bool
     CL abstract fn :NetReceive()
 }
 
@@ -68,7 +69,20 @@ trait .SendableRev {
     require .NetworkableRev
 
     CL abstract fn :NetTransmit()
-    SV abstract fn :NetReceive()
+    CL abatract fn :NetIsUnreliable() -> bool
+    SV abstract fn :NetReceive(sender: Player)
+}
+
+trait .Instantiatable {
+    require .NetworkableComposite
+
+    const .IsNetInstantiatable = true
+
+    SV abstract fn :NetTransmitInit()
+    CL abstract fn .NetReceiveInit() -> ctor_params: table
+
+    CL hook :Init(args: table) -- Clientside, object can only be constructed when init data received from server
+    CL hook :OnPreRemove(cascaded: bool) -- Clientside, non-cascaded remove can only be initiated by server 
 }
 
 internal fn ._MarkDirty(obj: .Sendable | .SendableRev)
@@ -114,10 +128,13 @@ trait .MsgRevUnbuffered {
     abstract const .SCHEMA({ TData = .TData }): .Schema 
 
     CL function :Send(data: .TData)
-    SV hook :OnReceived(data: .TData)
+    SV hook :OnReceived(data: .TData, sender: Player)
 }
 
 ------- Standard Schemas
+
+internal fn ._GetNetworkableFromParentAndId(parent: .NetworkableComposite|nil, id: uint, revnet: bool)
+    -> (revnet ? .NetworkableRev : .Networkable) | nil
 
 namespace schema {
     struct .Schema {
