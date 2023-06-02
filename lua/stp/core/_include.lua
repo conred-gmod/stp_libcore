@@ -11,7 +11,8 @@ end
 stp = stp or RemoveFalseValues({
     obj = { net = {
         schema = {},
-        restrictors = SERVER and {}
+        restrictors = SERVER and {},
+        awareness = SERVER and {}
     } }
 })
 
