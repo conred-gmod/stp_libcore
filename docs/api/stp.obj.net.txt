@@ -46,7 +46,7 @@ SV namespace .awareness {
 
     internal fn ._Update()
 
-    internal fn ._MarkAware(id: .obj.Tracker.Id, ply: Player)
+    internal fn ._MarkAware(id: .obj.Tracker.Id, plys: array(Player))
 
     internal fn ._GetRecipients(obj: .Networkable) -> CRecipientList | nil
 }

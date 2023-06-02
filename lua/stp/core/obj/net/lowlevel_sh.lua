@@ -204,6 +204,14 @@ local function TransmitSingle_Data(obj)
     return true
 end
 
+local TransmitSingle_Init
+if SERVER then
+    TransmitSingle_Init = function(obj, recip)
+        Net_SendInit(obj, recip)
+        libaware._MarkAware(obj, recip)  
+    end
+end
+
 function libn._TransmitAll()
     local cleaned = {}
 
@@ -211,7 +219,7 @@ function libn._TransmitAll()
         for _, data in ipairs(libaware.NewlyAware) do
             local obj = data.Objects
             
-            Net_SendInit(obj, data.NewlyAware)
+            TransmitSingle_Init(obj, data.NewlyAware)
 
             if TransmitSingle_Data(obj) then
                 DirtyObjects[obj] = nil
