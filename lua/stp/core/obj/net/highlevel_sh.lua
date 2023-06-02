@@ -78,3 +78,10 @@ end
 
 libo.Register(MSGF)
 libo.Register(MSGR)
+
+hook.Add("Tick", "stp.obj.net.DoAllStuff", function()
+    if SERVER then
+        libn.awareness._Update()
+    end
+    libn._TransmitAll()
+end)

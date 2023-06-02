@@ -90,8 +90,6 @@ end
 local OBJ_TRK_BITS = libobj.Tracker.ID_BITS_NET
 local OBJ_PARTS_BITS = 4
 
--- TODO: docs
-
 local function WriteStpObject(obj, revnet)
     if obj == nil then
         net.WriteUInt(0, OBJ_TRK_BITS)
