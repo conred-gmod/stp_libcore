@@ -32,8 +32,6 @@ SV namespace .restrictors {
     readonly .RestrictedByThis: table(
         restrictor: .obj.Tracker.Id, table(restricted: .obj.Traker.Id, true))
 
-    internal fn ._Update()
-
     internal fn ._Set(obj: .Networkable, restrictor: .Networkable|nil)
 }
 

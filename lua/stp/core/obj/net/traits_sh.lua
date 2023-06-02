@@ -1,9 +1,9 @@
-local OBJ = stp.obj
-local NET = stp.obj.net
+local libo = stp.obj
+local libn = stp.obj.net
 
-local NETABLE = OBJ.BeginTrait("stp.obj.net.Networkable")
-local NETREV = OBJ.BeginTrait("stp.obj.net.NetworkableRev")
-local NETCOMP = OBJ.BeginTrait("stp.obj.net.NetworkableComposite")
+local NETABLE = libo.BeginTrait("stp.obj.net.Networkable")
+local NETREV = libo.BeginTrait("stp.obj.net.NetworkableRev")
+local NETCOMP = libo.BeginTrait("stp.obj.net.NetworkableComposite")
 
 
 LIB.MakeSubobjectStorable(NETABLE, "Network")
@@ -17,20 +17,18 @@ function NETABLE:NetGetRestrictor()
 end
 
 function NETABLE:NetSetRestrictor(restrictor)
-    -- TODO: restrictor loop check
-
+    libn.restrictor._Set(self, restrictor)
     self.__net_restrictor = restrictor
-    NET.restrictor._Set(self, restrictor)
 end
 
-OBJ.MarkAbstract(NETABLE, "NetGetRecipients", "function")
+libo.MarkAbstract(NETABLE, "NetGetRecipients", "function")
 
-OBJ.Register(NETABLE)
-NET.Networkable = NETABLE
-OBJ.Register(NETREV)
-NET.NetworkableRev = NETREV
+libo.Register(NETABLE)
+libn.Networkable = NETABLE
+libo.Register(NETREV)
+libn.NetworkableRev = NETREV
 
 
 NETABLE(NETCOMP)
-OBJ.Register(NETCOMP)
-NET.NetworkableComposite = NETCOMP
+libo.Register(NETCOMP)
+libn.NetworkableComposite = NETCOMP

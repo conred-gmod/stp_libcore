@@ -1,10 +1,19 @@
+local function RemoveFalseValues(tbl)
+    local result = {}
+    
+    for k, v in pairs(tbl) do
+        if v ~= false then result[k] = RemoveFalseValues(v) end
+    end
 
+    return result
+end
 
-stp = stp or {
+stp = stp or RemoveFalseValues({
     obj = { net = {
-        schema = {}
+        schema = {},
+        restrictors = SERVER and {}
     } }
-}
+})
 
 local function IsLuaFile(filename)
     return string.EndsWith(filename, ".lua")
