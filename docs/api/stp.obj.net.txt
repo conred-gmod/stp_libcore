@@ -27,10 +27,10 @@ trait .NetworkableComposite {
 ------- Restrictors
 
 SV namespace .restrictors {
-    readonly .Unrestricted: table(.obj.Tracker.Id, true)
+    readonly .Unrestricted: table(.Networkable, true)
 
     readonly .RestrictedByThis: table(
-        restrictor: .obj.Tracker.Id, table(restricted: .obj.Traker.Id, true))
+        restrictor: .Networkable, table(restricted: .Networkable, true))
 
     internal fn ._Set(obj: .Networkable, restrictor: .Networkable|nil)
 }
@@ -38,17 +38,16 @@ SV namespace .restrictors {
 ------- Awareness
 
 SV namespace .awareness {
-    -- Do not keep references at this array, it is overwriten each ._Update
-    readonly .NewlyAware: array({
+    internal fn ._Update()
+
+    internal fn ._MarkAware(obj: .Networkable, plys: array(Player))
+
+    internal fn ._GetRecipients(obj: .Networkable) -> CRecipientList | nil
+
+    internal fn ._GetNewlyAware() -> array({
         Object: .Networkable,
         NewlyAware: array(Player)
     })
-
-    internal fn ._Update()
-
-    internal fn ._MarkAware(id: .obj.Tracker.Id, plys: array(Player))
-
-    internal fn ._GetRecipients(obj: .Networkable) -> CRecipientList | nil
 }
 
 ------- Low-level Sendable traits
