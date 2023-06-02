@@ -1,5 +1,8 @@
 local LIB = stp.obj
 local TRK = {}
+
+local Tracker_Untrack
+
 LIB.Tracker = TRK
 
 local ID_BITS_NET = 23
@@ -15,8 +18,8 @@ TRACKABLE.IsTrackable = true
 
 LIB.HookDefine(TRACKABLE, "OnPreTracked")
 LIB.HookDefine(TRACKABLE, "OnPostTracked")
-LIB.HookDefine(TRACKABLE, "OnPreUntracked")
-LIB.HookDefine(TRACKABLE, "OnPostUntracked")
+
+LIB.HookAdd(TRACKABLE, "OnRemove", TRACKABLE.TypeName, Tracker_Untrack)
 
 LIB.Register(TRACKABLE)
 LIB.Trackable = TRACKABLE
@@ -49,7 +52,7 @@ function TRK._Track(obj, id)
     hook.Run("stp.obj.Tracker.OnPostTracked", obj)
 end
 
-function TRK._Untrack(obj)
+Tracker_Untrack = function(obj)
     LIB.CheckFullyRegistered(obj)
     
     if not obj.IsTrackable then
@@ -59,18 +62,12 @@ function TRK._Untrack(obj)
     local id = obj.TrackId
     if id == nil then return end
 
-    hook.Run("stp.obj.Tracker.OnPreUntracked", obj)
-    obj:OnPreUntracked(obj)
-
     obj.TrackId = nil
     if id > 0 then
         ObjectsNet[id] = nil
     else
         ObjectsLocal[-id] = nil
     end
-
-    obj:OnPostUntracked(obj, id)
-    hook.Run("stp.obj.Tracker.OnPostUntracked", obj, id)
 end
 
 function TRK.GetAllNetworkable()

@@ -12,6 +12,7 @@ local REMOVABLE = LIB.BeginTrait("stp.obj.Removable")
 INITABLE(REMOVABLE)
 
 LIB.HookDeclare(INST, "OnPreRemove")
+LIB.HookDeclare(INST, "OnRemove")
 
 LIB.Register(REMOVABLE)
 LIB.Removable = REMOVABLE
@@ -45,6 +46,8 @@ function INST:Remove(cascaded)
     self:OnPreRemove(cascaded)
 
     self.___isValid = false
+
+    self:OnRemove(cascaded)
     hook.Run("stp.obj.PostRemoved", self, cascaded)
 end
 

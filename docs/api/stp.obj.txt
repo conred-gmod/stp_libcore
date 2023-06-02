@@ -93,6 +93,7 @@ trait .Removable {
     require .Initializable
 
     hook :OnPreRemove(cascaded: bool)
+    hook :OnRemove(cascaded: bool)
 }
 
 trait .Instantiatable {
@@ -185,9 +186,6 @@ trait .Trackable {
 
     hook :OnPreTracked(newid: .Tracker.Id)
     hook :OnPostTracked()
-
-    hook :OnPreUntracked()
-    hook :OnPostUntracked(oldid: .Tracker.Id)
 }
 
 namespace .Tracker = {
@@ -202,10 +200,6 @@ namespace .Tracker = {
     internal fn ._Track(obj: .Trackable, id: .Id)
     hook .OnPreTracked(obj: .Trackable, newid: .Tracker.Id)
     hook .OnPostTracked(obj: .Trackable)
-
-    internal fn ._Untrack(obj: .Trackable)
-    hook .OnPreUntracked(obj: .Trackable)
-    hook .OnPostUntracked(obj: .Trackable, oldid: .Tracker.Id)
 
     fn .Get(id: .Id|0) -> .Trackable|nil
 
