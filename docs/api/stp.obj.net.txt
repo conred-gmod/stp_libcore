@@ -152,6 +152,14 @@ namespace schema {
     -- Size: depends on maximum amount of players on this server, 0..8 AFAIK
     var .EntityPlayer: .Schema({TData = Player})
 
+    -- Size: depends
+    var .StpNetworkable: .Schema({TData = .Networkable})
+    var .StpNetworkableRev: .Schema({TData = .NetworkableRev})
+
+    -- Size: depends
+    fn .ReadNetworkableAny_FinalId(revnet: bool) -> owner: .NetworkableComposite|nil, id: pint
+
+
     -- Size: ??
     -- Not works for vectors with components outside of -16384..16384
     var .VectorWorldPos: .Schema({TData = Vector})

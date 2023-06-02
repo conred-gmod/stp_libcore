@@ -88,18 +88,33 @@ else
 end
 
 local OBJ_TRK_BITS = libobj.Tracker.ID_BITS_NET
-local OBJ_VARBITS_BITS = 8
+local OBJ_PARTS_BITS = 4
 
 -- TODO: docs
 
-local function WriteStpObject(obj)
+local function WriteStpObject(obj, revnet)
     if obj == nil then
         net.WriteUInt(0, OBJ_TRK_BITS)
         return
     end
     
     local data = {}
-    local varbits = 0
+
+    if (revnet and obj.SubobjNetworkRevOwner) or (not revnet and obj.SubobjNetworkOwner) then
+        if revnet then
+            data[1] = {
+                bits = obj.SubobjNetworkRevOwner.Owner.SubobjNetworkRevDesc.Bits,
+                data = obj.SubobjNetworkRevOwner.SlotId
+            }
+            obj = obj.SubobjNetworkRevOwner.Owner
+        else
+            data[1] = {
+                bits = obj.SubobjNetworkOwner.Owner.SubobjNetworkDesc.Bits,
+                data = obj.SubobjNetworkOwner.SlotId
+            }
+            obj = obj.SubobjNetworkOwner.Owner
+        end
+    end
 
     while true do
         local ownerdata = obj.SubobjNetworkOwner
@@ -108,11 +123,12 @@ local function WriteStpObject(obj)
             break
         else
             local bits = ownerdata.Owner.SubobjNetworkDesc.Bits
-            varbits = varbits + bits
             table.insert(data, {
                 bits = bits,
-                data = ownerdata.SlotId - 1
+                data = ownerdata.SlotId
             })
+
+            obj = ownerdata.Owner
         end
     end
 
@@ -120,25 +136,25 @@ local function WriteStpObject(obj)
     data = table.Reverse(data) -- TODO: reverse in place
 
     net.WriteUInt(rootid, OBJ_TRK_BITS)
-    net.WriteUInt(varbits, OBJ_VARBITS_BITS)
+    net.WriteUInt(#data, OBJ_PARTS_BITS)
 
     for _, pair in ipairs(data) do
         if pair.bits ~= 0 then
-            net.WriteUInt(pair.data, pair.bits)
+            net.WriteUInt(pair.data - 1, pair.bits)
         end
     end
 end
 
-local function ReadStpObject()
+local function ReadStpObject_FinalId(revnet)
     local root = net.ReadUInt(OBJ_TRK_BITS)
     if root == 0 then return nil end
     
     local obj = libobj.Tracker.Get(root)
-    assert(obj ~= nil)
-
-    local varbits = net.ReadUInt(OBJ_VARBITS_BITS)
     
-    while varbits ~= 0 do
+    local subobj_count = net.ReadUInt(OBJ_PARTS_BITS)
+    if obj == nil or subobj_count == 0 then return nil, root end
+
+    for i = 1, subobj_count - 1 do
         local objbits = obj.SubobjNetworkDesc.Bits
         local subid = 1
         if objbits ~= 0 then
@@ -146,16 +162,48 @@ local function ReadStpObject()
         end
 
         obj = obj.SubobjNetwork.ById[subid]
+        assert(obj ~= nil)
     end
+
+    local subid = 1
+    local bits
+    if revnet then
+        bits = obj.SubobjNetworkRevDesc.Bits
+    else
+        bits = obj.SubobjNetworkDesc.Bits
+    end
+
+    if bits ~= 0 then
+        subid = net.ReadUInt(objbits) + 1
+    end
+
     
-    return obj
+    return obj, subid
 end
 
-LIB.StpObject = {
-    transmit = WriteStpObject
-    receive = ReadStpObject
+LIB.ReadNetworkableAny_FinalId = ReadStpObject_FinalId
+
+local function ReadStpObject(revnet)
+    local parent, id = ReadStpObject_FinalId(revnet)
+
+    if parent == nil then
+        return libobj.Tracker.Get(id)
+    elseif revnet then
+        return parent.SubobjNetworkRev.ById[id]
+    else
+        return parent.SubobjNetwork.ById[id]
+    end
+end
+
+LIB.StpNetworkable = {
+    transmit = function(obj) WriteStpObject(obj, false) end
+    receive = function() return ReadStpObject(false) end
 }
 
+LIB.StpNetworkableRev = {
+    transmit = function(obj) WriteStpObject(obj, true) end,
+    receive = function() return ReadStpObject(true) end
+}
 
 ---
 
