@@ -99,4 +99,10 @@ hook.Add("PlayerDisconnected", "stp.obj.net.awareness", function(ply)
     end
 end)
 
-hook.Add -- TODO: object created, object removed
+hook.Add("stp.obj.PreRemove", "stp.obj.net.awareness", function(obj)
+    AwarePlys[obj] = nil
+end)
+
+hook.Add("stp.obj.Tracker.OnPostTracked", "stp.obj.net.awareness", function(obj)
+    AwarePlys[obj] = {}
+end)
