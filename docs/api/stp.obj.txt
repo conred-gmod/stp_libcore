@@ -66,7 +66,17 @@ fn .MergerRegisterArray(name: string, fn: fn(
 
 
 ------- Utilities
+interface .NestedObject {
+    require .Object
+
+    const .PostfixName: string
+    const .OwnerType: metatable(.Object)
+}
+
 fn .ApplyMany(target: metatable(.Object), callables: ...false | fn(meta: metatable(.Object))) -> metatable(.Object)
+
+fn .ConstructNestedType(target: metatable(.Object), name_postfix: string, 
+    callables: ...false | fn(metatable(.NestedObject))) -> metatable(.NestedObject)
 
 merger CallInOrder_Member
 -- values should be fn(self, ...args)

@@ -10,6 +10,19 @@ function LIB.ApplyMany(target, ...)
     return target
 end
 
+function LIB.ConstructNestedType(owner, postfix, ...)
+    local typename = owner.TypeName.."."..postfix
+
+    local META = LIB.BeginObject(typename)
+    META.PostfixName = postfix
+    META.OwnerType = owner
+
+    LIB.ApplyMany(META, ...)
+
+    LIB.Register(META)
+    return META
+end
+
 LIB.MergerRegisterArray("CallInOrder_Member", function(meta, key, values)
     local fns = {} -- Hope this will get inlined
     for i, pair in ipairs(values) do
