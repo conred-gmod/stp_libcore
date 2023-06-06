@@ -133,7 +133,7 @@ function libyour.Create(counter_value)
     -- Ф-я создания сама бросает ошибку, но тут добавил для наглядности.
     assert(SERVER) 
 
-    assert(counter_value > 0, "Counter value is not nonnegative")
+    assert(counter_value >= 0, "Counter value is not nonnegative")
 
     local obj = META.Create({
         SomeCounterName = counter_value
