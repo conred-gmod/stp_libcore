@@ -284,9 +284,60 @@ trait .Variable {
 
     doconly param type .TData
 
+    -- Extracts needed 
     abstract fn :VariableInit(ctor_args: table) -> .TData
     abstract fn :VariableGet() -> .TData
     abstract fn :VariableSet(val: .TData)
 
     hook :VariableOnSet(oldval: .TData, newval: .TData)
+}
+
+trait .VariableField {
+    require .Variable
+
+    impl fn :VariableGet() -> .TData
+    impl fn :VariableSet(val: .TData)
+}
+
+-- If parentmeta == nil, `varmeta` must be a `.NestedObject`, than parentmeta = varmeta.OwnerType
+-- Adds `var .Owner: typeof(parentmeta)`
+fn .MakeVariableAttached(varmeta: metatable(.Variable), parentmeta: metatable(.VariableContainer) | nil)
+
+-- Adds .VariableField, calls .MakeVariableAttached
+fn .MakeVariableField(meta: metatable(.NestedObject))
+
+
+fn .MakeVariableAccessors(getter: string|nil|false, setter: string|nil|false, listener: string|nil|false)
+    -> mixin {
+        require .Variable
+        require .NestedObject
+
+        if getter ~= nil and getter ~= false {
+            fn .NestedObject.OwnerType:{getter}() -> .Variable.TData
+        }
+
+        if setter ~= nil and setter ~= false {
+            fn .NestedObject.OwnerType:{setter}(value: .Variable.TData)
+        }
+
+        if listener ~= nil and listener ~= false {
+            abstract fn .NestedObject.OwnerType:{listener}(oldval: .Variable.TData, newval: .Variable.TData)
+        }
+    }
+
+
+-- If you want to add custom initialization logic, implement .Variable:VariableInit yourself
+
+fn .VariableRequireInit(ctorkey: string) -> mixin {
+    require .Variable
+
+    -- Errors if `ctor_args[ctorkey] == nil`
+    impl fn :VariableInit(ctor_args: table) -> .Variable.TData
+}
+
+fn .VariableDefault(default: mixin.Variable.TData) -> mixin: mixin {
+    require .Variable
+
+    -- Not cares about ctor_args, always returns `default`
+    impl fn :VariableInit(ctor_args: table) -> .Variable.TData
 }

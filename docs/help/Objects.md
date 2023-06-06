@@ -96,13 +96,13 @@ function META:NetGetRecipients(recip)
 end
 
 libo.ConstructNestedType(META, "SomeCounterName", -- Type name is `META.TypeName..".".."VariableName"`
-    libo.VariableField, 
+    libo.MakeVariableField, 
     libo.MakeVariableAccessors(
         "GetSomeCounterName", 
         SERVER and "SetSomeCounterName", -- Булев тип тут эквивалентен nil - соотв. функция не будет создана
         "OnSomeCounterNameChanged")
 
-    SERVER and libo.VariableRequireInit, -- This will be used only on server...
+    SERVER and libo.VariableRequireInit(), -- This will be used only on server...
     CLIENT and libo.VariableDefault(0), -- ...and this - only on client
 
     libn.MakeVar(libn.schema.UInt(16)),
