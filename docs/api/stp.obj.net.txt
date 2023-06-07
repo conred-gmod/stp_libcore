@@ -78,6 +78,7 @@ trait .SendableRev {
 
 trait .Instantiatable {
     require .NetworkableComposite
+    require .TrackableNetworked
 
     const .IsNetInstantiatable = true
 

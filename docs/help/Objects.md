@@ -9,7 +9,7 @@ local libo = stp.obj
 
 local META = libo.BeginObject("your.namespace.ObjectName")
 libo.ApplyMany(META,
-    libo.Instantiatable -- Или libo.Trackable, если нужна возможность получить по универсальному ID
+    libo.Instantiatable -- Или libo.TrackableLocal, если нужна возможность получить по универсальному ID
 )
 
 function META:DoStuff()
@@ -86,7 +86,7 @@ local libn = stp.obj.net
 
 local META = libo.BeginObject("your.namespace.YourObjectName")
 libo.ApplyMany(META,
-    libn.Networkable
+    libn.Instantiatable
     -- Your traits here
 )
 
