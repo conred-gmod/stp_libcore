@@ -1,34 +1,34 @@
-local LIB = stp.obj
-local TRK = {}
+local libo = stp.obj
+local libtrack = {}
 
 local Tracker_Untrack
 
-LIB.Tracker = TRK
+libo.Tracker = libtrack
 
 local ID_BITS_NET = 23
-TRK.ID_BITS_NET = ID_BITS_NET
+libtrack.ID_BITS_NET = ID_BITS_NET
 local ID_MAX = bit.lshift(1, ID_BITS_NET) - 1
-TRK.ID_MAX = ID_MAX
+libtrack.ID_MAX = ID_MAX
 local ID_MIN = -bit.lshift(1, ID_BITS_NET)
-TRK.ID_MIN = ID_MIN
+libtrack.ID_MIN = ID_MIN
 
-local TRACKABLE = LIB.BeginTrait("stp.obj.Trackable")
-LIB.Instantiatable(TRACKABLE)
-TRACKABLE.IsTrackable = true
+local TRK = libo.BeginTrait("stp.obj.Trackable")
+libo.Instantiatable(TRK)
+TRK.IsTrackable = true
 
-LIB.HookDefine(TRACKABLE, "OnPreTracked")
-LIB.HookDefine(TRACKABLE, "OnPostTracked")
+libo.HookDefine(TRK, "OnPreTracked")
+libo.HookDefine(TRK, "OnPostTracked")
 
-LIB.HookAdd(TRACKABLE, "OnRemove", TRACKABLE.TypeName, Tracker_Untrack)
+libo.HookAdd(TRK, "OnRemove", TRK.TypeName, Tracker_Untrack)
 
-LIB.Register(TRACKABLE)
-LIB.Trackable = TRACKABLE
+libo.Register(TRK)
+libo.Trackable = TRK
 
 local ObjectsNet = stp.GetPersistedTable("stp.core.obj.tracker.ObjectsNet", {})
 local ObjectsLocal = stp.GetPersistedTable("stp.core.obj.tracker.ObjectsLocal", {})
 
-function TRK._Track(obj, id)
-    LIB.CheckFullyRegistered(obj)
+local function _Track(obj, id)
+    libo.CheckFullyRegistered(obj)
 
     if not obj.IsTrackable then
         stp.Error(obj," is not trackable")
@@ -53,7 +53,7 @@ function TRK._Track(obj, id)
 end
 
 Tracker_Untrack = function(obj)
-    LIB.CheckFullyRegistered(obj)
+    libo.CheckFullyRegistered(obj)
     
     if not obj.IsTrackable then
         stp.Error(obj," is not trackable")
@@ -70,15 +70,15 @@ Tracker_Untrack = function(obj)
     end
 end
 
-function TRK.GetAllNetworkable()
+function libtrack.GetAllNetworkable()
     return ObjectsNet
 end
 
-function TRK.GetAllLocal()
+function libtrack.GetAllLocal()
     return ObjectsLocal
 end
 
-function TRK.Get(id)
+function libtrack.Get(id)
     if id > 0 then
         return ObjectsNet[id]
     else
@@ -86,7 +86,7 @@ function TRK.Get(id)
     end
 end
 
-function TRK.IsNetworkable(arg)
+function libtrack.IsNetworkable(arg)
     local id = arg
     if istable(arg) then
         id = arg.IsNetworkable
@@ -94,3 +94,7 @@ function TRK.IsNetworkable(arg)
 
     return id > 0
 end
+
+
+
+local TRKL = libo.BeginTrait("stp.obj.Track")

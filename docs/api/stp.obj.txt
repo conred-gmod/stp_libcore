@@ -210,6 +210,16 @@ trait .Trackable {
     hook :OnPostTracked()
 }
 
+trait .TrackableLocal {
+    require .Trackable
+
+    -- Tracks object on creation. For non-networkable objects
+}
+
+trait .TrackableNetworked {
+
+}
+
 namespace .Tracker = {
     -- Positive IDs are for networkable (shared) objects,
     -- Negative - for local (client-only or server-only) objects
