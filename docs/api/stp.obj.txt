@@ -93,6 +93,18 @@ fn .HookAdd(meta: metatable(.Object), keyname: string, valname: string, fn: fn(s
 -- See stp.CheckType for type format.
 fn .MarkAbstract(meta: metatable(.Object), keyname: string, valtype: string | array(string))
 
+fn .MakeAttached(accessor: string) -> mixin {
+    require .NestedObject
+
+    var .Owner: .NestedObject.OwnerType
+    -- Object is created on creation of owner object and removed after it's removal
+
+
+    -- Modify `attach_params` here
+    hook .FillInitParams(owner_params: table, attach_params: table)
+
+    fn .NestedObject.OwnerType:{accessor}() -> self
+}
 
 ------- Instantiatable Objects
 trait .Initializable {

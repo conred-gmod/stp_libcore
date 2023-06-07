@@ -47,21 +47,21 @@ function libo.MakeVariableAttached(varmeta, parentmeta)
 
     local vartyname = varmeta.TypeName
 
-    libo.HookAdd(parentmeta, "Init", "attach_"..vartyname, function(self, param)    
-        local var = varmeta.Create()
-        var:VariableSet(var:VariableInit(param))
-        var.Owner = self
-
-        self.SubobjVariable:SetByName(vartyname, var)
+    local accessorname = "__Get"..vartyname
+    libo.MakeAttached(accessorname)(varmeta)
+    
+    libo.HookAdd(varmeta, "FillInitParams", "stp.obj.MakeVariableAttached", function(owner_params, attach_params)
+        attach_params.VarInit = owner_params
     end)
 
-    libo.HookAdd(parentmeta, "OnRemove", "remove_"..vartyname, function(self)
-        local var = self.SubobjVariable.ByName[vartyname]
-        assert(IsValid(var))
 
-        var:Remove(true) -- Cascaded?
-        var.Owner = nil
-        self.SubobjVariable:SetByName(vartyname, nil)
+    libo.HookAdd(varmeta, "Init", "stp.obj.MakeVariableAttached", function(self, param)    
+        self:VariableSet(self.VariableInit(param.VarInit))
+        self.Owner.SubobjVariable:SetByName(vartyname, self)
+    end)
+
+    libo.HookAdd(parentmeta, "OnRemove", "stp.obj.MakeVariableAttached", function(self)
+        self.Owner.SubobjVariable:SetByName(vartyname, nil)
     end)
 
     parentmeta:RegisterSubobjVariable(vartyname)
