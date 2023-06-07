@@ -10,7 +10,13 @@ trait .Networkable {
     SV fn :NetGetRestrictor() -> .Networkable|nil
     SV fn :NetSetRestrictor(restr: .Networkable|nil)
 
-    SV abstract fn NetGetRecipients(recip: CRecipientList)
+    SV abstract fn .NetGetRecipients(recip: CRecipientList)
+}
+
+fn .MakeRecipientEveryone(meta: metatable(.Networkable)) -> mixin {
+    SV impl fn .NetGetRecipients(recip: CRecipientList) {
+        recip:AddAllPlayers() -- Just like that
+    }
 }
 
 -- Can be sent to server from client
@@ -99,7 +105,13 @@ trait .Var {
     require .obj.Variable({ TData = .TData })
     require .Sendable
 
-    abstract const .SCHEMA({ TData = .TData }): .Schema 
+    abstract const .SCHEMA: .Schema({ TData = .TData })
+}
+
+fn .MakeVar(schema: .Schema({ TData = mixin.Var.TData})) -> mixin: mixin {
+    require .Var
+
+    impl const .SCHEMA = schema
 }
 
 -- A server-to-client net message (like `net.Begin`/`net.Send(players)`).
@@ -109,12 +121,14 @@ trait .MsgUnbuffered {
     doconly param type .TData;
     require .Sendable
 
-    abstract const .SCHEMA({ TData = .TData }): .Schema 
+    abstract const .SCHEMA: .Schema({ TData = .TData })
 
 
     SV function :Send(data: .TData)
     CL hook :OnReceived(data: .TData)
 }
+
+
 
 -- A client-to-server net message (like `net.Begin`/`net.SendToServer()`).
 -- Can not be sent more than once a tick.
@@ -122,7 +136,7 @@ trait .MsgRevUnbuffered {
     doconly param type .TData;
     require .SendableRev
 
-    abstract const .SCHEMA({ TData = .TData }): .Schema 
+    abstract const .SCHEMA: .Schema({ TData = .TData })
 
     CL function :Send(data: .TData)
     SV hook :OnReceived(data: .TData, sender: Player)

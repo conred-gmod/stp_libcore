@@ -26,6 +26,15 @@ end
 
 libo.Register(VARF)
 
+function libn.MakeVar(schema)
+    return function(varmeta)
+        libo.CheckNotFullyRegistered(varmeta)
+
+        VARF(varmeta)
+        varmeta.SCHEMA = schema
+    end
+end
+
 
 
 
@@ -78,10 +87,3 @@ end
 
 libo.Register(MSGF)
 libo.Register(MSGR)
-
-hook.Add("Tick", "stp.obj.net.DoAllStuff", function()
-    if SERVER then
-        libn.awareness._Update()
-    end
-    libn._TransmitAll()
-end)

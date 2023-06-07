@@ -93,4 +93,6 @@ stp.IncludeList("stp/core/", {
     "obj/net/awareness_sv.lua",
     "obj/net/lowlevel_sh.lua",
     "obj/net/highlevel_sh.lua",
+
+    "enginehooks_sh.lua" -- Must be close to end
 })
