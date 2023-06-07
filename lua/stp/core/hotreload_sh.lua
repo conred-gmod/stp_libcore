@@ -3,7 +3,7 @@ local LIB = stp
 local function UnlockPersistData()
     __stp_persistdata_unlocked = true
 
-    local HOOK_NAME = "stp.core.hotreload.PersistTableLock"
+    local HOOK_NAME = "stp.hotreload.PersistTableLock"
 
     hook.Add("Tick", HOOK_NAME, function()
         __stp_persistdata_unlocked = false
@@ -16,7 +16,7 @@ end
 __stp_persistdata = __stp_persistdata or {}
 
 UnlockPersistData()
-hook.Add("OnReloaded", "stp.core.hotreload.PersistTableUnlock", UnlockPersistData)
+hook.Add("OnReloaded", "stp.hotreload.PersistTableUnlock", UnlockPersistData)
 
 
 function LIB.GetPersistedTable(name, default)

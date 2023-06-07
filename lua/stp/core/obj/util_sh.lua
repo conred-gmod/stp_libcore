@@ -63,7 +63,7 @@ end
 
 
 do
-    local MRG = "stp.core.obj.util.AbstractField"
+    local MRG = "stp.obj.util.AbstractField"
     local MRG_FIELD = "__abstract_fields"
 
     libo.MergerRegisterArray(MRG, function(meta, mrg_field, abstracts)

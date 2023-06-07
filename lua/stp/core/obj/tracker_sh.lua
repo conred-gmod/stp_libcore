@@ -24,8 +24,8 @@ libo.HookAdd(TRK, "OnRemove", TRK.TypeName, Tracker_Untrack)
 libo.Register(TRK)
 libo.Trackable = TRK
 
-local ObjectsNet = stp.GetPersistedTable("stp.core.obj.tracker.ObjectsNet", {})
-local ObjectsLocal = stp.GetPersistedTable("stp.core.obj.tracker.ObjectsLocal", {})
+local ObjectsNet = stp.GetPersistedTable("stp.obj.tracker.ObjectsNet", {})
+local ObjectsLocal = stp.GetPersistedTable("stp.obj.tracker.ObjectsLocal", {})
 
 local function _Track(obj, id)
     libo.CheckFullyRegistered(obj)
