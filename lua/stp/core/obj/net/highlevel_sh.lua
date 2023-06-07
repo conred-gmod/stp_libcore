@@ -87,3 +87,55 @@ end
 
 libo.Register(MSGF)
 libo.Register(MSGR)
+
+local function GetAccessorName(msgmeta)
+    return "__message_"..msgmeta.TypeName
+end
+
+local function MakeGenericMsg(trait, schema)
+    return function(msgmeta)
+        libo.MakeAttached(GetAccessorName(msgmeta))(msgmeta)
+
+        trait(msgmeta)
+        msgmeta.SCHEMA = schema
+    end
+end
+
+function libo.MakeMsgFwd(schema, buffered)
+    assert(buffered == false, "Buffered messages are not supported yet")
+
+    return MakeGenericMsg(MSGF, schema)
+end
+
+function libo.MakeMsgRev(schema, buffered)
+    assert(buffered == false, "Buffered messages are not supported yet")
+
+    return MakeGenericMsg(MSGR, schema)
+end
+
+function libo.MakeMsgAccessors(send, receiver)
+    return function(msgmeta)
+        libo.CheckNotFullyRegistered(msgmeta)
+
+        local ownermeta = msgmeta.OwnerType
+        assert(ownermeta ~= nil)
+        libo.CheckNotFullyRegistered(ownermeta)
+
+        local msg_accessor = GetAccessorName(msgmeta)
+
+        if msgmeta.Send ~= nil then
+            ownermeta[send] = function(self, data)
+                local msg = self[msg_accessor](self)
+
+                msg:Send(data)
+            end
+        else
+            libo.MarkAbstract(ownermeta, receiver, "function")
+
+            libo.HookAdd(msgmeta, "OnReceived", function(self, data, sender)
+                local owner = self.Owner
+                owner[receiver](owner, data, receiver)
+            end)
+        end
+    end
+end

@@ -128,7 +128,11 @@ trait .MsgUnbuffered {
     CL hook :OnReceived(data: .TData)
 }
 
+fn .MakeMsgFwd(schema: .Schema({ TData = mixin.MsgUnbuffered.TData}), buffered: false) -> mixin: mixin {
+    require .MsgUnbuffered
 
+    impl const .SCHEMA = schema
+}
 
 -- A client-to-server net message (like `net.Begin`/`net.SendToServer()`).
 -- Can not be sent more than once a tick.
@@ -140,6 +144,24 @@ trait .MsgRevUnbuffered {
 
     CL function :Send(data: .TData)
     SV hook :OnReceived(data: .TData, sender: Player)
+}
+
+fn .MakeMsgRev(schema: .Schema({ TData = mixin.MsgRevUnbuffered.TData}), buffered: false) -> mixin: mixin {
+    require .MsgRevUnbuffered
+
+    impl const .SCHEMA = schema
+}
+
+fn .MakeMsgAccessors(send: string, receiver: string) -> mixin {
+    require .MsgUnbuffered | .MsgRevUnbuffered as MsgTrait
+    require .MakeMsgFwd.mixin | .MakeMsgRev.mixin
+
+    if SIDE == side(MsgTrait.Send) {
+        fn .MsgTrait.OwnerType:{send}(data: .MsgTrait.TData)
+    } else {
+        -- sender is not-nil if MsgTrait == .MsgRevUnbuffered, else it is always nil
+        abstract fn .MsgTrait.OwnerType:{receiver}(data: .MsgTrait.TData, sender: Player|nil)
+    }
 }
 
 ------- Standard Schemas
