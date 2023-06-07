@@ -3,6 +3,8 @@ local LIB = stp.obj
 local INITABLE = LIB.BeginTrait("stp.obj.Initializable")
 
 LIB.HookDeclare(INITABLE, "Init")
+LIB.HookDeclare(INITABLE, "PostInit")
+
 
 LIB.Register(INITABLE)
 LIB.Initializable = INITABLE
@@ -31,6 +33,7 @@ function INST.Create(args)
     hook.Run("stp.obj.PreInit", instance, args)
     instance:Init(args)
     instance.___isValid = true
+    instance:PostInit(args)
     hook.Run("stp.obj.PostInit",instance, args)
 
 

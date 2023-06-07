@@ -1,8 +1,6 @@
 local libo = stp.obj
 local libtrack = {}
 
-local Tracker_Untrack
-
 libo.Tracker = libtrack
 
 local ID_BITS_NET = 23
@@ -12,22 +10,10 @@ libtrack.ID_MAX = ID_MAX
 local ID_MIN = -bit.lshift(1, ID_BITS_NET)
 libtrack.ID_MIN = ID_MIN
 
-local TRK = libo.BeginTrait("stp.obj.Trackable")
-libo.Instantiatable(TRK)
-TRK.IsTrackable = true
-
-libo.HookDefine(TRK, "OnPreTracked")
-libo.HookDefine(TRK, "OnPostTracked")
-
-libo.HookAdd(TRK, "OnRemove", TRK.TypeName, Tracker_Untrack)
-
-libo.Register(TRK)
-libo.Trackable = TRK
-
 local ObjectsNet = stp.GetPersistedTable("stp.obj.tracker.ObjectsNet", {})
 local ObjectsLocal = stp.GetPersistedTable("stp.obj.tracker.ObjectsLocal", {})
 
-local function _Track(obj, id)
+local function Track(obj, id)
     libo.CheckFullyRegistered(obj)
 
     if not obj.IsTrackable then
@@ -52,7 +38,15 @@ local function _Track(obj, id)
     hook.Run("stp.obj.Tracker.OnPostTracked", obj)
 end
 
-Tracker_Untrack = function(obj)
+local function GenerateIdLocal()
+    return -table.SeqCount(ObjectsLocal) - 1
+end
+
+local function GenerateIdNet()
+    return table.SeqCount(ObjectsNet) + 1
+end
+
+local function Untrack(obj)
     libo.CheckFullyRegistered(obj)
     
     if not obj.IsTrackable then
@@ -96,5 +90,43 @@ function libtrack.IsNetworkable(arg)
 end
 
 
+local TRK = libo.BeginTrait("stp.obj.Trackable")
+libo.Instantiatable(TRK)
+TRK.IsTrackable = true
 
-local TRKL = libo.BeginTrait("stp.obj.Track")
+libo.HookDefine(TRK, "OnPreTracked")
+libo.HookDefine(TRK, "OnPostTracked")
+
+libo.HookAdd(TRK, "OnRemove", TRK.TypeName, Tracker_Untrack)
+
+libo.Register(TRK)
+libo.Trackable = TRK
+
+
+
+local TRKL = libo.BeginTrait("stp.obj.TrackableLocal")
+TRK(TRKL)
+
+libo.HookAdd(TRKL, "PostInit", TRKL.TypeName, function(self)
+    Track(self, GenerateIdLocal())
+end)
+
+libo.Register(TRKL)
+libo.TrackableLocal = TRKL
+
+local TRKN = libo.BeginTrait("stp.obj.TrackableNetworked")
+TRK(TRKN)
+
+TRKN.IsTrackableNet = true
+
+libo.HookAdd(TRKN, "PostInit", TRKN.TypeName, function(self, params)
+    local id = params.TrackId
+    if SERVER then
+        id = GenerateIdNet()
+    else
+        assert(isnumber(id) and id > 0)
+    end
+
+    Track(self, id)
+end)
+libo.TrackableNetworked = TRKN

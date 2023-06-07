@@ -33,7 +33,10 @@ libn.SendableRev = SENDREV
 
 local INST = libo.BeginTrait("stp.obj.net.Instantiatable")
 
-libn.NetworkableComposite(INST)
+libo.ApplyMany(INST,
+    libn.NetworkableComposite,
+    libo.TrackableNetworked
+)
 
 if SERVER then
     libo.MarkAbstract(INST, "NetTransmitInit", "function")
@@ -154,11 +157,15 @@ end)
 if CLIENT then
     Net_RecvCreate = function(parentobj, id, meta, params)
         params.__InitFromNetwork = true
+
+        if meta.IsTrackableNet then 
+            assert(parentobj == nil)
+            params.TrackId = id
+        end
+
         local obj = meta.Create(params)
 
-        if parentobj == nil then
-            libo._Track(obj, id)
-        else
+        if parentobj ~= nil then
             parentobj.SubobjNetwork:SetById(id, obj)
         end
     end

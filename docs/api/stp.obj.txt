@@ -109,6 +109,7 @@ fn .MakeAttached(accessor: string) -> mixin {
 ------- Instantiatable Objects
 trait .Initializable {
     hook :Init(args: table)
+    hook :PostInit(args: table)
 }
 
 trait .Removable {
@@ -217,7 +218,13 @@ trait .TrackableLocal {
 }
 
 trait .TrackableNetworked {
+    require .Trackable
 
+    const .IsTrackableNet: bool = true
+
+    CL ctorparam .TrackId: .Tracker.Id
+
+    -- Tracks object on creation. Clientside, `.TrackId` is required
 }
 
 namespace .Tracker = {

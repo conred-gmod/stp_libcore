@@ -131,7 +131,7 @@ local function WriteStpObject(obj, revnet)
     end
 
     local rootid = table.remove(data)
-    data = table.Reverse(data) -- TODO: reverse in place
+    table.ReverseInplace(data)
 
     net.WriteUInt(rootid, OBJ_TRK_BITS)
     net.WriteUInt(#data, OBJ_PARTS_BITS)
