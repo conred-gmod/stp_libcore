@@ -1,0 +1,27 @@
+namespace stp.db;
+
+trait .Database {
+    
+}
+
+
+trait .ObjectManager {
+    doconly param type .TObject: .Object
+    
+    const .TABLE_NAME: string
+
+    fn :Create(values: table) -> .TObject
+    fn :Get(id: .TObject.Id) -> .TObject | nil
+}
+
+fn .RegisterObjectManager(mgr: .ObjectManager)
+
+trait .Object {
+    doconly param type .Id
+
+    fn :IsValid() -> bool
+
+    fn :Unload()
+
+    -- query :Save(), :Remove()
+}
