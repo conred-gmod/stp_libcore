@@ -1,27 +1,27 @@
 namespace stp.db;
 
-trait .Database {
+-- Schemas
+
+type .TableSchema = {
+    var .IsTrait: bool
+    var .Parent: nil | .TableSchema -- nil if .IsTrait == true, if not nil, .Parent.IsTrait must be == true
+
     
 }
 
+-- Lua-storage internals
 
-trait .ObjectManager {
-    doconly param type .TObject: .Object
-    
-    const .TABLE_NAME: string
+internal struct ._LuaRow {
+    -- Most of stuff is specified in schema of table
 
-    fn :Create(values: table) -> .TObject
-    fn :Get(id: .TObject.Id) -> .TObject | nil
+    var .[nonzero_uint]: any|nil -- Data
+    var .Variant: uint -- Specifies type of struct (if high-level row is a trait). Zero if HLR is a struct.
+
+    var .Table: .LuaTable
 }
 
-fn .RegisterObjectManager(mgr: .ObjectManager)
+internal strict ._LuaTable {
+    var .Schema: .TableSchema
 
-trait .Object {
-    doconly param type .Id
-
-    fn :IsValid() -> bool
-
-    fn :Unload()
-
-    -- query :Save(), :Remove()
+    var .Rows: table(any, ._LuaRow) -- key type is specified by schema
 }
