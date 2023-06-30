@@ -13,7 +13,9 @@ stp = stp or RemoveFalseValues({
         schema = {},
         restrictors = SERVER and {},
         awareness = SERVER and {}
-    } }
+    } },
+
+    db = {}
 })
 
 local function IsLuaFile(filename)
@@ -94,6 +96,9 @@ stp.IncludeList("stp/core/", {
     "obj/net/awareness_sv.lua",
     "obj/net/lowlevel_sh.lua",
     "obj/net/highlevel_sh.lua",
+
+    "db/luaschema_sh.lua"
+    "db/luastorage_sh.lua",
 
     "enginehooks_sh.lua" -- Must be close to end
 })
