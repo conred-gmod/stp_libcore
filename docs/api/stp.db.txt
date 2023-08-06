@@ -6,7 +6,7 @@ type .TableSchema = {
     var .IsTrait: bool
     var .Parent: nil | .TableSchema -- nil if .IsTrait == true, if not nil, .Parent.IsTrait must be == true
 
-    
+
 }
 
 -- Lua-storage internals
