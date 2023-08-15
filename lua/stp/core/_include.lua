@@ -97,8 +97,10 @@ stp.IncludeList("stp/core/", {
     "obj/net/lowlevel_sh.lua",
     "obj/net/highlevel_sh.lua",
 
-    "db/luaschema_sh.lua"
-    "db/luastorage_sh.lua",
+    "db/lua_schema_sh.lua",
+    "db/lua_query_sh.lua",
+    "db/sqlite_schema_sh.lua",
+    "db/sqlite_query_sh.lua",
 
     "enginehooks_sh.lua" -- Must be close to end
 })
