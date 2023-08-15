@@ -15,7 +15,9 @@ stp = stp or RemoveFalseValues({
         awareness = SERVER and {}
     } },
 
-    db = {}
+    db = {
+        _sqlite = {}
+    }
 })
 
 local function IsLuaFile(filename)

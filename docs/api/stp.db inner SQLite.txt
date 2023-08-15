@@ -1,0 +1,51 @@
+namespace stp.db._sqlite;
+
+struct .Database {
+    -- Table/index name is 'stpdb_$DBName_$SchemaName'
+    var .Name: string
+}
+
+
+enumflag .TYPE {
+    .NIL = 1,
+    .INT = 2,
+    .FLOAT = 4,
+    .STRING = 8,
+    .BLOB = 16
+}
+
+struct .TableSchema {
+    var .Name: string
+
+    var .Columns: array(.ColumnSchema)
+    var .Constraints: array(.ConstraintSchema)
+}
+
+struct .ColumnSchema {
+    var .Name: string // Must be unique among columns in one table
+    var .Type: .TYPE
+
+    var .Checker: ??
+    var .Default: ??
+}
+
+trait .ConstraintSchema {}
+struct .PrimaryKeyConstraintSchema {
+    require .ConstraintSchema
+
+    var .Columns: array(string)
+}
+
+struct .CheckerConstraintSchema {
+    require .ColumnSchema
+
+    var .Checker: ??
+}
+
+struct .ForeignKeyConstraintSchema {
+    require .ColumnSchema
+
+    var .ThisKeys: array(string)
+    var .OtherTable: string
+    var .OtherKeys: array(string)
+}

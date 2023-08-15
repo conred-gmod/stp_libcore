@@ -2,11 +2,22 @@ namespace stp.db;
 
 -- Schemas
 
-type .TableSchema = {
+struct .Schema {
+    var .Name: string
+
     var .IsTrait: bool
-    var .Parent: nil | .TableSchema -- nil if .IsTrait == true, if not nil, .Parent.IsTrait must be == true
+    -- If not empty, .IsTrait must be == false
+    -- Items must have .IsTrait == true
+    var .Parents: array(.Schema) 
 
+    var .Columns: table(name: string, .SchemaColumn)
+    var .Constraints: array(.SchemaConstraint)
+}
 
+struct .SchemaColumn {
+    var .Type: ??
+    var .Default: ??
+    internal var ._Index: nint
 }
 
 -- Lua-storage internals
@@ -14,7 +25,7 @@ type .TableSchema = {
 internal struct ._LuaRow {
     -- Most of stuff is specified in schema of table
 
-    var .[nonzero_uint]: any|nil -- Data
+    var .[nint]: any|nil -- Data
     var .Variant: uint -- Specifies type of struct (if high-level row is a trait). Zero if HLR is a struct.
 
     var .Table: .LuaTable
