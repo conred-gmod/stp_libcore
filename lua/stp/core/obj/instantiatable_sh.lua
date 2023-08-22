@@ -13,8 +13,8 @@ LIB.Initializable = INITABLE
 local REMOVABLE = LIB.BeginTrait("stp.obj.Removable")
 INITABLE(REMOVABLE)
 
-LIB.HookDefine(INST, "OnPreRemove")
-LIB.HookDefine(INST, "OnRemove")
+LIB.HookDefine(REMOVABLE, "OnPreRemove")
+LIB.HookDefine(REMOVABLE, "OnRemove")
 
 LIB.Register(REMOVABLE)
 LIB.Removable = REMOVABLE

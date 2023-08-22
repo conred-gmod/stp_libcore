@@ -85,7 +85,7 @@ do
     function libo.MarkAbstract(meta, keyname, valtype)
         if isstring(valtype) then valtype = { valtype } end
 
-        libo.MergablesAdd(meta, MRG_FIELD, keyname, valtype)
+        libo.MergablesAdd(meta, MRG_FIELD, keyname, MRG, valtype)
     end
 end
 
