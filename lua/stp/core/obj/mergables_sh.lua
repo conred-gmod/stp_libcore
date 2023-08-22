@@ -74,7 +74,7 @@ local APPLY_SPECIAL_FIELDS = {
     ["__call"] = true,
     ["TypeName"] = true,
     ["IsTrait"] = true,
-    ["IsFullyRegistered"] = true
+    ["IsFullyRegistered"] = true,
 
     -- Merge that
     ["___mergables"] = true,

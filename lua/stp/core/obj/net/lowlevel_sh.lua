@@ -14,9 +14,9 @@ local SENDREV = libo.BeginTrait("stp.obj.net.SendableRev")
 libn.Networkable(SEND)
 libn.NetworkableRev(SENDREV)
 
-local MakeAbstractTxRx(meta, is_tx_side)
+local function MakeAbstractTxRx(meta, is_tx_side)
     if is_tx_side then
-        libo.MarkAbstract(meta. "NetIsUnreliable", "function")
+        libo.MarkAbstract(meta, "NetIsUnreliable", "function")
         libo.MarkAbstract(meta, "NetTransmit", "function")
     else
         libo.MarkAbstract(meta, "NetReceive", "function")
