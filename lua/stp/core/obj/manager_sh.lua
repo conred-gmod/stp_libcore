@@ -17,8 +17,8 @@ function LIB.MakeManager(item, manager, desc)
     LIB.Initializable(manager)
 
     local function makehook(prefix)
-        LIB.HookDeclare(item, prefix..isg)
-        LIB.HookDeclare(manager, prefix..isg)
+        LIB.HookDefine(item, prefix..isg)
+        LIB.HookDefine(manager, prefix..isg)
     end
 
     makehook("OnPreRegistered")

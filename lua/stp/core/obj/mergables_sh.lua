@@ -35,27 +35,27 @@ function LIB.MergablesDeclare(meta, keyname, merger_name)
             "in an already-registered object '",meta.TypeName,"'")
     end
 
-    assert(Mergers[merger] ~= nil, "Attempt to use undefined merger '"..merger.."'")
+    assert(Mergers[merger_name] ~= nil, "Attempt to use undefined merger '"..merger_name.."'")
 
     local mrg = meta.___mergables[keyname] or { MaxIdx = 0, MergerName = merger_name }
     meta.___mergables[keyname] = mrg
 
-    assert(mrg.MergerName == merger) -- TODO: error message: consistency check
+    assert(mrg.MergerName == merger_name) -- TODO: error message: consistency check
 end
 
-function LIB.MergablesAdd(meta, keyname, impl_name, merger, value)
+function LIB.MergablesAdd(meta, keyname, impl_name, merger_name, value)
     if meta.IsFullyRegistered then 
         stp.Error("Attempt to add a mergable '",keyname,":",impl_name,"' ",
             "to an already-registered object '",meta.TypeName,"'")
     end
 
-    assert(Mergers[merger] ~= nil, "Attempt to use undefined merger '"..merger.."'")
+    assert(Mergers[merger_name] ~= nil, "Attempt to use undefined merger '"..merger_name.."'")
     assert(not MergableSpecialFields[impl_name])
 
-    local mrg = meta.___mergables[keyname] or { MaxIdx = 0, MergerName = merger }
+    local mrg = meta.___mergables[keyname] or { MaxIdx = 0, MergerName = merger_name }
     meta.___mergables[keyname] = mrg
 
-    assert(mrg.MergerName == merger) -- TODO: error message: consistency check
+    assert(mrg.MergerName == merger_name) -- TODO: error message: consistency check
 
     if mrg[impl_name] == nil then
         local idx = mrg.MaxIdx + 1
