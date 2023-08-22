@@ -14,7 +14,7 @@ libo.HookDefine(VAR, "VariableOnSet")
 
 libo.Register(VAR)
 libo.Register(VARCONT)
-libo.Variable = Var
+libo.Variable = VAR
 libo.VariableContainer = VARCONT
 
 local VARF = libo.BeginTrait("stp.obj.VariableField")

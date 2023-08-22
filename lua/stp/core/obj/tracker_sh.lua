@@ -129,4 +129,5 @@ libo.HookAdd(TRKN, "PostInit", TRKN.TypeName, function(self, params)
 
     Track(self, id)
 end)
+libo.Register(TRKN)
 libo.TrackableNetworked = TRKN

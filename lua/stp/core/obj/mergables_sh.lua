@@ -81,7 +81,9 @@ local APPLY_SPECIAL_FIELDS = {
 }
 
 function LIB.ApplyTrait(traitmeta, targetmeta)
-    assert(traitmeta.IsTrait and traitmeta.IsFullyRegistered, "Attempt to apply not a registered trait to object")
+    if not traitmeta.IsTrait or not traitmeta.IsFullyRegistered then
+        stp.Error("Attempt to apply not a registered trait ",traitmeta," to object")
+    end
     assert(targetmeta.IsTrait ~= nil, "Attempt to apply to a non-stp_libcore object")
     assert(not targetmeta.IsFullyRegistered, "Attempt to apply to a fully-registered object")
 
