@@ -40,7 +40,7 @@ end
 function stp.CheckType(val, valname, allowed_types)
     if isstring(allowed_types) then allowed_types = {allowed_types} end
 
-    if stp.IsAnyType(val, allowed_types)
+    if stp.IsAnyType(val, allowed_types) then
         return val
     end
 

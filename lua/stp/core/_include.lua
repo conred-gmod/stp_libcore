@@ -77,7 +77,7 @@ function stp.IncludeModules(dir, module_name)
 end
 
 stp.IncludeList("stp/core/", {
-    "hotreload_sh.lua"
+    "hotreload_sh.lua",
     "debug_sh.lua",
     "algorithm_sh.lua",
 
@@ -97,7 +97,7 @@ stp.IncludeList("stp/core/", {
     "obj/net/lowlevel_sh.lua",
     "obj/net/highlevel_sh.lua",
 
-    "db/luaschema_sh.lua"
+    "db/luaschema_sh.lua",
     "db/luastorage_sh.lua",
 
     "enginehooks_sh.lua" -- Must be close to end

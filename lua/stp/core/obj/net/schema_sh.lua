@@ -202,7 +202,7 @@ local function ReadStpObject(revnet)
 end
 
 LIB.StpNetworkable = {
-    transmit = function(obj) WriteStpObject(obj, false) end
+    transmit = function(obj) WriteStpObject(obj, false) end,
     receive = function() return ReadStpObject(false) end
 }
 

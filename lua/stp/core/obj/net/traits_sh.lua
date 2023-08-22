@@ -1,3 +1,4 @@
+local LIB = stp.obj
 local libo = stp.obj
 local libn = stp.obj.net
 
