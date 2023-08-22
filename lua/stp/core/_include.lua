@@ -15,9 +15,7 @@ stp = stp or RemoveFalseValues({
         awareness = SERVER and {}
     } },
 
-    db = {
-        _sqlite = {}
-    }
+    db = {}
 })
 
 local function IsLuaFile(filename)
@@ -79,7 +77,7 @@ function stp.IncludeModules(dir, module_name)
 end
 
 stp.IncludeList("stp/core/", {
-    "hotreload_sh.lua"
+    "hotreload_sh.lua",
     "debug_sh.lua",
     "algorithm_sh.lua",
 
@@ -98,11 +96,6 @@ stp.IncludeList("stp/core/", {
     "obj/net/awareness_sv.lua",
     "obj/net/lowlevel_sh.lua",
     "obj/net/highlevel_sh.lua",
-
-    "db/lua_schema_sh.lua",
-    "db/lua_query_sh.lua",
-    "db/sqlite_schema_sh.lua",
-    "db/sqlite_query_sh.lua",
 
     "enginehooks_sh.lua" -- Must be close to end
 })
