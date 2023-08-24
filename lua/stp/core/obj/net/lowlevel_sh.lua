@@ -223,7 +223,7 @@ function libn._TransmitAll()
     local cleaned = {}
 
     if SERVER then
-        for _, data in ipairs(libaware.NewlyAware) do
+        for _, data in ipairs(libaware._GetNewlyAware()) do
             local obj = data.Objects
             
             TransmitSingle_Init(obj, data.NewlyAware)

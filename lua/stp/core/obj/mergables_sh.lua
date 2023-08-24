@@ -2,12 +2,6 @@ local LIB = stp.obj
 
 local Mergers = stp.GetPersistedTable("stp.obj.mergables.Mergers", {})
 
-local MergableSpecialFields = {
-    ["MaxIdx"] = true,
-    ["MergerName"] = true
-}
-LIB.MergableSpecialFields = MergableSpecialFields
-
 function LIB.MergerRegister(name, fn)
     Mergers[name] = fn
 end
@@ -15,9 +9,7 @@ end
 function LIB.MergerRegisterArray(name, fn)
     LIB.MergerRegister(name, function(meta, k, desc)
         local array = {}
-        for itemk, itemdesc in pairs(desc) do
-            if MergableSpecialFields[itemk] then continue end
-
+        for itemk, itemdesc in pairs(desc.List) do
             array[itemdesc.Idx] = { Key = itemk, Value = itemdesc.Value }
         end
 
@@ -37,7 +29,7 @@ function LIB.MergablesDeclare(meta, keyname, merger_name)
 
     assert(Mergers[merger_name] ~= nil, "Attempt to use undefined merger '"..merger_name.."'")
 
-    local mrg = meta.___mergables[keyname] or { MaxIdx = 0, MergerName = merger_name }
+    local mrg = meta.___mergables[keyname] or { MaxIdx = 0, MergerName = merger_name, List = {} }
     meta.___mergables[keyname] = mrg
 
     assert(mrg.MergerName == merger_name) -- TODO: error message: consistency check
@@ -50,20 +42,20 @@ function LIB.MergablesAdd(meta, keyname, impl_name, merger_name, value)
     end
 
     assert(Mergers[merger_name] ~= nil, "Attempt to use undefined merger '"..merger_name.."'")
-    assert(not MergableSpecialFields[impl_name])
 
-    local mrg = meta.___mergables[keyname] or { MaxIdx = 0, MergerName = merger_name }
+    local mrg = meta.___mergables[keyname] or { MaxIdx = 0, MergerName = merger_name, List = {} }
     meta.___mergables[keyname] = mrg
 
     assert(mrg.MergerName == merger_name) -- TODO: error message: consistency check
+    local mrglist = mrg.List
 
-    if mrg[impl_name] == nil then
+    if mrglist[impl_name] == nil then
         local idx = mrg.MaxIdx + 1
         mrg.MaxIdx = idx
         
-        mrg[impl_name] = { Idx = idx, Value = value }
+        mrglist[impl_name] = { Idx = idx, Value = value }
     else
-        mrg[impl_name].Value = value
+        mrglist[impl_name].Value = value
     end
 end
 
@@ -109,7 +101,7 @@ function LIB.ApplyTrait(traitmeta, targetmeta)
                 " trait '",mrgdesc.MergerName,"' dest '",targetdesc.MergerName,"'")
         end
 
-        for key, mrgitem in SortedPairsByMemberValue(mrgdesc, "Idx") do
+        for key, mrgitem in SortedPairsByMemberValue(mrgdesc.List, "Idx") do
             if targetdesc[key] ~= nil then
                 targetdesc[key].Value = mrgitem.Value
             else

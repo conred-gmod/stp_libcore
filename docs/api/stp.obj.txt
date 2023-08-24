@@ -46,15 +46,13 @@ fn .MergablesAdd(meta: metatable(.Object), keyname: string, impl_name: string, m
 
 fn .MergablesDeclare(meta: metatable(.Object), keyname: string, merger_name: string)
 
--- Special fields in .MergablesDesc
-const .MergableSpecialFields: table(key: string, true)
 type .MergablesDesc = {
     .MaxIdx: uint,
-    .MergerName: string
-    .[impl_name: string]: {
+    .MergerName: string,
+    .List: table(impl_name: string, {
         Idx: uint,
         Value: any|nil
-    }
+    }) 
 }
 
 -- A low-level function.

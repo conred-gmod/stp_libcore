@@ -19,7 +19,7 @@ if SERVER then
 
     -- TODO: transmit-on-connect
 else
-    function VAR:NetReceive(bytes)
+    function VARF:NetReceive(bytes)
         self:VariableSet(self.SCHEMA.receive(bytes))
     end
 end
