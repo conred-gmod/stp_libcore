@@ -37,7 +37,7 @@ libo.VariableField = VARF
 
 
 function libo.MakeVariableAttached(varmeta, parentmeta)
-    local parentmeta = params.Parent or varmeta.OwnerType
+    local parentmeta = parentmeta or varmeta.OwnerType
     if parentmeta == nil then
         stp.Error("Attempt to attach variable type ",varmeta,", but attachment target found ",
             "(both second argument of `stp.obj.MakeVariableAttached` and `.OwnerType` of variable type are nil)")
