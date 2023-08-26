@@ -78,3 +78,20 @@ stp.RegisterType("Panel",  { IsInstance = function(v) return ispanel(v) end})
 stp.RegisterType("Vector", { IsInstance = function(v) return isvector(v) end})
 stp.RegisterType("Angle", { IsInstance = function(v) return isangle(v) end})
 stp.RegisterType("Matrix", { IsInstance = function(v) return ismatrix(v) end})
+
+do
+    local CV_DebugTypeSystem = CreateConVar("stplib_debug_typesys", 0)
+    local CV_Developer = GetConVar("developer")
+    local Vars = {"stplib_debug_typesys", "developer"}
+
+    local function UpdateDebugFlags()
+        stp.DebugFlags = {
+            TypeSystem = CV_DebugTypeSystem:GetBool() or CV_Developer:GetInt() > 0
+        }
+    end
+    UpdateDebugFlags()
+
+    for _, varname in ipairs(Vars) do
+        cvars.AddChangeCallback(varname, UpdateDebugFlags, "stp.lib.DebugFlags")
+    end
+end

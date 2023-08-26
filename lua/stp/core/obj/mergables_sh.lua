@@ -73,6 +73,10 @@ local APPLY_SPECIAL_FIELDS = {
 }
 
 function LIB.ApplyTrait(traitmeta, targetmeta)
+    if stp.DebugFlags.TypeSystem then
+        print("stp.obj.ApplyTrait", traitmeta, "to", targetmeta)
+    end
+
     if not traitmeta.IsTrait or not traitmeta.IsFullyRegistered then
         stp.Error("Attempt to apply not a registered trait ",traitmeta," to object")
     end

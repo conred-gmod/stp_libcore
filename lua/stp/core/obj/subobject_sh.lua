@@ -25,6 +25,10 @@ LIB.MergerRegisterArray(MERGER, function(meta, key, array)
 end)
 
 function LIB.MakeSubobjectStorable(meta, key)
+    if stp.DebugFlags.TypeSystem then
+        print("stp.obj.MakeSubobjectStorable", meta, key)
+    end
+
     meta["IsSubobj"..key.."Storable"] = true
 end
 
@@ -101,6 +105,10 @@ function CONT:ClearAll()
 end
 
 function LIB.MakeSubobjectContainer(meta, key)
+    if stp.DebugFlags.TypeSystem then
+        print("stp.obj.MakeSubobjectContainer", meta, key)
+    end
+
     meta["Is"..key.."SubobjContainer"] = true
 
     LIB.MergablesDeclare(meta, "Subobj"..key, MERGER)

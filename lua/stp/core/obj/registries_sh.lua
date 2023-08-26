@@ -20,6 +20,10 @@ function LIB.GetTraitMetatables()
 end
 
 function LIB.BeginObject(typename)
+    if stp.DebugFlags.TypeSystem then
+        print("stp.obj.BeginObject", typename)
+    end
+
     local meta = Metas[typename] or {}
 
     meta.__index = meta
@@ -37,6 +41,10 @@ function LIB.BeginObject(typename)
 end
 
 function LIB.BeginExistingObject(meta)
+    if stp.DebugFlags.TypeSystem then
+        print("stp.obj.BeginExistingObject", meta)
+    end
+
     local typename = meta.TypeName
     assert(typename ~= nil, "You need to set .TypeName")
 
@@ -56,6 +64,10 @@ function LIB.BeginExistingObject(meta)
 end
 
 function LIB.BeginTrait(typename)
+    if stp.DebugFlags.TypeSystem then
+        print("stp.obj.BeginTrait", typename)
+    end
+
     local meta = Traits[typename] or {}
     meta.__index = meta
     meta.__call = LIB.ApplyTrait
@@ -72,6 +84,10 @@ function LIB.BeginTrait(typename)
 end
 
 function LIB.Register(meta)
+    if stp.DebugFlags.TypeSystem then
+        print("stp.obj.Register", meta)
+    end
+
     local typename = meta.TypeName
     assert(typename ~= nil)
 

@@ -48,3 +48,9 @@ namespace table {
     -- Iterates whole array and returns key of item == value
     fn .SeqFindValue(array: array(any), value: any) -> key: uint|nil
 }
+
+
+var .DebugFlags: {
+    -- stplib_debug_typesys 1 | developer 1
+    var .TypeSystem: bool
+}

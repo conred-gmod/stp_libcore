@@ -11,8 +11,6 @@ local function UnlockPersistData()
     end)
 end
 
-
-
 __stp_persistdata = __stp_persistdata or {}
 
 UnlockPersistData()
@@ -30,3 +28,9 @@ function LIB.GetPersistedTable(name, default)
     end
 end
 
+concommand.Add("stplib_persisttable_clear", function()
+    UnlockPersistData()
+    __stp_persistdata = {}
+
+    print("Cleared persist table (__stp_persistdata)")
+end)
