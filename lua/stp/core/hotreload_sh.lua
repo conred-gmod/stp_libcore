@@ -30,7 +30,9 @@ end
 
 concommand.Add("stplib_persisttable_clear", function()
     UnlockPersistData()
-    __stp_persistdata = {}
+    for _, tbl in pairs(__stp_persistdata) do
+        table.Empty(tbl)
+    end
 
     print("Cleared persist table (__stp_persistdata)")
 end)
