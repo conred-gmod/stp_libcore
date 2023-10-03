@@ -244,3 +244,13 @@ function libn._TransmitAll()
         DirtyObjects[obj] = nil
     end
 end
+
+--------------------
+
+function libn.MakeUnreliable(meta)
+    function meta:NetIsUnreliable() return true end
+end
+
+function libn.MakeReliable(meta)
+    function meta:NetIsUnreliable() return false end
+end

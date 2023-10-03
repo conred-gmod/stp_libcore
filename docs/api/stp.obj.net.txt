@@ -93,6 +93,9 @@ internal fn ._MarkDirty(obj: .Sendable | .SendableRev)
 
 internal fn ._TransmitAll()
 
+fn .MakeUnreliable(meta: metatable(.Sendable | .SendableRev))
+fn .MakeReliable(meta: metatable(.Sendable | .SendableRev))
+
 --- ??? something meduim-level
 
 ------- High-level traits

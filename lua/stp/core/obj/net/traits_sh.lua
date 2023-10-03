@@ -34,7 +34,7 @@ NETABLE(NETCOMP)
 libo.Register(NETCOMP)
 libn.NetworkableComposite = NETCOMP
 
-function libn:MakeRecipientEveryone(meta)
+function libn.MakeRecipientEveryone(meta)
     libo.CheckNotFullyRegistered(meta)
 
     if CLIENT then return end

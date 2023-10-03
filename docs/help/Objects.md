@@ -86,7 +86,8 @@ local libn = stp.obj.net
 
 local META = libo.BeginObject("your.namespace.YourObjectName")
 libo.ApplyMany(META,
-    libn.Instantiatable
+    libn.Instantiatable,
+    libo.VariableContainer
     -- Your traits here
 )
 
@@ -106,7 +107,8 @@ libo.ConstructNestedType(META, "SomeCounterName", -- Type name is `META.TypeName
     CLIENT and libo.VariableDefault(0), -- ...and this - only on client
 
     libn.MakeVar(libn.schema.UInt(16)),
-    libn.MakeRecipientEveryone, 
+    libn.MakeRecipientEveryone,
+    libn.MakeReliable,
 )
 
 function META:OnSomeCounterNameChanged(old, new)
