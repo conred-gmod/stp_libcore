@@ -1,7 +1,9 @@
 local libo = stp.obj
 
 function libo.ApplyMany(target, ...)
-    for _, fn in ipairs({...}) do
+    for i = 1, select("#", ...) do
+        local fn = select(i, ...)
+
         if fn ~= false then
             fn(target)
         end
@@ -77,7 +79,7 @@ do
 
             if not stp.IsAnyType(val, tys) then
                 stp.Error(meta,": abstract field '",key,"' has invalid type '",type(val),"',",
-                    " not ",table.concat(tys,"|"))
+                    " not '",table.concat(tys,"|"),"'")
             end
         end
     end)
