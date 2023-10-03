@@ -26,7 +26,7 @@ function LIB.BeginObject(typename)
 
     local meta = Metas[typename] or {}
 
-    meta.__index = meta
+    meta.__index = rawget
     meta.__tostring = ObjectToString
     meta.___mergables = LIB._MergablesInit()
     meta.IsTrait = false
@@ -69,7 +69,7 @@ function LIB.BeginTrait(typename)
     end
 
     local meta = Traits[typename] or {}
-    meta.__index = meta
+    meta.__index = rawget
     meta.__call = LIB.ApplyTrait
     meta.__tostring = TraitToString
     meta.___mergables = LIB._MergablesInit()
@@ -92,7 +92,7 @@ function LIB.Register(meta)
     assert(typename ~= nil)
 
     if meta.IsTrait then
-       assert(rawget(meta,"__index") == meta, "Modifying `__index` of metatable breaks stp.trait.Apply!")
+       assert(rawget(meta,"__index") == rawget, "Modifying `__index` of metatable breaks stp.trait.Apply!")
     end
 
     if meta.IsFullyRegistered ~= false then 
