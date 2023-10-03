@@ -52,13 +52,20 @@ end
 
 function stp.IsType(val, type)
     local checker = types[type]
-    if checker == nil then return false end
+    if checker == nil then 
+        stp.Error("Non-registered type '",ty,"'")
+    end
 
     return checker(val)
 end
 
-function stp.IsAnyType(val, types)
-    for _, ty in ipairs(types) do
+function stp.IsAnyType(val, intypes)
+    for _, ty in ipairs(intypes) do
+        local checker = types[ty]
+        if checker == nil then 
+            stp.Error("Non-registered type '",ty,"'")
+        end
+
         if types[ty](val) then
             return true 
         end
