@@ -22,7 +22,9 @@ function NETABLE:NetSetRestrictor(restrictor)
     self.__net_restrictor = restrictor
 end
 
-libo.MarkAbstract(NETABLE, "NetGetRecipients", "function")
+if SERVER then
+    libo.MarkAbstract(NETABLE, "NetGetRecipients", "function")
+end
 
 libo.Register(NETABLE)
 libn.Networkable = NETABLE
