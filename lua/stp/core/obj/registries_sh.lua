@@ -84,12 +84,17 @@ function LIB.BeginTrait(typename)
 end
 
 function LIB.Register(meta)
+    local typename = meta.TypeName
+    assert(typename ~= nil)
+
     if stp.DebugFlags.TypeSystem then
         print("stp.obj.Register", meta)
     end
-
-    local typename = meta.TypeName
-    assert(typename ~= nil)
+    if stp.DebugFlags.DumpTypes then
+        print("!stp.obj.Register ",meta," = >>>")
+        PrintTable(meta, 1)
+        print("<<<")
+    end
 
     if meta.IsTrait then
        assert(rawget(meta,"__index") == rawget, "Modifying `__index` of metatable breaks stp.trait.Apply!")

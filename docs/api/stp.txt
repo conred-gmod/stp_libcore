@@ -51,6 +51,8 @@ namespace table {
 
 
 var .DebugFlags: {
-    -- stplib_debug_typesys 1 | developer 1
+    -- stplib_debug_typesys 1 | developer >1
     var .TypeSystem: bool
+    -- stplib_debug_dumptypes 1
+    var .DumpTypes: bool
 }

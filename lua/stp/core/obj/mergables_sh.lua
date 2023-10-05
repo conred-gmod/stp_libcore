@@ -3,6 +3,10 @@ local LIB = stp.obj
 local Mergers = stp.GetPersistedTable("stp.obj.mergables.Mergers", {})
 
 function LIB.MergerRegister(name, fn)
+    if stp.DebugFlags.TypeSystem then
+        print("stp.obj.MergerRegister", name, fn)
+    end
+
     Mergers[name] = fn
 end
 
@@ -22,6 +26,10 @@ function LIB._MergablesInit()
 end
 
 function LIB.MergablesDeclare(meta, keyname, merger_name)
+    if stp.DebugFlags.TypeSystem then
+        MsgN("stp.obj.MergablesDeclare\t", meta, ".", keyname,":[",merger_name,"]")
+    end
+
     if meta.IsFullyRegistered then 
         stp.Error("Attempt to declare a mergable '",keyname,"' ",
             "in an already-registered object '",meta.TypeName,"'")
@@ -36,6 +44,11 @@ function LIB.MergablesDeclare(meta, keyname, merger_name)
 end
 
 function LIB.MergablesAdd(meta, keyname, impl_name, merger_name, value)
+    if stp.DebugFlags.TypeSystem then
+        MsgN("stp.obj.MergablesDeclare\t", meta, ".", keyname,":[",merger_name,"]",
+            "=\t[",impl_name,"]\t",value)
+    end
+
     if meta.IsFullyRegistered then 
         stp.Error("Attempt to add a mergable '",keyname,":",impl_name,"' ",
             "to an already-registered object '",meta.TypeName,"'")
@@ -73,8 +86,10 @@ local APPLY_SPECIAL_FIELDS = {
 }
 
 function LIB.ApplyTrait(traitmeta, targetmeta)
-    if stp.DebugFlags.TypeSystem then
-        print("stp.obj.ApplyTrait", traitmeta, "to", targetmeta)
+    local debug_typesys = stp.DebugFlags.TypeSystem
+
+    if debug_typesys then
+        MsgN("stp.obj.ApplyTrait ", traitmeta, " to ", targetmeta)
     end
 
     if not traitmeta.IsTrait or not traitmeta.IsFullyRegistered then
@@ -93,12 +108,22 @@ function LIB.ApplyTrait(traitmeta, targetmeta)
     local target_mergables = targetmeta.___mergables
 
     for k, mrgdesc in pairs(trait_mergables) do
-        if target_mergables[k] == nil then
+        local targetdesc = target_mergables[k]
+
+        if debug_typesys then
+            MsgN("> mergable\t", k, "\tsource[",mrgdesc.MergerName,"]",
+                " target[",(targetdesc and targetdesc.MergerName), "]")
+        end
+
+        if targetdesc == nil then
+            if debug_typesys then
+                MsgN(">> [copy from source to target]")
+            end
+
             target_mergables[k] = mrgdesc
             continue
         end
 
-        local targetdesc = target_mergables[k]
         if targetdesc.MergerName ~= mrgdesc.MergerName then
             stp.Error("Error applying ",traitmeta," to ",targetmeta," ",
                 ": mergable '",k,"': mergers are different:",
@@ -106,15 +131,27 @@ function LIB.ApplyTrait(traitmeta, targetmeta)
         end
 
         for key, mrgitem in SortedPairsByMemberValue(mrgdesc.List, "Idx") do
-            if targetdesc[key] ~= nil then
-                targetdesc[key].Value = mrgitem.Value
+            if debug_typesys then
+                MsgN(">> key\t", key, " count ", mrgitem.MaxIdx)
+            end
+
+            local value = mrgitem.Value
+            local keydesc = targetdesc[key]
+            if keydesc ~= nil then
+                if debug_typesys then
+                    MsgN(">>> [",keydesc.Idx,"] replace ", keydesc.Value, " with " ,value)
+                end
+                keydesc.Value = value 
             else
                 local idx = targetdesc.MaxIdx + 1
                 targetdesc.MaxIdx = idx
-
+                
+                if debug_typesys then
+                    MsgN(">>> [",idx,"] new ", value)
+                end
                 targetdesc[key] = {
                     Idx = idx,
-                    Value = mrgitem.Value
+                    Value = value
                 }
             end    
         end

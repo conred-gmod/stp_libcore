@@ -88,17 +88,19 @@ stp.RegisterType("Matrix", { IsInstance = function(v) return ismatrix(v) end})
 
 do
     local CV_DebugTypeSystem = CreateConVar("stplib_debug_typesys", 0)
+    local CV_DebugDumpTypes = CreateConVar("stplib_debug_dumptypes", 0)
     local CV_Developer = GetConVar("developer")
-    local Vars = {"stplib_debug_typesys", "developer"}
+    local Vars = {CV_DebugTypeSystem, CV_DebugDumpTypes, CV_Developer}
 
     local function UpdateDebugFlags()
         stp.DebugFlags = {
-            TypeSystem = CV_DebugTypeSystem:GetBool() or CV_Developer:GetInt() > 0
+            TypeSystem = CV_DebugTypeSystem:GetBool() or CV_Developer:GetInt() >= 1,
+            DumpTypes = CV_DebugDumpTypes:GetBool()
         }
     end
     UpdateDebugFlags()
 
-    for _, varname in ipairs(Vars) do
-        cvars.AddChangeCallback(varname, UpdateDebugFlags, "stp.lib.DebugFlags")
+    for _, var in ipairs(Vars) do
+        cvars.AddChangeCallback(var:GetName(), UpdateDebugFlags, "stp.lib.DebugFlags")
     end
 end
