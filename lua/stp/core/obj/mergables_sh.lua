@@ -25,6 +25,15 @@ function LIB._MergablesInit()
     return {}
 end
 
+local function GetInitMrgDesc(meta, key, merger_name)
+    local mrg = meta.___mergables[key] or { MaxIdx = 0, MergerName = merger_name, List = {} }
+    meta.___mergables[key] = mrg
+
+    assert(mrg.MergerName == merger_name) -- TODO: error message: consistency check
+
+    return mrg
+end
+
 function LIB.MergablesDeclare(meta, keyname, merger_name)
     if stp.DebugFlags.TypeSystem then
         MsgN("stp.obj.MergablesDeclare\t", meta, ".", keyname,":[",merger_name,"]")
@@ -37,10 +46,7 @@ function LIB.MergablesDeclare(meta, keyname, merger_name)
 
     assert(Mergers[merger_name] ~= nil, "Attempt to use undefined merger '"..merger_name.."'")
 
-    local mrg = meta.___mergables[keyname] or { MaxIdx = 0, MergerName = merger_name, List = {} }
-    meta.___mergables[keyname] = mrg
-
-    assert(mrg.MergerName == merger_name) -- TODO: error message: consistency check
+    GetInitMrgDesc(meta, keyname, merger_name)
 end
 
 function LIB.MergablesAdd(meta, keyname, impl_name, merger_name, value)
@@ -56,10 +62,7 @@ function LIB.MergablesAdd(meta, keyname, impl_name, merger_name, value)
 
     assert(Mergers[merger_name] ~= nil, "Attempt to use undefined merger '"..merger_name.."'")
 
-    local mrg = meta.___mergables[keyname] or { MaxIdx = 0, MergerName = merger_name, List = {} }
-    meta.___mergables[keyname] = mrg
-
-    assert(mrg.MergerName == merger_name) -- TODO: error message: consistency check
+    local mrg = GetInitMrgDesc(meta, keyname, merger_name)
     local mrglist = mrg.List
 
     if mrglist[impl_name] == nil then
@@ -109,45 +112,46 @@ function LIB.ApplyTrait(traitmeta, targetmeta)
 
     for k, mrgdesc in pairs(trait_mergables) do
         local targetdesc = target_mergables[k]
+        local mergername = mrgdesc.MergerName
 
         if debug_typesys then
-            MsgN("> mergable\t", k, "\tsource[",mrgdesc.MergerName,"]",
-                " target[",(targetdesc and targetdesc.MergerName), "]",
-                " maxidx ",(targetdesc and targetdesc.MaxIdx or mrgdesc.MaxIdx))
+            MsgN("> mergable\t", k, "\tsource[",mergername,"]",
+                " target[",(targetdesc and targetdesc.MergerName), "]")
         end
 
         if targetdesc == nil then
-            if debug_typesys then
-                
-            end
-
             local items = {}
 
             for key, mrgitem in SortedPairsByMemberValue(mrgdesc.List, "Idx") do
                 local idx = mrgitem.Idx
                 local value = mrgitem.Value
-                MsgN(">> ",key,"[",idx,"] copy ", value)
+
+                if debug_typesys then
+                    MsgN(">> ",key,"[",idx,"] copy ", value)
+                end
                 
                 items[key] = {Idx = idx, Value = value}
             end
 
-            target_mergables[k] = {
+            targetdesc = {
                 MaxIdx = mrgdesc.MaxIdx,
-                MergerName = mrgdesc.MergerName,
+                MergerName = mergername,
                 List = items
             }
-            continue
+            target_mergables[k] = targetdesc
+            
+            goto next_mergable
         end
 
-        if targetdesc.MergerName ~= mrgdesc.MergerName then
+        if targetdesc.MergerName ~= mergername then
             stp.Error("Error applying ",traitmeta," to ",targetmeta," ",
                 ": mergable '",k,"': mergers are different:",
-                " trait '",mrgdesc.MergerName,"' dest '",targetdesc.MergerName,"'")
+                " trait '",mergername,"' dest '",targetdesc.MergerName,"'")
         end
 
         for key, mrgitem in SortedPairsByMemberValue(mrgdesc.List, "Idx") do
             local value = mrgitem.Value
-            local keydesc = targetdesc[key]
+            local keydesc = targetdesc.List[key]
             if keydesc ~= nil then
                 if debug_typesys then
                     MsgN(">> ",key,"[",keydesc.Idx,"] replace ", keydesc.Value, " with " ,value)
@@ -160,11 +164,17 @@ function LIB.ApplyTrait(traitmeta, targetmeta)
                 if debug_typesys then
                     MsgN(">> ",key,"[",idx,"] new ", value)
                 end
-                targetdesc[key] = {
+                targetdesc.List[key] = {
                     Idx = idx,
                     Value = value
                 }
             end    
+        end
+
+
+        ::next_mergable::
+        if debug_typesys then
+            MsgN(">> maxidx[",targetdesc.MaxIdx,"] <<")
         end
     end
 end
