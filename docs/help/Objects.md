@@ -28,7 +28,7 @@ libo.Register(META)
 --..
 
 local function WorkWithStuff()
-    local obj = META.Create({ Data = "some data"})
+    local obj = META:Create({ Data = "some data"})
     print(IsValid(obj)) --> true
 
     obj:DoStuff() --> I store some data
@@ -137,7 +137,7 @@ function libyour.Create(counter_value)
 
     assert(counter_value >= 0, "Counter value is not nonnegative")
 
-    local obj = META.Create({
+    local obj = META:Create({
         SomeCounterName = counter_value
     })
 

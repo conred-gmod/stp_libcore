@@ -22,7 +22,7 @@ LIB.Removable = REMOVABLE
 local INST = LIB.BeginTrait("stp.obj.Instantiatable")
 REMOVABLE(INST)
 
-function INST.Create(args)
+function INST:Create(args)
     local meta = self.FinalMeta
     assert(meta ~= nil)
 

@@ -121,7 +121,8 @@ trait .Instantiatable {
     require .Removable
     require .Initializable
 
-    fn .Create(args: table) -> .Instantiatable
+    -- Run on metatable, *not* on instance
+    fn :Create(args: table) -> .Instantiatable
 
     fn :Remove(cascaded: bool)
 

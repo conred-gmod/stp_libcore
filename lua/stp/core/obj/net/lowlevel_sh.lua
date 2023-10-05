@@ -163,7 +163,7 @@ if CLIENT then
             params.TrackId = id
         end
 
-        local obj = meta.Create(params)
+        local obj = meta:Create(params)
 
         if parentobj ~= nil then
             parentobj.SubobjNetwork:SetById(id, obj)

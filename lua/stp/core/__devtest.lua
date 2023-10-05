@@ -50,12 +50,18 @@ end
 libo.Register(META)
 --Poker.Game = META
 
+print("Debug", META.Init)
 
-function CreateGame(ent_table)
-    local obj = META.Create({
-        Table = ent_table
+function CreateGame()
+    local obj = META:Create({
+        
     })
 
     return obj
 end
+
+concommand.Add("stplib_devtest", function()
+    CreateGame()
+end)
+
 print("---- __devtest.lua end")

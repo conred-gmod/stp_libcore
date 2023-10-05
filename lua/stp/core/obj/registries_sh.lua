@@ -19,14 +19,19 @@ function LIB.GetTraitMetatables()
     return Traits
 end
 
+local function MakeIndex(meta)
+    meta.__index = function(_, k)
+        return rawget(meta, k)
+    end
+end
+
 function LIB.BeginObject(typename)
     if stp.DebugFlags.TypeSystem then
         print("\nstp.obj.BeginObject", typename)
     end
 
     local meta = Metas[typename] or {}
-
-    meta.__index = rawget
+    MakeIndex(meta)
     meta.__tostring = ObjectToString
     meta.___mergables = LIB._MergablesInit()
     meta.IsTrait = false
@@ -69,7 +74,7 @@ function LIB.BeginTrait(typename)
     end
 
     local meta = Traits[typename] or {}
-    meta.__index = rawget
+    MakeIndex(meta)
     meta.__call = LIB.ApplyTrait
     meta.__tostring = TraitToString
     meta.___mergables = LIB._MergablesInit()
@@ -96,10 +101,6 @@ function LIB.Register(meta)
         print("<<<")
     end
     if stp.DebugFlags.TypeSystem or stp.DebugFlags.DumpTypes then print() end
-
-    if meta.IsTrait then
-       assert(rawget(meta,"__index") == rawget, "Modifying `__index` of metatable breaks stp.trait.Apply!")
-    end
 
     if meta.IsFullyRegistered ~= false then 
         stp.Error("Attempt to double-register object/trait ",typename)

@@ -180,8 +180,12 @@ function LIB.ApplyTrait(traitmeta, targetmeta)
 end
 
 function LIB._MergablesMerge(meta)
+    local debug_typesys = stp.DebugFlags.TypeSystem
+    if debug_typesys then MsgN("stp.obj._MergablesMerge ",meta) end
+
     for k, desc in pairs(meta.___mergables) do
         local merger = desc.MergerName
+        if debug_typesys then MsgN("> ",k," merger[",merger,"]") end
 
         Mergers[merger](meta, k, desc)
     end
