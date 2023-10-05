@@ -112,15 +112,30 @@ function LIB.ApplyTrait(traitmeta, targetmeta)
 
         if debug_typesys then
             MsgN("> mergable\t", k, "\tsource[",mrgdesc.MergerName,"]",
-                " target[",(targetdesc and targetdesc.MergerName), "]")
+                " target[",(targetdesc and targetdesc.MergerName), "]",
+                " maxidx ",(targetdesc and targetdesc.MaxIdx or mrgdesc.MaxIdx))
         end
 
         if targetdesc == nil then
             if debug_typesys then
-                MsgN(">> [copy from source to target]")
+                
             end
 
-            target_mergables[k] = mrgdesc
+            local items = {}
+
+            for key, mrgitem in SortedPairsByMemberValue(mrgdesc.List, "Idx") do
+                local idx = mrgitem.Idx
+                local value = mrgitem.Value
+                MsgN(">> ",key,"[",idx,"] copy ", value)
+                
+                items[key] = {Idx = idx, Value = value}
+            end
+
+            target_mergables[k] = {
+                MaxIdx = mrgdesc.MaxIdx,
+                MergerName = mrgdesc.MergerName,
+                List = items
+            }
             continue
         end
 
@@ -131,15 +146,11 @@ function LIB.ApplyTrait(traitmeta, targetmeta)
         end
 
         for key, mrgitem in SortedPairsByMemberValue(mrgdesc.List, "Idx") do
-            if debug_typesys then
-                MsgN(">> key\t", key, " count ", mrgitem.MaxIdx)
-            end
-
             local value = mrgitem.Value
             local keydesc = targetdesc[key]
             if keydesc ~= nil then
                 if debug_typesys then
-                    MsgN(">>> [",keydesc.Idx,"] replace ", keydesc.Value, " with " ,value)
+                    MsgN(">> ",key,"[",keydesc.Idx,"] replace ", keydesc.Value, " with " ,value)
                 end
                 keydesc.Value = value 
             else
@@ -147,7 +158,7 @@ function LIB.ApplyTrait(traitmeta, targetmeta)
                 targetdesc.MaxIdx = idx
                 
                 if debug_typesys then
-                    MsgN(">>> [",idx,"] new ", value)
+                    MsgN(">> ",key,"[",idx,"] new ", value)
                 end
                 targetdesc[key] = {
                     Idx = idx,

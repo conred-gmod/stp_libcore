@@ -21,7 +21,7 @@ end
 
 function LIB.BeginObject(typename)
     if stp.DebugFlags.TypeSystem then
-        print("stp.obj.BeginObject", typename)
+        print("\nstp.obj.BeginObject", typename)
     end
 
     local meta = Metas[typename] or {}
@@ -42,7 +42,7 @@ end
 
 function LIB.BeginExistingObject(meta)
     if stp.DebugFlags.TypeSystem then
-        print("stp.obj.BeginExistingObject", meta)
+        print("\nstp.obj.BeginExistingObject", meta)
     end
 
     local typename = meta.TypeName
@@ -65,7 +65,7 @@ end
 
 function LIB.BeginTrait(typename)
     if stp.DebugFlags.TypeSystem then
-        print("stp.obj.BeginTrait", typename)
+        print("\nstp.obj.BeginTrait", typename)
     end
 
     local meta = Traits[typename] or {}
@@ -95,6 +95,7 @@ function LIB.Register(meta)
         PrintTable(meta, 1)
         print("<<<")
     end
+    if stp.DebugFlags.TypeSystem or stp.DebugFlags.DumpTypes then print() end
 
     if meta.IsTrait then
        assert(rawget(meta,"__index") == rawget, "Modifying `__index` of metatable breaks stp.trait.Apply!")
