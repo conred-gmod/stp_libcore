@@ -18,11 +18,10 @@ hook.Add("OnReloaded", "stp.hotreload.PersistTableUnlock", UnlockPersistData)
 
 
 function LIB.GetPersistedTable(name, default)
-    assert(__stp_persistdata_unlocked, "Function called in wrong time (not before first game tick)")
-
     if __stp_persistdata[name] ~= nil then
         return __stp_persistdata[name]
     else
+        assert(__stp_persistdata_unlocked, "Function called in wrong time (not before first game tick)")
         __stp_persistdata[name] = default
         return default
     end
