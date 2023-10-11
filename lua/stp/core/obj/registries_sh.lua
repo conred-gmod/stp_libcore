@@ -108,7 +108,11 @@ function LIB.Register(meta)
         meta.IsFullyRegistered = true
     end
     
-    Traits[typename] = meta
+    if meta.IsTrait then
+        Traits[typename] = meta
+    else
+        Metas[typename] = meta
+    end
     LIB._MergablesMerge(meta)
 
     hook.Run("stp.obj.OnMetaRegistered", meta)
