@@ -32,6 +32,7 @@ function librest._Set(obj, restrictor)
     end
 
     if restrictor then
+        RestrictedByThis[restrictor] = RestrictedByThis[restrictor] or {}
         RestrictedByThis[restrictor][obj] = true
     end
 end

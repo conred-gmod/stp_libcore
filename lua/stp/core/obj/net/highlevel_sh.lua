@@ -13,7 +13,7 @@ if SERVER then
         libn._MarkDirty(self)
     end)
 
-    libo.HookAdd(VARF, "PostInit", "stp.obj.net", function(self, params)
+    libo.HookAdd(VARF, "SubobjVariableOwner_Added", "stp.obj.net", function(self, params)
         self:NetSetRestrictor(self.Owner)
     end)
 
@@ -79,7 +79,7 @@ if SERVER then
     MSGF.Send = Msg_Send
     MSGF.NetTransmit = Msg_Transmit
 
-    libo.HookAdd(MSGF, "PostInit", "stp.obj.net", function(self, params)
+    libo.HookAdd(MSGF, "SubobjVariableOwner_Added", "stp.obj.net", function(self, params)
         self:NetSetRestrictor(self.Owner)
     end)
 else
