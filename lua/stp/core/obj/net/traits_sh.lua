@@ -18,7 +18,7 @@ function NETABLE:NetGetRestrictor()
 end
 
 function NETABLE:NetSetRestrictor(restrictor)
-    libn.restrictor._Set(self, restrictor)
+    libn.restrictors._Set(self, restrictor)
     self.__net_restrictor = restrictor
 end
 

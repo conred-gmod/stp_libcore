@@ -224,7 +224,7 @@ function libn._TransmitAll()
 
     if SERVER then
         for _, data in ipairs(libaware._GetNewlyAware()) do
-            local obj = data.Objects
+            local obj = data.Object
             
             TransmitSingle_Init(obj, data.NewlyAware)
 
@@ -235,7 +235,7 @@ function libn._TransmitAll()
     end
 
     for obj, _ in pairs(DirtyObjects) do
-        if TransmitSingle(obj) then
+        if TransmitSingle_Data(obj) then
             table.insert(cleaned, obj)
         end
     end
