@@ -7,8 +7,7 @@ print("---- __devtest.lua start")
 
 local META = libo.BeginObject("PerfectCasino.Poker")
 libo.ApplyMany(META,
-    libn.Instantiatable,
-    libo.VariableContainer
+    libn.EasyComposite
 )
 
 libo.ConstructNestedType(META, "Bank",

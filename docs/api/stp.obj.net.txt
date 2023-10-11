@@ -168,6 +168,12 @@ fn .MakeMsgAccessors(send: string, receiver: string) -> mixin {
     }
 }
 
+trait .EasyComposite {
+    require .Instantiatable
+    require stp.obj.VariableContainer
+    SV require .MakeReliable
+}
+
 ------- Standard Schemas
 
 internal fn ._GetNetworkableFromParentAndId(parent: .NetworkableComposite|nil, id: uint, revnet: bool)

@@ -101,19 +101,19 @@ local function MakeGenericMsg(trait, schema)
     end
 end
 
-function libo.MakeMsgFwd(schema, buffered)
+function libn.MakeMsgFwd(schema, buffered)
     assert(buffered == false, "Buffered messages are not supported yet")
 
     return MakeGenericMsg(MSGF, schema)
 end
 
-function libo.MakeMsgRev(schema, buffered)
+function libn.MakeMsgRev(schema, buffered)
     assert(buffered == false, "Buffered messages are not supported yet")
 
     return MakeGenericMsg(MSGR, schema)
 end
 
-function libo.MakeMsgAccessors(send, receiver)
+function libn.MakeMsgAccessors(send, receiver)
     return function(msgmeta)
         libo.CheckNotFullyRegistered(msgmeta)
 
@@ -139,3 +139,14 @@ function libo.MakeMsgAccessors(send, receiver)
         end
     end
 end
+
+
+local ECOMP = libo.BeginTrait("stp.net.EasyComposite")
+libo.ApplyMany(ECOMP,
+    libn.Instantiatable,
+    libn.MakeReliable,
+    libo.VariableContainer
+)
+
+libo.Register(ECOMP)
+libn.EasyComposite = ECOMP

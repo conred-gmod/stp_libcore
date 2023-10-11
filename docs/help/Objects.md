@@ -86,8 +86,7 @@ local libn = stp.obj.net
 
 local META = libo.BeginObject("your.namespace.YourObjectName")
 libo.ApplyMany(META,
-    libn.Instantiatable,
-    libo.VariableContainer
+    libn.EasyComposite -- Для реализации типичного сетевого объекта с сетевыми переменными
     -- Your traits here
 )
 
