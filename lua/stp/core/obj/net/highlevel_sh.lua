@@ -13,6 +13,10 @@ if SERVER then
         libn._MarkDirty(self)
     end)
 
+    libo.HookAdd(VARF, "PostInit", "stp.obj.net", function(self, params)
+        self:NetSetRestrictor(self.Owner)
+    end)
+
     function VARF:NetTransmit(bytes_left)
         self.SCHEMA.transmit(self:VariableGet(), bytes_left)
     end
@@ -74,6 +78,10 @@ end
 if SERVER then
     MSGF.Send = Msg_Send
     MSGF.NetTransmit = Msg_Transmit
+
+    libo.HookAdd(MSGF, "PostInit", "stp.obj.net", function(self, params)
+        self:NetSetRestrictor(self.Owner)
+    end)
 else
     MSGF.NetReceive = Msg_Receive
 end

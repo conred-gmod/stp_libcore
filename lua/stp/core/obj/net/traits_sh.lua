@@ -17,7 +17,7 @@ function NETABLE:NetGetRestrictor()
     return self.__net_restrictor
 end
 
-function NETABLE:NetSetRestrictor(restrictor) -- TODO: call this for variables
+function NETABLE:NetSetRestrictor(restrictor)
     libn.restrictors._Set(self, restrictor)
     self.__net_restrictor = restrictor
 end
