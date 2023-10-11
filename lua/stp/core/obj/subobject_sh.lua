@@ -44,33 +44,38 @@ local function MakeContainer(desc, owner, key)
 
     container._desc = desc
     container._owner = owner
+    container._key = key
     container.ById = {}
     container.ByName = {}
 
-    function container._GetOwnerInfo(obj)
-        if not obj["IsSubobj"..key.."Storable"] then
-            stp.Error("Attempt to use non-'",key,"'-subobject ",obj," in subobject container for ",owner)
-        end
 
-        return obj["Subobj"..key.."Owner"]
-    end
-
-    function container._SetOwnerInfo(obj, value)
-        if not obj["IsSubobj"..key.."Storable"] then
-            stp.Error("Attempt to use non-'",key,"'-subobject ",obj," in subobject container for ",owner)
-        end
-
-        obj["Subobj"..key.."Owner"] = value
-    end
 
     return container
 end
 
+function CONT:_GetOwnerInfo(obj)
+    local key = self._key
 
+    if not obj["IsSubobj"..key.."Storable"] then
+        stp.Error("Attempt to use non-'",key,"'-subobject ",obj," in subobject container for ",self._owner)
+    end
+
+    return obj["Subobj"..key.."Owner"]
+end
+
+function CONT:_SetOwnerInfo(obj, value)
+    local key = self._key
+
+    if not obj["IsSubobj"..key.."Storable"] then
+        stp.Error("Attempt to use non-'",key,"'-subobject ",obj," in subobject container for ",self._owner)
+    end
+
+    obj["Subobj"..key.."Owner"] = value
+end
 
 function CONT:SetById(id, value)
     if value ~= nil then
-        assert(self._GetOwnerInfo(value) == nil, "Attempt to double-use object in subobject container")
+        assert(self:_GetOwnerInfo(value) == nil, "Attempt to double-use object in subobject container")
     end
 
     local curvalue = self.ById[id]
@@ -78,10 +83,10 @@ function CONT:SetById(id, value)
     if curvalue == value then return end
 
     if curvalue ~= nil then
-        self._SetOwnerInfo(curvalue, nil)
+        self:_SetOwnerInfo(curvalue, nil)
     end
     if value ~= nil then
-        self._SetOwnerInfo(value, {
+        self:_SetOwnerInfo(value, {
             Owner = self._owner,
             SlotName = name,
             SlotId = id
@@ -103,7 +108,9 @@ function CONT:ClearAll()
 
     for i = 1, count do
         local obj = self.ById[i]
-        self._SetOwnerInfo(obj, nil)
+        if obj ~= nil then
+            self:_SetOwnerInfo(obj, nil)
+        end
 
         self.ById[i] = nil
         self.ByName[names[i]] = nil
