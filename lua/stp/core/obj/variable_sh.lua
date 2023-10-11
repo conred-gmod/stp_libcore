@@ -103,7 +103,7 @@ function libo.MakeVariableAttached(varmeta, parentmeta)
 
 
     libo.HookAdd(varmeta, "Init", "stp.obj.MakeVariableAttached", function(self, param)    
-        self:VariableSet(self.VariableInit(param.VarInit))
+        self:VariableSet(self:VariableInit(param.VarInit))
         self.Owner.SubobjVariable:SetByName(vartyname, self)
     end)
 

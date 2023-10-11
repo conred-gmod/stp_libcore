@@ -299,7 +299,7 @@ trait .Variable {
 
     doconly param type .TData
 
-    -- Extracts needed 
+    -- Extracts needed data from arguments
     abstract fn :VariableInit(ctor_args: table) -> .TData
     abstract fn :VariableGet() -> .TData
     abstract fn :VariableSet(val: .TData)
