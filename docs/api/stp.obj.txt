@@ -266,6 +266,8 @@ nonpubctor mixin(key: string) .SubobjectContainer {
         fn :SetByName(name: string, val: .Item|nil)
 
         fn :ClearAll()
+
+        fn :Iterate() -> <iterator> -> id: uint, name: string, value: .Item
     }
 }
 
@@ -278,7 +280,10 @@ nonpubctor mixin(key: string) .SubobjectStorable {
         readonly .SlotId: uint
     }
 
-    
+    hook :Subobj{key}Owner_Added()
+    hook :Subobj{key}Owner_PreRemoved()
+
+
 }
 
 -- Adds .SubobjectContainer(key) to meta

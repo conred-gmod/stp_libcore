@@ -30,6 +30,9 @@ function LIB.MakeSubobjectStorable(meta, key)
     end
 
     meta["IsSubobj"..key.."Storable"] = true
+
+    LIB.HookDefine(meta, "Subobj"..key.."Owner_Added")
+    LIB.HookDefine(meta, "Subobj"..key.."Owner_PreRemoved")
 end
 
 local CONT = {}
@@ -83,6 +86,8 @@ function CONT:SetById(id, value)
     if curvalue == value then return end
 
     if curvalue ~= nil then
+        curvalue["Subobj"..self._key.."Owner_PreRemoved"](curvalue)
+
         self:_SetOwnerInfo(curvalue, nil)
     end
     if value ~= nil then
@@ -91,6 +96,8 @@ function CONT:SetById(id, value)
             SlotName = name,
             SlotId = id
         })
+        
+        value["Subobj"..self._key.."Owner_Added"](value)
     end
 
     self.ById[id] = value
@@ -100,6 +107,19 @@ end
 function CONT:SetByName(name, value)
     local id = self._desc.NameToId[name]
     self:SetById(id, value)
+end
+
+function CONT:Iterate()
+    local idx = 0
+    local count = self._desc.Count
+    local names = self._desc.IdToName
+
+    return function()
+        idx = idx + 1
+        if idx > count then return nil end
+
+        return idx, names[idx], self.ById[i]
+    end
 end
 
 function CONT:ClearAll()
@@ -134,7 +154,7 @@ function LIB.MakeSubobjectContainer(meta, key)
         self["Subobj"..key] = MakeContainer(self["Subobj"..key.."Desc"], self, key)
     end)
 
-    LIB.HookAdd(meta, "OnPreRemove", "___subobj_container_"..key, function(self)
+    LIB.HookAdd(meta, "OnPreRemove", "___subobj_container_"..key, function(self, cascaded)
         self["Subobj"..key]:ClearAll()
     end)
 
