@@ -93,8 +93,6 @@ local Net_WriteObj = libsch[SERVER and "StpNetworkable" or "StpNetworkableRev"].
 local Net_ReadObj_FinalId = libsch.ReadNetworkableAny_FinalId
 
 local function Net_SendData(obj, recip, unreliable)
-    assert(not obj.IsNetInstantiatable)
-
     net.Start(NETSTRING, unreliable)
 
     Net_WriteObj(obj)
@@ -195,6 +193,8 @@ hook.Add("stp.obj.PreRemove", "spt.obj.net.ClearDirty", function(obj, _)
 end)
 
 local function TransmitSingle_Data(obj)
+    if obj.NetTransmit == nil then return true end
+
     local recip
 
     if SERVER then
