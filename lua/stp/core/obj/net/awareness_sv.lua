@@ -42,9 +42,9 @@ local function ProcessObject(obj, restrictor, restrictor_recip)
     local recip = RecipientFilter()
     obj:NetGetRecipients(recip)
 
-    if not CheckAndFilterRecipients(recip, restrictor) then return end
+    if not CheckAndFilterRecipients(recip, restrictor_recip) then return end
 
-    local aware = AwarePlys[obj]
+    local aware = AwarePlys[obj] or {}
     local init_plys = {}
     for _, ply in ipairs(recip:GetPlayers()) do
         if not aware[ply] then
@@ -61,8 +61,7 @@ local function ProcessObject(obj, restrictor, restrictor_recip)
 
     ObserverdRecips[obj] = recip
 
-
-    for child in pairs(librest.RestrictedByThis[obj]) do
+    for child in pairs(librest.RestrictedByThis[obj] or {}) do
         ProcessObject(child, obj, recip)
     end
 end

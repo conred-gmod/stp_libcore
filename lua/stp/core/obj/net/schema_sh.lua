@@ -91,6 +91,8 @@ local OBJ_TRK_BITS = libobj.Tracker.ID_BITS_NET
 local OBJ_PARTS_BITS = 4
 
 local function WriteStpObject(obj, revnet)
+    print("WriteStpObject", obj, obj.SubobjNetworkOwner, obj.SubobjNetworkRevOwner, revnet)
+
     if obj == nil then
         net.WriteUInt(0, OBJ_TRK_BITS)
         return
@@ -117,9 +119,11 @@ local function WriteStpObject(obj, revnet)
     while true do
         local ownerdata = obj.SubobjNetworkOwner
         if ownerdata == nil then
+            print("- No owner, id is",obj.TrackId)
             table.insert(data, obj.TrackId)
             break
         else
+            print("- Yes owner, data is",ownerdata.SlotId)
             local bits = ownerdata.Owner.SubobjNetworkDesc.Bits
             table.insert(data, {
                 bits = bits,
@@ -129,6 +133,8 @@ local function WriteStpObject(obj, revnet)
             obj = ownerdata.Owner
         end
     end
+
+    print("- Data", table.ToString(data))
 
     local rootid = table.remove(data)
     table.ReverseInplace(data)

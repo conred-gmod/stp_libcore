@@ -39,7 +39,7 @@ local CONT = {}
 CONT.__index = CONT
 
 function CONT:__tostring()
-    return "[stp_libcore SubobjContainer of "..self._owner.TypeName.."]"
+    return "[stp_libcore SubobjContainer "..self._key.." of "..self._owner.TypeName.."]"
 end
 
 local function MakeContainer(desc, owner, key)
@@ -73,6 +73,7 @@ function CONT:_SetOwnerInfo(obj, value)
         stp.Error("Attempt to use non-'",key,"'-subobject ",obj," in subobject container for ",self._owner)
     end
 
+    print("CONT:_SetOwnerInfo",obj,key)
     obj["Subobj"..key.."Owner"] = value
 end
 
@@ -106,6 +107,9 @@ end
 
 function CONT:SetByName(name, value)
     local id = self._desc.NameToId[name]
+    if id == nil then
+        stp.Error(self," has no subobject named '",name,"'")
+    end
     self:SetById(id, value)
 end
 

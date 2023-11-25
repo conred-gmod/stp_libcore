@@ -20,6 +20,7 @@ function librest._Set(obj, restrictor)
     CheckRestrictorLoop(restrictor, obj)
 
     if oldrestrictor == restrictor then return end
+    print("Restrictor Set",obj, restrictor, oldrestrictor)
 
     if restrictor ~= nil then
         Unrestricted[obj] = nil
@@ -35,17 +36,22 @@ function librest._Set(obj, restrictor)
         RestrictedByThis[restrictor] = RestrictedByThis[restrictor] or {}
         RestrictedByThis[restrictor][obj] = true
     end
+
+    print(table.ToString(RestrictedByThis, "RestrictedByThis", true))
 end
 
 hook.Add("stp.obj.Tracker.OnPreTracked", "stp.obj.net.Restrictors", function(obj, id)
     if not ObjTracker.IsNetworkable(id) then return end
+    print("Restrictor Add",obj)
 
-    RestrictedByThis[obj] = {}
+    RestrictedByThis[obj] = RestrictedByThis[obj] or {}
     Unrestricted[obj] = true
 end)
 
 hook.Add("stp.obj.PreRemove", "spt.obj.net.Restrictors", function(obj)
     if not ObjTracker.IsNetworkable(obj) then return end
+
+    print("Restrictor Remove",obj)
 
     Unrestricted[obj] = nil
     RestrictedByThis[obj] = nil

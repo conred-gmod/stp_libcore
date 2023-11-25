@@ -1,6 +1,32 @@
 local libn = stp.obj.net
 local libo = stp.obj
 
+local function Attach(varmeta)
+    local parentmeta = varmeta.OwnerType
+    assert(parentmeta)
+
+    local container_name
+    if varmeta.IsSubobjNetworkStorable then
+        parentmeta:RegisterSubobjNetwork(varmeta)
+        container_name = "SubobjNetwork"
+    else
+        parentmeta:RegisterSubobjNetworkRev(varmeta)
+        container_name = "SubobjNetworkRev"
+    end
+
+    local vartyname = varmeta.TypeName
+    print("Attach", vartyname)
+    
+    libo.HookAdd(varmeta, "Init", "stp.obj.net.HighLevelAttach", function(self)    
+        self.Owner[container_name]:SetByName(vartyname, self)
+    end)
+
+    libo.HookAdd(varmeta, "OnRemove", "stp.obj.net.HighLevelDetach", function(self)
+        self.Owner[container_name]:SetByName(vartyname, nil)
+    end)
+end
+
+
 local VARF = libo.BeginTrait("stp.obj.net.Var")
 libn.Sendable(VARF)
 libo.Variable(VARF)
@@ -28,6 +54,7 @@ else
     end
 end
 
+print(VARF, VARF.IsSubobjNetworkStorable)
 libo.Register(VARF)
 
 function libn.MakeVar(schema)
@@ -36,6 +63,7 @@ function libn.MakeVar(schema)
 
         VARF(varmeta)
         varmeta.SCHEMA = schema
+        Attach(varmeta)
     end
 end
 
@@ -106,6 +134,7 @@ local function MakeGenericMsg(trait, schema)
 
         trait(msgmeta)
         msgmeta.SCHEMA = schema
+        Attach(msgmeta)
     end
 end
 
