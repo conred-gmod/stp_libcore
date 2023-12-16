@@ -30,6 +30,7 @@ end
 local VARF = libo.BeginTrait("stp.obj.net.Var")
 libn.Sendable(VARF)
 libo.Variable(VARF)
+libn.SendableInit(VARF)
 
 libo.MarkAbstract(VARF, "SCHEMA", "table")
 
@@ -43,14 +44,24 @@ if SERVER then
         self:NetSetRestrictor(self.Owner)
     end)
 
-    function VARF:NetTransmit(bytes_left)
-        self.SCHEMA.transmit(self:VariableGet(), bytes_left)
+    function VARF:NetTransmit()
+        self.SCHEMA.transmit(self:VariableGet())
+    end
+
+    function VARF:NetTransmitInit()
+        self:NetTransmit()
     end
 
     -- TODO: transmit-on-connect
 else
-    function VARF:NetReceive(bytes)
-        self:VariableSet(self.SCHEMA.receive(bytes))
+    libo.VariableRequireInit()(VARF)
+
+    function VARF:NetReceive()
+        self:VariableSet(self.SCHEMA.receive())
+    end
+
+    function VARF.NetReceiveInit()
+        return {VarValue = self.SCHEMA.receive()}
     end
 end
 
@@ -69,7 +80,7 @@ end
 
 
 
-
+-- TODO: do not call :NetTransmitInit/:NetReceiveInit for these traits.
 local MSGF = libo.BeginTrait("stp.obj.net.MsgUnbuffered")
 local MSGR = libo.BeginTrait("stp.obj.net.MsgRevUnbuffered")
 

@@ -76,14 +76,20 @@ trait .SendableRev {
     SV abstract fn :NetReceive(sender: Player)
 }
 
-trait .Instantiatable {
-    require .NetworkableComposite
-    require .TrackableNetworked
-
-    const .IsNetInstantiatable = true
+-- Client will be notified of creation of such object
+trait .SendableInit {
+    require .Networkable
 
     SV abstract fn :NetTransmitInit()
     CL abstract fn .NetReceiveInit() -> ctor_params: table
+}
+
+trait .Instantiatable {
+    require .NetworkableComposite
+    require .TrackableNetworked
+    require .SendableInit
+
+    const .IsNetInstantiatable = true
 
     CL hook :Init(args: table) -- Clientside, object can only be constructed when init data received from server
     CL hook :OnPreRemove(cascaded: bool) -- Clientside, non-cascaded remove can only be initiated by server 
@@ -108,6 +114,7 @@ trait .Var {
 
     require .obj.Variable({ TData = .TData })
     require .Sendable
+    require .SendableInit
 
     abstract const .SCHEMA: .Schema({ TData = .TData })
 }

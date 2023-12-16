@@ -71,11 +71,15 @@ do
     libo.MergerRegisterArray(MRG, function(meta, mrg_field, abstracts)
         assert(mrg_field == MRG_FIELD)
         if meta.IsTrait then return end
+        MsgN("Merger for ",MRG_FIELD,": meta ",meta)
+
 
         for _, pair in ipairs(abstracts) do
             local key = pair.Key
             local val = meta[key]
             local tys = pair.Value
+
+            MsgN("\t[",key,"] ",val)
 
             if not stp.IsAnyType(val, tys) then
                 stp.Error(meta,": abstract field '",key,"' has invalid type '",type(val),"',",

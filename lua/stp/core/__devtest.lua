@@ -18,7 +18,6 @@ libo.ConstructNestedType(META, "Bank",
         "OnBankChanged"
     ),
 
-    CLIENT and libo.VariableRequireInit(),
     SERVER and libo.VariableDefault(0),
 
     libn.MakeVar(libn.schema.UInt(16)),
@@ -32,12 +31,10 @@ if SERVER then
     end
 
     function META:NetTransmitInit()
-        net.WriteUInt(self:GetBank(), 16)
     end
 else
     function META.NetReceiveInit()
-        local bank = net.ReadUInt(16)
-        return { Bank = bank }
+        return {}
     end
 end
 

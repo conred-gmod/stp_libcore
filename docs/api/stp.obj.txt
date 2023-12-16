@@ -360,9 +360,10 @@ fn .MakeVariableAccessors(getter: string|nil|false, setter: string|nil|false, li
     }
 
 
--- If you want to add custom initialization logic, implement .Variable:VariableInit yourself
+-- If you want to add custom initialization logic, implement .Variable:VariableInit yourself.
 
-fn .VariableRequireInit(ctorkey: string) -> mixin {
+-- If ctorkey == nil, PostfixName of variable used istead.
+fn .VariableRequireInit(ctorkey: string|nil) -> mixin {
     require .Variable
 
     -- Errors if `ctor_args[ctorkey] == nil`

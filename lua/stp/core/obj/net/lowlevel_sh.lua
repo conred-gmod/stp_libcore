@@ -31,18 +31,25 @@ libo.Register(SENDREV)
 libn.Sendable = SEND
 libn.SendableRev = SENDREV
 
+local SENDINIT = libo.BeginTrait("stp.obj.net.SendableInit")
+libn.Networkable(SENDINIT)
+
+if SERVER then
+    libo.MarkAbstract(SENDINIT, "NetTransmitInit", "function")
+else
+    libo.MarkAbstract(SENDINIT, "NetReceiveInit", "function")
+end
+
+libo.Register(SENDINIT)
+libn.SendableInit = SENDINIT
+
 local INST = libo.BeginTrait("stp.obj.net.Instantiatable")
 
 libo.ApplyMany(INST,
     libn.NetworkableComposite,
-    libo.TrackableNetworked
+    libo.TrackableNetworked,
+    SENDINIT
 )
-
-if SERVER then
-    libo.MarkAbstract(INST, "NetTransmitInit", "function")
-else
-    libo.MarkAbstract(INST, "NetReceiveInit", "function")
-end
 
 if CLIENT then
     libo.HookAdd(INST, "Init", INST.TypeName, function(self, params)
