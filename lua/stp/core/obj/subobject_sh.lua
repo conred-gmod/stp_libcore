@@ -10,7 +10,7 @@ LIB.MergerRegisterArray(MERGER, function(meta, key, array)
     }
 
     if not meta.IsTrait then
-        desc.BitCount = bitcount
+        desc.Bits = bitcount
         desc.Count = #array
     end
 

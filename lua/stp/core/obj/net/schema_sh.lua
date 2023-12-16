@@ -139,7 +139,7 @@ local function WriteStpObject(obj, revnet)
 
     print("- Data", table.ToString(data))
 
-    local rootid = table.remove(data)
+    local rootid = table.remove(data).data
     table.ReverseInplace(data)
 
     net.WriteUInt(rootid, OBJ_TRK_BITS)
