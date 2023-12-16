@@ -48,7 +48,7 @@ hook.Add("stp.obj.Tracker.OnPreTracked", "stp.obj.net.Restrictors", function(obj
     Unrestricted[obj] = true
 end)
 
-hook.Add("stp.obj.PreRemove", "spt.obj.net.Restrictors", function(obj)
+hook.Add("stp.obj.PreRemoved", "spt.obj.net.Restrictors", function(obj)
     if not ObjTracker.IsNetworkable(obj) then return end
 
     print("Restrictor Remove",obj)

@@ -98,7 +98,7 @@ hook.Add("PlayerDisconnected", "stp.obj.net.awareness", function(ply)
     end
 end)
 
-hook.Add("stp.obj.PreRemove", "stp.obj.net.awareness", function(obj)
+hook.Add("stp.obj.PreRemoved", "stp.obj.net.awareness", function(obj)
     AwarePlys[obj] = nil
 end)
 

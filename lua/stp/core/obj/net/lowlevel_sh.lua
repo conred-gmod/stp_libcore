@@ -178,7 +178,7 @@ if CLIENT then
 end
 
 if SERVER then
-    hook.Add("stp.obj.PreRemove", "stp.obj.net.TransmitRemove", function(obj, cascaded)
+    hook.Add("stp.obj.PreRemoved", "stp.obj.net.TransmitRemove", function(obj, cascaded)
         if not obj.IsNetInstantiatable then return end
         if not cascaded then return end
 
@@ -189,7 +189,7 @@ if SERVER then
     end)
 end
 
-hook.Add("stp.obj.PreRemove", "spt.obj.net.ClearDirty", function(obj, _)
+hook.Add("stp.obj.PreRemoved", "spt.obj.net.ClearDirty", function(obj, _)
     DirtyObjects[obj] = nil
 end)
 
