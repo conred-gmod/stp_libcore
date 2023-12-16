@@ -84,7 +84,8 @@ function libaware._GetRecipients(obj)
 end
 
 function libaware._MarkAware(obj, plys)
-    local aware = AwarePlys[obj]
+    local aware = AwarePlys[obj] or {}
+    AwarePlys[obj] = aware
     for _, ply in ipairs(plys) do
         aware[ply] = true
     end
