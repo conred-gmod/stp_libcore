@@ -5,17 +5,17 @@ local function Attach(varmeta)
     local parentmeta = varmeta.OwnerType
     assert(parentmeta)
 
-    local container_name
-    if varmeta.IsSubobjNetworkStorable then
-        parentmeta:RegisterSubobjNetwork(varmeta)
-        container_name = "SubobjNetwork"
-    else
-        parentmeta:RegisterSubobjNetworkRev(varmeta)
-        container_name = "SubobjNetworkRev"
-    end
-
     local vartyname = varmeta.TypeName
     print("Attach", vartyname)
+
+    local container_name
+    if varmeta.IsSubobjNetworkStorable then
+        parentmeta:RegisterSubobjNetwork(vartyname)
+        container_name = "SubobjNetwork"
+    else
+        parentmeta:RegisterSubobjNetworkRev(vartyname)
+        container_name = "SubobjNetworkRev"
+    end
     
     libo.HookAdd(varmeta, "Init", "stp.obj.net.HighLevelAttach", function(self)    
         self.Owner[container_name]:SetByName(vartyname, self)
