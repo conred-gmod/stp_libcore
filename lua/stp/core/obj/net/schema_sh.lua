@@ -120,7 +120,10 @@ local function WriteStpObject(obj, revnet)
         local ownerdata = obj.SubobjNetworkOwner
         if ownerdata == nil then
             print("- No owner, id is",obj.TrackId)
-            table.insert(data, obj.TrackId)
+            table.insert(data, {
+                bits = 0,
+                data = obj.TrackId,
+            })
             break
         else
             print("- Yes owner, data is",ownerdata.SlotId)
