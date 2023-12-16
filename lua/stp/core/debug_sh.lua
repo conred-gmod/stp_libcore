@@ -1,13 +1,14 @@
-local function ConcatToString(parts)
-    for i, part in ipairs(parts) do
-        parts[i] = tostring(part)
+local function ConcatToString(...)
+    local parts = {...}
+    for i = 1, select("#", ...) do
+        parts[i] = tostring(parts[i])
     end
 
     return table.concat(parts, "")
 end
 
 function stp.Error(...)
-    error(ConcatToString({...}), 2)
+    error(ConcatToString(...), 2)
 end
 
 function stp.ToString(val, pretty_print)
