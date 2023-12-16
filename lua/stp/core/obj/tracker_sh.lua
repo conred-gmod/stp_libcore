@@ -83,7 +83,7 @@ end
 function libtrack.IsNetworkable(arg)
     local id = arg
     if istable(arg) then
-        id = arg.IsNetworkable
+        id = arg.TrackId
     end
 
     return id > 0
