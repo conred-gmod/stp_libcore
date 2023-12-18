@@ -146,7 +146,7 @@ net.Receive(NETSTRING, function(_, sender)
         local typename = net.ReadString()
         local meta = libo.GetObjectMetatables()[typename]
 
-        local params = meta.NetReceiveInit()
+        local params = meta:NetReceiveInit()
 
         Net_RecvCreate(parentobj, id, meta, params)
     elseif obj.IsNetInstantiatable then -- Remove 

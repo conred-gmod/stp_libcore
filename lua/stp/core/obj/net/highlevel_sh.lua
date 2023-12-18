@@ -60,7 +60,7 @@ else
         self:VariableSet(self.SCHEMA.receive())
     end
 
-    function VARF.NetReceiveInit()
+    function VARF:NetReceiveInit()
         return {VarValue = self.SCHEMA.receive()}
     end
 end
