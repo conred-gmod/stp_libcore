@@ -20,7 +20,9 @@ libo.VariableContainer = VARCONT
 local VARF = libo.BeginTrait("stp.obj.VariableField")
 
 function VARF:VariableInit(param)
-    self._var_value = param.VarValue
+    debug.Trace()
+    print("VARF:VariableInit", table.ToString(param))
+    return param.VarValue
 end
 
 function VARF:VariableGet()
@@ -28,6 +30,9 @@ function VARF:VariableGet()
 end
 
 function VARF:VariableSet(val)
+    debug.Trace()
+    print(self,"VariableSet",val)
+
     self:VariableOnSet(self._var_value, val)
     self._var_value = val
 end
@@ -103,6 +108,7 @@ function libo.MakeVariableAttached(varmeta, parentmeta)
 
 
     libo.HookAdd(varmeta, "Init", "stp.obj.MakeVariableAttached", function(self, param)    
+        print(self, "Attached variable init")
         self:VariableSet(self:VariableInit(param.VarInit))
         self.Owner.SubobjVariable:SetByName(vartyname, self)
     end)
@@ -159,9 +165,10 @@ end
 
 function libo.VariableRequireInit(ctorkey)
     return function(varmeta)
-        if ctorkey == nil then ctorkey = varmeta.PostfixName end
-
         function varmeta:VariableInit(param)
+            debug.Trace()
+            if ctorkey == nil then ctorkey = self.PostfixName end
+
             local val = param[ctorkey]
             if val == nil then
                 stp.Error("Variable '",self,"' not initialized: constructor key '",ctorkey,"' missing")
@@ -175,6 +182,7 @@ end
 function libo.VariableDefault(default)
     return function(varmeta)
         function varmeta:VariableInit(_)
+            debug.Trace()
             return default
         end
     end
