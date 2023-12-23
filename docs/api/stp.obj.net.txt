@@ -81,7 +81,8 @@ trait .SendableInit {
     require .Networkable
 
     SV abstract fn :NetTransmitInit()
-    CL abstract fn .NetReceiveInit() -> ctor_params: table
+    -- When called, `self` is a metatable, not object instance!
+    CL abstract fn :NetReceiveInit() -> ctor_params: table
 }
 
 trait .Instantiatable {

@@ -54,13 +54,12 @@ if SERVER then
 
     -- TODO: transmit-on-connect
 else
-    libo.VariableRequireInit()(VARF)
-
     function VARF:NetReceive()
         self:VariableSet(self.SCHEMA.receive())
     end
 
-    function VARF.NetReceiveInit()
+    function VARF:NetReceiveInit()
+        print(self, "VARF:NetReceiveInit", self.SCHEMA.receive)
         return {VarValue = self.SCHEMA.receive()}
     end
 end

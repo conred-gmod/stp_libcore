@@ -33,7 +33,7 @@ if SERVER then
     function META:NetTransmitInit()
     end
 else
-    function META.NetReceiveInit()
+    function META:NetReceiveInit()
         return {}
     end
 end
