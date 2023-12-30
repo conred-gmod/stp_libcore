@@ -47,6 +47,10 @@ function META:BankAdd(delta)
     self:SetBank(self:GetBank() + delta)
 end
 
+libo.HookAdd(META, "OnPreRemove", "Devtest.Debug", function(self)
+    print(self, "Removing...")
+end)
+
 libo.Register(META)
 --Poker.Game = META
 
