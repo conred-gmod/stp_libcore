@@ -29,7 +29,7 @@ end
 local VARF = libo.BeginTrait("stp.obj.net.Var")
 libn.Sendable(VARF)
 libo.Variable(VARF)
-libn.SendableInit(VARF)
+--libn.SendableInit(VARF)
 
 libo.MarkAbstract(VARF, "SCHEMA", "table")
 
@@ -47,9 +47,9 @@ if SERVER then
         self.SCHEMA.transmit(self:VariableGet())
     end
   
-    function VARF:NetTransmitInit()
+--[[    function VARF:NetTransmitInit()
         self:NetTransmit()
-    end
+    end]]
 
     -- TODO: transmit-on-connect
 else
@@ -57,10 +57,10 @@ else
         self:VariableSet(self.SCHEMA.receive())
     end
 
-    function VARF:NetReceiveInit()
+--[[    function VARF:NetReceiveInit()
         print(self, "VARF:NetReceiveInit", self.SCHEMA.receive)
         return {VarValue = self.SCHEMA.receive()}
-    end
+    end]]
 end
 
 libo.Register(VARF)

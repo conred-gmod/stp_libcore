@@ -115,8 +115,8 @@ trait .Var {
 
     require .obj.Variable({ TData = .TData })
     require .Sendable
-    require .SendableInit
-
+    --require .SendableInit -- For now, this is not required nor used
+ 
     abstract const .SCHEMA: .Schema({ TData = .TData })
 }
 

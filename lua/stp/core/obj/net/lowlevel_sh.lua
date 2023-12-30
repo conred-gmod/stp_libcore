@@ -117,6 +117,8 @@ local Net_SendRemove
 local Net_SendInit
 if SERVER then
     Net_SendInit = function(obj, recip)
+        if obj.NetTransmitInit == nil then return end
+
         net.Start(NETSTRING)
             Net_WriteObj(obj)
             net.WriteString(obj.TypeName)

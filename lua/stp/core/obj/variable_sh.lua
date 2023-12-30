@@ -20,7 +20,9 @@ libo.VariableContainer = VARCONT
 local VARF = libo.BeginTrait("stp.obj.VariableField")
 
 function VARF:VariableInit(param)
-    print(self, "VARF:VariableInit", table.ToString(param))
+    print(self, "VARF:VariableInit", param and table.ToString(param))
+    
+    if param == nil then return nil end
     return param.VarValue
 end
 
@@ -99,11 +101,6 @@ function libo.MakeVariableAttached(varmeta, parentmeta)
 
     local accessorname = "__Get"..vartyname
     libo.MakeAttached(accessorname)(varmeta)
-    
-    libo.HookAdd(varmeta, "FillInitParams", "stp.obj.MakeVariableAttached", function(owner_params, attach_params)
-        attach_params.VarInit = owner_params
-    end)
-
 
     libo.HookAdd(varmeta, "Init", "stp.obj.MakeVariableAttached", function(self, param)
         self:VariableSet(self:VariableInit(param.VarInit))
