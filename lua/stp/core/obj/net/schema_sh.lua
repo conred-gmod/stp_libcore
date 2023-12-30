@@ -38,7 +38,7 @@ LIB.Int = function(bits)
 
     return {
         transmit = function(n) net.WriteInt(n, bits) end,
-        receive = function() net.ReadInt(bits) end
+        receive = function() return net.ReadInt(bits) end
     }
 end
 
@@ -49,7 +49,7 @@ LIB.UInt = function(bits)
 
     return {
         transmit = function(n) net.WriteUInt(n, bits) end,
-        receive = function() net.ReadUInt(bits) end
+        receive = function() return net.ReadUInt(bits) end
     }
 end
 
