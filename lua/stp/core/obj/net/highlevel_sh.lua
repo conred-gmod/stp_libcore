@@ -6,7 +6,6 @@ local function Attach(varmeta)
     assert(parentmeta)
 
     local vartyname = varmeta.TypeName
-    print("Attach", vartyname)
 
     local container_name
     if varmeta.IsSubobjNetworkStorable then
@@ -47,7 +46,7 @@ if SERVER then
     function VARF:NetTransmit()
         self.SCHEMA.transmit(self:VariableGet())
     end
-
+  
     function VARF:NetTransmitInit()
         self:NetTransmit()
     end
@@ -64,7 +63,6 @@ else
     end
 end
 
-print(VARF, VARF.IsSubobjNetworkStorable)
 libo.Register(VARF)
 
 function libn.MakeVar(schema)

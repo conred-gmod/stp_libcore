@@ -73,7 +73,6 @@ function CONT:_SetOwnerInfo(obj, value)
         stp.Error("Attempt to use non-'",key,"'-subobject ",obj," in subobject container for ",self._owner)
     end
 
-    print("CONT:_SetOwnerInfo",obj,key)
     obj["Subobj"..key.."Owner"] = value
 end
 

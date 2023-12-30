@@ -83,7 +83,6 @@ libn.Instantiatable = INST
 local DirtyObjects = stp.GetPersistedTable("stp.obj.net.DirtyObjects", {})
 
 function libn._MarkDirty(obj)
-    print("MarkDirty", obj)
     assert(obj.NetTransmit ~= nil)
 
     DirtyObjects[obj] = true
@@ -202,16 +201,13 @@ hook.Add("stp.obj.PreRemoved", "spt.obj.net.ClearDirty", function(obj, _)
 end)
 
 local function TransmitSingle_Data(obj)
-    print("TransmitSingle_Data", obj)
-
-    if obj.NetTransmit == nil then print("- No transmit") return true end
-
+	if obj.NetTransmit == nil then return true end
     local recip
 
     if SERVER then
         recip = libaware._GetRecipients(obj)
         -- We have no recipients for data
-        if recip == nil then print("- No recip") return true end
+        if recip == nil then return true end
     end
 
     local unreliable = obj:NetIsUnreliable()
@@ -236,8 +232,6 @@ function libn._TransmitAll()
     if SERVER then
         for _, data in ipairs(libaware._GetNewlyAware()) do
             local obj = data.Object
-            print("Newly aware", obj)
-            
             TransmitSingle_Init(obj, data.NewlyAware)
 
             if TransmitSingle_Data(obj) then
