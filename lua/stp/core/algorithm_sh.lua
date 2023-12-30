@@ -19,7 +19,7 @@ function table.SeqCount(tbl)
         i = i + 1
     until tbl[i] == nil
 
-    return i
+    return i - 1
 end
 
 function table.SeqFindValue(tbl, value)
