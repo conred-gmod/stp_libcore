@@ -97,7 +97,7 @@ TRK.IsTrackable = true
 libo.HookDefine(TRK, "OnPreTracked")
 libo.HookDefine(TRK, "OnPostTracked")
 
-libo.HookAdd(TRK, "OnRemove", TRK.TypeName, Tracker_Untrack)
+libo.HookAdd(TRK, "OnRemove", TRK.TypeName, Untrack)
 
 libo.Register(TRK)
 libo.Trackable = TRK
