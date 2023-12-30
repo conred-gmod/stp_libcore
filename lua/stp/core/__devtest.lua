@@ -65,6 +65,8 @@ concommand.Add("stplib_devtest_create", function()
 
     local game = META:Create({})
     gameref.Value = game
+
+    print("Created",game,game.TrackId)
 end)
 
 concommand.Add("stplib_devtest_remove", TryRemove)
