@@ -43,6 +43,7 @@ function libo.HookDefine(meta, keyname)
 end
 
 function libo.HookAdd(meta, keyname, valname, fn)
+    assert(isfunction(fn))
     libo.MergablesAdd(meta, keyname, valname, "CallInOrder_Member", fn)
 end
 
