@@ -20,8 +20,6 @@ libo.VariableContainer = VARCONT
 local VARF = libo.BeginTrait("stp.obj.VariableField")
 
 function VARF:VariableInit(param)
-    print(self, "VARF:VariableInit", param and table.ToString(param))
-    
     if param == nil then return nil end
     return param.VarValue
 end
@@ -31,8 +29,6 @@ function VARF:VariableGet()
 end
 
 function VARF:VariableSet(val)
-    print(self,"VARF:VariableSet",val)
-
     self:VariableOnSet(self._var_value, val)
     self._var_value = val
 end
@@ -160,7 +156,6 @@ end
 function libo.VariableRequireInit(ctorkey)
     return function(varmeta)
         function varmeta:VariableInit(param)
-            debug.Trace()
             if ctorkey == nil then ctorkey = self.PostfixName end
 
             local val = param[ctorkey]
@@ -176,7 +171,6 @@ end
 function libo.VariableDefault(default)
     return function(varmeta)
         function varmeta:VariableInit(_)
-            debug.Trace()
             return default
         end
     end

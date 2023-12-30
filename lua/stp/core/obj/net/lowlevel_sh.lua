@@ -146,8 +146,6 @@ net.Receive(NETSTRING, function(_, sender)
 
         local typename = net.ReadString()
         local meta = libo.GetObjectMetatables()[typename]
-
-        print("Net Receive Init", meta)
         local params = meta:NetReceiveInit()
 
         Net_RecvCreate(parentobj, id, meta, params)
