@@ -6,6 +6,13 @@ local NETABLE = libo.BeginTrait("stp.obj.net.Networkable")
 local NETREV = libo.BeginTrait("stp.obj.net.NetworkableRev")
 local NETCOMP = libo.BeginTrait("stp.obj.net.NetworkableComposite")
 
+NETABLE.IsNetworkable = true
+NETREV.IsNetworkable = true
+NETABLE.IsNetworkableFwd = true
+NETREV.IsNetworkableRev = true
+NETCOMP.IsNetworkableComp = true
+
+
 
 LIB.MakeSubobjectStorable(NETABLE, "Network")
 LIB.MakeSubobjectStorable(NETREV, "NetworkRev")

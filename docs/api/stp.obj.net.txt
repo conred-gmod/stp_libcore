@@ -4,6 +4,9 @@ namespace stp.obj.net
 
 -- Can be sent to client from server
 trait .Networkable {
+    const .IsNetworkable = true
+    const .IsNetworkableFwd = true
+
     require .obj.SubobjectStorable("Network")
 
     -- Restrictors can not have loops
@@ -21,10 +24,15 @@ fn .MakeRecipientEveryone(meta: metatable(.Networkable)) -> mixin {
 
 -- Can be sent to server from client
 trait .NetworkableRev {
+    const .IsNetworkable = true
+    const .IsNetworkableRev = true
+
     require .obj.SubobjectStorable("NetworkRev")
 }
 
 trait .NetworkableComposite {
+    const .IsNetworkableComp = true
+
     require .Networkable
     require .obj.SubobjectContainer("Network")
     require .obj.SubobjectContainer("NetworkRev")
