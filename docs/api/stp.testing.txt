@@ -1,0 +1,6 @@
+namespace stp.testing
+-- (Semi-)automatic testing framework is provided here.
+
+-- Registers an automatic test, for example a unit test or integration test.
+-- Test is considered failed if `action` returns a string or causes an error
+fn .RegisterTest(name: string, action: (fn() -> nil|errormsg: string))

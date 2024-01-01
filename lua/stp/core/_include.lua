@@ -14,6 +14,7 @@ stp = stp or RemoveFalseValues({
         restrictors = SERVER and {},
         awareness = SERVER and {}
     } },
+    testing = {},
 
     db = {}
 })
@@ -80,6 +81,7 @@ stp.IncludeList("stp/core/", {
     "hotreload_sh.lua",
     "debug_sh.lua",
     "algorithm_sh.lua",
+    "testing_sh.lua",
 
     "obj/registries_sh.lua",
     "obj/mergables_sh.lua",
