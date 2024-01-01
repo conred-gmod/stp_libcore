@@ -3,7 +3,7 @@ local chkty = stp.CheckType
 
 local tests = stp.GetPersistedTable("stp.testing.Tests", {})
 local TYPES = {
-    SIMPLE = 1
+    SIMPLE = 1,
 }
 
 
@@ -11,13 +11,31 @@ function libtest.RegisterTest(name, action)
     chkty(name, "name", "string")
     chkty(action, "action", "function")
 
-    tests[name] = { Type = TYPES.SIMPLE, Fn = action }
+    tests[name] = { Type = TYPES.SIMPLE, Fn = action, Failing = false }
+end
+
+function libtest.RegisterTestFailing(name, action)
+    chkty(name, "name", "string")
+    chkty(action, "action", "function")
+
+    tests[name] = { Type = TYPES.SIMPLE, Fn = action, Failing = true }
 end
 
 -- fn RunTestFunction(func: (fn() -> nil|errormsg: string)) -> nil | errormsg: string
-local function RunTestFunction(fn)
+local function RunTestFunction(fn, failing)
+    if failing then
+        local has_error = xpcall(fn, function(_errmsg) end)
+
+        if has_error then
+            return nil
+        else
+            return "Function unexceptedly not errored"
+        end
+    end
+    
     local _, errormsg = xpcall(function()
         local result = fn()
+
         if result ~= nil then
             return tostring(result)
         else
@@ -33,7 +51,7 @@ end
 local function RunTest(tbl)
     local ty = tbl.Type
     if ty == TYPES.SIMPLE then
-        return RunTestFunction(tbl)
+        return RunTestFunction(tbl.Fn, tbl.Failing)
     else
         stp.Error("Unknown test type: ", ty)
     end
