@@ -20,7 +20,8 @@ libo.VariableContainer = VARCONT
 local VARF = libo.BeginTrait("stp.obj.VariableField")
 
 function VARF:VariableInit(param)
-    self._var_value = param.VarValue
+    if param == nil then return nil end
+    return param.VarValue
 end
 
 function VARF:VariableGet()
@@ -96,17 +97,13 @@ function libo.MakeVariableAttached(varmeta, parentmeta)
 
     local accessorname = "__Get"..vartyname
     libo.MakeAttached(accessorname)(varmeta)
-    
-    libo.HookAdd(varmeta, "FillInitParams", "stp.obj.MakeVariableAttached", function(owner_params, attach_params)
-        attach_params.VarInit = owner_params
-    end)
 
-
-    libo.HookAdd(varmeta, "Init", "stp.obj.MakeVariableAttached", function(self, param)    
+    libo.HookAdd(varmeta, "Init", "stp.obj.MakeVariableAttached", function(self, param)
         self:VariableSet(self:VariableInit(param.VarInit))
         self.Owner.SubobjVariable:SetByName(vartyname, self)
     end)
 
+    -- TODO: is it correct that 'parentmeta' is used here and not 'varmeta'?
     libo.HookAdd(parentmeta, "OnRemove", "stp.obj.MakeVariableAttached", function(self)
         self.Owner.SubobjVariable:SetByName(vartyname, nil)
     end)
@@ -158,9 +155,9 @@ end
 
 function libo.VariableRequireInit(ctorkey)
     return function(varmeta)
-        if ctorkey == nil then ctorkey = varmeta.PostfixName end
-
         function varmeta:VariableInit(param)
+            if ctorkey == nil then ctorkey = self.PostfixName end
+
             local val = param[ctorkey]
             if val == nil then
                 stp.Error("Variable '",self,"' not initialized: constructor key '",ctorkey,"' missing")

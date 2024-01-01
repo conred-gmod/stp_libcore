@@ -43,6 +43,7 @@ function libo.HookDefine(meta, keyname)
 end
 
 function libo.HookAdd(meta, keyname, valname, fn)
+    assert(isfunction(fn))
     libo.MergablesAdd(meta, keyname, valname, "CallInOrder_Member", fn)
 end
 
@@ -71,7 +72,6 @@ do
     libo.MergerRegisterArray(MRG, function(meta, mrg_field, abstracts)
         assert(mrg_field == MRG_FIELD)
         if meta.IsTrait then return end
-
         for _, pair in ipairs(abstracts) do
             local key = pair.Key
             local val = meta[key]

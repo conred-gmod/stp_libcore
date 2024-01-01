@@ -31,18 +31,25 @@ libo.Register(SENDREV)
 libn.Sendable = SEND
 libn.SendableRev = SENDREV
 
+local SENDINIT = libo.BeginTrait("stp.obj.net.SendableInit")
+libn.Networkable(SENDINIT)
+
+if SERVER then
+    libo.MarkAbstract(SENDINIT, "NetTransmitInit", "function")
+else
+    libo.MarkAbstract(SENDINIT, "NetReceiveInit", "function")
+end
+
+libo.Register(SENDINIT)
+libn.SendableInit = SENDINIT
+
 local INST = libo.BeginTrait("stp.obj.net.Instantiatable")
 
 libo.ApplyMany(INST,
     libn.NetworkableComposite,
-    libo.TrackableNetworked
+    libo.TrackableNetworked,
+    SENDINIT
 )
-
-if SERVER then
-    libo.MarkAbstract(INST, "NetTransmitInit", "function")
-else
-    libo.MarkAbstract(INST, "NetReceiveInit", "function")
-end
 
 if CLIENT then
     libo.HookAdd(INST, "Init", INST.TypeName, function(self, params)
@@ -110,6 +117,8 @@ local Net_SendRemove
 local Net_SendInit
 if SERVER then
     Net_SendInit = function(obj, recip)
+        if obj.NetTransmitInit == nil then return end
+
         net.Start(NETSTRING)
             Net_WriteObj(obj)
             net.WriteString(obj.TypeName)
@@ -137,8 +146,7 @@ net.Receive(NETSTRING, function(_, sender)
 
         local typename = net.ReadString()
         local meta = libo.GetObjectMetatables()[typename]
-
-        local params = meta.NetReceiveInit()
+        local params = meta:NetReceiveInit()
 
         Net_RecvCreate(parentobj, id, meta, params)
     elseif obj.IsNetInstantiatable then -- Remove 
@@ -177,7 +185,7 @@ if CLIENT then
 end
 
 if SERVER then
-    hook.Add("stp.obj.PreRemove", "stp.obj.net.TransmitRemove", function(obj, cascaded)
+    hook.Add("stp.obj.PreRemoved", "stp.obj.net.TransmitRemove", function(obj, cascaded)
         if not obj.IsNetInstantiatable then return end
         if not cascaded then return end
 
@@ -188,13 +196,12 @@ if SERVER then
     end)
 end
 
-hook.Add("stp.obj.PreRemove", "spt.obj.net.ClearDirty", function(obj, _)
+hook.Add("stp.obj.PreRemoved", "spt.obj.net.ClearDirty", function(obj, _)
     DirtyObjects[obj] = nil
 end)
 
 local function TransmitSingle_Data(obj)
-    if obj.NetTransmit == nil then return true end
-
+	if obj.NetTransmit == nil then return true end
     local recip
 
     if SERVER then
@@ -225,7 +232,6 @@ function libn._TransmitAll()
     if SERVER then
         for _, data in ipairs(libaware._GetNewlyAware()) do
             local obj = data.Object
-            
             TransmitSingle_Init(obj, data.NewlyAware)
 
             if TransmitSingle_Data(obj) then

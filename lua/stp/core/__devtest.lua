@@ -18,7 +18,6 @@ libo.ConstructNestedType(META, "Bank",
         "OnBankChanged"
     ),
 
-    CLIENT and libo.VariableRequireInit(),
     SERVER and libo.VariableDefault(0),
 
     libn.MakeVar(libn.schema.UInt(16)),
@@ -32,12 +31,10 @@ if SERVER then
     end
 
     function META:NetTransmitInit()
-        net.WriteUInt(self:GetBank(), 16)
     end
 else
-    function META.NetReceiveInit()
-        local bank = net.ReadUInt(16)
-        return { Bank = bank }
+    function META:NetReceiveInit()
+        return {}
     end
 end
 
@@ -49,6 +46,10 @@ end
 function META:BankAdd(delta)
     self:SetBank(self:GetBank() + delta)
 end
+
+libo.HookAdd(META, "OnPreRemove", "Devtest.Debug", function(self)
+    print(self, "Removing...")
+end)
 
 libo.Register(META)
 --Poker.Game = META
@@ -68,6 +69,8 @@ concommand.Add("stplib_devtest_create", function()
 
     local game = META:Create({})
     gameref.Value = game
+
+    print("Created",game,game.TrackId)
 end)
 
 concommand.Add("stplib_devtest_remove", TryRemove)

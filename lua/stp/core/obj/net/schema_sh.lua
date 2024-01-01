@@ -38,7 +38,7 @@ LIB.Int = function(bits)
 
     return {
         transmit = function(n) net.WriteInt(n, bits) end,
-        receive = function() net.ReadInt(bits) end
+        receive = function() return net.ReadInt(bits) end
     }
 end
 
@@ -49,7 +49,7 @@ LIB.UInt = function(bits)
 
     return {
         transmit = function(n) net.WriteUInt(n, bits) end,
-        receive = function() net.ReadUInt(bits) end
+        receive = function() return net.ReadUInt(bits) end
     }
 end
 
@@ -117,7 +117,10 @@ local function WriteStpObject(obj, revnet)
     while true do
         local ownerdata = obj.SubobjNetworkOwner
         if ownerdata == nil then
-            table.insert(data, obj.TrackId)
+            table.insert(data, {
+                bits = 0,
+                data = obj.TrackId,
+            })
             break
         else
             local bits = ownerdata.Owner.SubobjNetworkDesc.Bits
@@ -130,7 +133,7 @@ local function WriteStpObject(obj, revnet)
         end
     end
 
-    local rootid = table.remove(data)
+    local rootid = table.remove(data).data
     table.ReverseInplace(data)
 
     net.WriteUInt(rootid, OBJ_TRK_BITS)

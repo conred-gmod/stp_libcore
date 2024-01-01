@@ -4,6 +4,9 @@ namespace stp.obj.net
 
 -- Can be sent to client from server
 trait .Networkable {
+    const .IsNetworkable = true
+    const .IsNetworkableFwd = true
+
     require .obj.SubobjectStorable("Network")
 
     -- Restrictors can not have loops
@@ -21,10 +24,15 @@ fn .MakeRecipientEveryone(meta: metatable(.Networkable)) -> mixin {
 
 -- Can be sent to server from client
 trait .NetworkableRev {
+    const .IsNetworkable = true
+    const .IsNetworkableRev = true
+
     require .obj.SubobjectStorable("NetworkRev")
 }
 
 trait .NetworkableComposite {
+    const .IsNetworkableComp = true
+
     require .Networkable
     require .obj.SubobjectContainer("Network")
     require .obj.SubobjectContainer("NetworkRev")
@@ -76,14 +84,21 @@ trait .SendableRev {
     SV abstract fn :NetReceive(sender: Player)
 }
 
+-- Client will be notified of creation of such object
+trait .SendableInit {
+    require .Networkable
+
+    SV abstract fn :NetTransmitInit()
+    -- When called, `self` is a metatable, not object instance!
+    CL abstract fn :NetReceiveInit() -> ctor_params: table
+}
+
 trait .Instantiatable {
     require .NetworkableComposite
     require .TrackableNetworked
+    require .SendableInit
 
     const .IsNetInstantiatable = true
-
-    SV abstract fn :NetTransmitInit()
-    CL abstract fn .NetReceiveInit() -> ctor_params: table
 
     CL hook :Init(args: table) -- Clientside, object can only be constructed when init data received from server
     CL hook :OnPreRemove(cascaded: bool) -- Clientside, non-cascaded remove can only be initiated by server 
@@ -108,7 +123,8 @@ trait .Var {
 
     require .obj.Variable({ TData = .TData })
     require .Sendable
-
+    --require .SendableInit -- For now, this is not required nor used
+ 
     abstract const .SCHEMA: .Schema({ TData = .TData })
 }
 

@@ -10,7 +10,7 @@ LIB.MergerRegisterArray(MERGER, function(meta, key, array)
     }
 
     if not meta.IsTrait then
-        desc.BitCount = bitcount
+        desc.Bits = bitcount
         desc.Count = #array
     end
 
@@ -39,7 +39,7 @@ local CONT = {}
 CONT.__index = CONT
 
 function CONT:__tostring()
-    return "[stp_libcore SubobjContainer of "..self._owner.TypeName.."]"
+    return "[stp_libcore SubobjContainer "..self._key.." of "..self._owner.TypeName.."]"
 end
 
 local function MakeContainer(desc, owner, key)
@@ -106,6 +106,9 @@ end
 
 function CONT:SetByName(name, value)
     local id = self._desc.NameToId[name]
+    if id == nil then
+        stp.Error(self," has no subobject named '",name,"'")
+    end
     self:SetById(id, value)
 end
 

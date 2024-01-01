@@ -1,9 +1,35 @@
 local libn = stp.obj.net
 local libo = stp.obj
 
+local function Attach(varmeta)
+    local parentmeta = varmeta.OwnerType
+    assert(parentmeta)
+
+    local vartyname = varmeta.TypeName
+
+    local container_name
+    if varmeta.IsSubobjNetworkStorable then
+        parentmeta:RegisterSubobjNetwork(vartyname)
+        container_name = "SubobjNetwork"
+    else
+        parentmeta:RegisterSubobjNetworkRev(vartyname)
+        container_name = "SubobjNetworkRev"
+    end
+    
+    libo.HookAdd(varmeta, "Init", "stp.obj.net.HighLevelAttach", function(self)    
+        self.Owner[container_name]:SetByName(vartyname, self)
+    end)
+
+    libo.HookAdd(varmeta, "OnRemove", "stp.obj.net.HighLevelDetach", function(self)
+        self.Owner[container_name]:SetByName(vartyname, nil)
+    end)
+end
+
+
 local VARF = libo.BeginTrait("stp.obj.net.Var")
 libn.Sendable(VARF)
 libo.Variable(VARF)
+--libn.SendableInit(VARF)
 
 libo.MarkAbstract(VARF, "SCHEMA", "table")
 
@@ -17,15 +43,24 @@ if SERVER then
         self:NetSetRestrictor(self.Owner)
     end)
 
-    function VARF:NetTransmit(bytes_left)
-        self.SCHEMA.transmit(self:VariableGet(), bytes_left)
+    function VARF:NetTransmit()
+        self.SCHEMA.transmit(self:VariableGet())
     end
+  
+--[[    function VARF:NetTransmitInit()
+        self:NetTransmit()
+    end]]
 
     -- TODO: transmit-on-connect
 else
-    function VARF:NetReceive(bytes)
-        self:VariableSet(self.SCHEMA.receive(bytes))
+    function VARF:NetReceive()
+        self:VariableSet(self.SCHEMA.receive())
     end
+
+--[[    function VARF:NetReceiveInit()
+        print(self, "VARF:NetReceiveInit", self.SCHEMA.receive)
+        return {VarValue = self.SCHEMA.receive()}
+    end]]
 end
 
 libo.Register(VARF)
@@ -36,12 +71,13 @@ function libn.MakeVar(schema)
 
         VARF(varmeta)
         varmeta.SCHEMA = schema
+        Attach(varmeta)
     end
 end
 
 
 
-
+-- TODO: do not call :NetTransmitInit/:NetReceiveInit for these traits.
 local MSGF = libo.BeginTrait("stp.obj.net.MsgUnbuffered")
 local MSGR = libo.BeginTrait("stp.obj.net.MsgRevUnbuffered")
 
@@ -106,6 +142,7 @@ local function MakeGenericMsg(trait, schema)
 
         trait(msgmeta)
         msgmeta.SCHEMA = schema
+        Attach(msgmeta)
     end
 end
 

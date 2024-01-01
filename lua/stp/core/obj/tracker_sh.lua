@@ -83,7 +83,7 @@ end
 function libtrack.IsNetworkable(arg)
     local id = arg
     if istable(arg) then
-        id = arg.IsNetworkable
+        id = arg.TrackId
     end
 
     return id > 0
@@ -97,7 +97,7 @@ TRK.IsTrackable = true
 libo.HookDefine(TRK, "OnPreTracked")
 libo.HookDefine(TRK, "OnPostTracked")
 
-libo.HookAdd(TRK, "OnRemove", TRK.TypeName, Tracker_Untrack)
+libo.HookAdd(TRK, "OnRemove", TRK.TypeName, Untrack)
 
 libo.Register(TRK)
 libo.Trackable = TRK

@@ -42,9 +42,9 @@ local function ProcessObject(obj, restrictor, restrictor_recip)
     local recip = RecipientFilter()
     obj:NetGetRecipients(recip)
 
-    if not CheckAndFilterRecipients(recip, restrictor) then return end
+    if not CheckAndFilterRecipients(recip, restrictor_recip) then return end
 
-    local aware = AwarePlys[obj]
+    local aware = AwarePlys[obj] or {}
     local init_plys = {}
     for _, ply in ipairs(recip:GetPlayers()) do
         if not aware[ply] then
@@ -61,8 +61,7 @@ local function ProcessObject(obj, restrictor, restrictor_recip)
 
     ObserverdRecips[obj] = recip
 
-
-    for child in pairs(librest.RestrictedByThis[obj]) do
+    for child in pairs(librest.RestrictedByThis[obj] or {}) do
         ProcessObject(child, obj, recip)
     end
 end
@@ -85,7 +84,8 @@ function libaware._GetRecipients(obj)
 end
 
 function libaware._MarkAware(obj, plys)
-    local aware = AwarePlys[obj]
+    local aware = AwarePlys[obj] or {}
+    AwarePlys[obj] = aware
     for _, ply in ipairs(plys) do
         aware[ply] = true
     end
@@ -99,7 +99,7 @@ hook.Add("PlayerDisconnected", "stp.obj.net.awareness", function(ply)
     end
 end)
 
-hook.Add("stp.obj.PreRemove", "stp.obj.net.awareness", function(obj)
+hook.Add("stp.obj.PreRemoved", "stp.obj.net.awareness", function(obj)
     AwarePlys[obj] = nil
 end)
 

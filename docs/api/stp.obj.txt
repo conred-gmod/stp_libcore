@@ -305,6 +305,7 @@ trait .Variable {
     doconly param type .TData
 
     -- Extracts needed data from arguments
+    -- `ctor_args` is argument table from constructor of the variable.
     abstract fn :VariableInit(ctor_args: table) -> .TData
     abstract fn :VariableGet() -> .TData
     abstract fn :VariableSet(val: .TData)
@@ -315,6 +316,8 @@ trait .Variable {
 trait .VariableField {
     require .Variable
 
+    -- Takes value from `ctor_args.VarValue`
+    impl fn :VariableInit(ctor_args: table) -> .TData
     impl fn :VariableGet() -> .TData
     impl fn :VariableSet(val: .TData)
 }
@@ -360,9 +363,10 @@ fn .MakeVariableAccessors(getter: string|nil|false, setter: string|nil|false, li
     }
 
 
--- If you want to add custom initialization logic, implement .Variable:VariableInit yourself
+-- If you want to add custom initialization logic, implement .Variable:VariableInit yourself.
 
-fn .VariableRequireInit(ctorkey: string) -> mixin {
+-- If ctorkey == nil, PostfixName of variable used istead.
+fn .VariableRequireInit(ctorkey: string|nil) -> mixin {
     require .Variable
 
     -- Errors if `ctor_args[ctorkey] == nil`
