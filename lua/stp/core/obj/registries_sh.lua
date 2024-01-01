@@ -1,7 +1,13 @@
-local LIB = stp.obj
+local libobj = stp.obj
 
-local Metas = stp.GetPersistedTable("stp.obj.registries.Metas", {})
-local Traits = stp.GetPersistedTable("stp.obj.registries.Traits", {})
+local PREFIX = "stp.obj.registries."
+
+local RegTest = stp.testing.RegisterTest
+local RegTestFailing = stp.testing.RegisterTestFailing
+local PREFIX_TEST = PREFIX.."test."
+
+local Metas = stp.GetPersistedTable(PREFIX.."Metas", {})
+local Traits = stp.GetPersistedTable(PREFIX.."Traits", {})
 
 local function ObjectToString(self)
     return "[stp_libcore Object '"..self.TypeName.."']"
@@ -11,11 +17,11 @@ local function TraitToString(self)
     return "[stp_libcore Trait '"..self.TypeName.."']"
 end
 
-function LIB.GetObjectMetatables()
+function libobj.GetObjectMetatables()
     return Metas
 end
 
-function LIB.GetTraitMetatables()
+function libobj.GetTraitMetatables()
     return Traits
 end
 
@@ -25,7 +31,7 @@ local function MakeIndex(meta)
     end
 end
 
-function LIB.BeginObject(typename)
+function libobj.BeginObject(typename)
     if stp.DebugFlags.TypeSystem then
         print("\nstp.obj.BeginObject", typename)
     end
@@ -33,7 +39,7 @@ function LIB.BeginObject(typename)
     local meta = Metas[typename] or {}
     MakeIndex(meta)
     meta.__tostring = ObjectToString
-    meta.___mergables = LIB._MergablesInit()
+    meta.___mergables = libobj._MergablesInit()
     meta.IsTrait = false
     setmetatable(meta, meta)
 
@@ -45,7 +51,7 @@ function LIB.BeginObject(typename)
     return meta
 end
 
-function LIB.BeginExistingObject(meta)
+function libobj.BeginExistingObject(meta)
     if stp.DebugFlags.TypeSystem then
         print("\nstp.obj.BeginExistingObject", meta)
     end
@@ -59,7 +65,7 @@ function LIB.BeginExistingObject(meta)
             "for type '",typename,"'")
     end
 
-    meta.___mergables = LIB._MergablesInit()
+    meta.___mergables = libobj._MergablesInit()
     meta.FinalMeta = meta
     meta.IsTrait = false
     meta.IsFullyRegistered = false
@@ -68,16 +74,16 @@ function LIB.BeginExistingObject(meta)
     return meta
 end
 
-function LIB.BeginTrait(typename)
+function libobj.BeginTrait(typename)
     if stp.DebugFlags.TypeSystem then
         print("\nstp.obj.BeginTrait", typename)
     end
 
     local meta = Traits[typename] or {}
     MakeIndex(meta)
-    meta.__call = LIB.ApplyTrait
+    meta.__call = libobj.ApplyTrait
     meta.__tostring = TraitToString
-    meta.___mergables = LIB._MergablesInit()
+    meta.___mergables = libobj._MergablesInit()
     meta.IsTrait = true
     setmetatable(meta, meta)
 
@@ -88,7 +94,7 @@ function LIB.BeginTrait(typename)
     return meta
 end
 
-function LIB.Register(meta)
+function libobj.Register(meta)
     local typename = meta.TypeName
     assert(typename ~= nil)
 
@@ -113,7 +119,105 @@ function LIB.Register(meta)
     else
         Metas[typename] = meta
     end
-    LIB._MergablesMerge(meta)
+    libobj._MergablesMerge(meta)
 
     hook.Run("stp.obj.OnMetaRegistered", meta)
+end
+
+do -- Tests
+    RegTest(PREFIX.."ObjectRegistration",function()
+        local TYPE = PREFIX_TEST.."ObjectRegistration"
+
+        local meta = libobj.BeginObject(TYPE)
+        meta.TheNumber = 42
+
+        assert(not meta.IsTrait)
+        assert(not meta.IsFullyRegistered)
+        assert(meta.TheNumber == 42)
+
+        libobj.Register(meta)
+        
+        assert(meta.IsFullyRegistered)
+        assert(libobj.GetObjectMetatables()[TYPE] == meta)
+        assert(libobj.GetTraitMetatables()[TYPE] == nil)
+    end)
+
+    RegTest(PREFIX.."TraitRegistrationAndImplementation",function()
+        -- Definition of the trait
+        local TYPE_TRAIT = PREFIX_TEST.."TraitRegistration"
+        local traitmeta = libobj.BeginTrait(TYPE_TRAIT)
+
+        traitmeta.TheNumber = 42
+        traitmeta.TheDupe = 23
+
+        assert(traitmeta.IsTrait)
+        assert(not traitmeta.IsFullyRegistered)
+        assert(traitmeta.TheNumber == 42)
+        assert(traitmeta.TheDupe == 23)
+
+        libobj.Register(traitmeta)
+        
+        assert(traitmeta.IsFullyRegistered)
+        assert(libobj.GetTraitMetatables()[TYPE_TRAIT] == traitmeta)
+        assert(libobj.GetObjectMetatables()[TYPE_TRAIT] == nil)
+
+        -- Definition of the object
+        local TYPE_OBJ = PREFIX_TEST.."TraitRegistrationObject"
+        local objmeta = libobj.BeginObject(TYPE_OBJ)
+        
+        traitmeta(objmeta)
+        objmeta.TheDupe = 108
+
+        libobj.Register(objmeta)
+
+        -- Inheritance check
+        assert(objmeta.TheNumber == 42)
+        assert(objmeta.TheDupe == 108)
+    end)
+
+    RegTestFailing(PREFIX.."DoubleRegistration", function()
+        local meta = libobj.BeginObject(PREFIX_TEST.."DoubleRegistration")
+
+        libobj.Register(meta)
+        libobj.Register(meta)
+    end)
+
+    RegTestFailing(PREFIX.."UnregisteredTraitUsage", function()
+        local trait = libobj.BeginTrait(PREFIX_TEST.."UnregisteredTrait")
+
+        local object = libobj.BeginObject(PREFIX_TEST.."UnregisteredTraitObject")
+        trait(object)
+    end)
+
+    RegTestFailing(PREFIX.."AddingTraitToRegisteredObject", function()
+        local trait = libobj.BeginTrait(PREFIX_TEST.."AddingTraitToRegisteredObject.Trait")
+        libobj.Register(trait)
+
+        local object = libobj.BeginObject(PREFIX_TEST.."AddingTraitToRegisteredObject.Object")
+        libobj.Register(object)
+
+        trait(object)
+    end)
+
+    RegTest(PREFIX.."ObjectReregistration", function()
+        local meta = libobj.BeginObject(PREFIX_TEST.."ObjectReregistration")
+        meta.TheNumber = 42
+        libobj.Register(meta)
+
+        assert(meta.TheNumber == 42)
+
+        local samemeta = libobj.BeginExistingObject(meta)
+        samemeta.TheNumber = 108
+        libobj.Register(samemeta)
+
+        assert(meta == samemeta)
+        assert(meta.TheNumber == 108)
+    end)
+
+    RegTestFailing(PREFIX.."ObjectReregistrationOnTrait", function()
+        local meta = libobj.BeginTrait(PREFIX_TEST.."ObjectReregistrationOnTrait")
+        libobj.Register(meta)
+
+        libobj.BeginExistingObject(meta) -- Fails
+    end)
 end
