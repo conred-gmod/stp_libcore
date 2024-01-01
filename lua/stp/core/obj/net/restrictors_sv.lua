@@ -45,13 +45,13 @@ hook.Add("stp.obj.Tracker.OnPreTracked", "stp.obj.net.Restrictors", function(obj
 end)
 
 hook.Add("stp.obj.PreRemoved", "spt.obj.net.Restrictors", function(obj)
-    if not ObjTracker.IsNetworkable(obj) then return end
+    if not obj.IsNetworkable then return end
 
     Unrestricted[obj] = nil
     RestrictedByThis[obj] = nil
 
     local restr = obj:NetGetRestrictor()
-    if restr ~= nil then
+    if restr ~= nil and RestrictedByThis[restr] ~= nil then
         RestrictedByThis[restr][obj] = nil
     end
 end)
