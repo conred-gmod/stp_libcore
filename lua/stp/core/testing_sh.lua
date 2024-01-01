@@ -24,12 +24,12 @@ end
 -- fn RunTestFunction(func: (fn() -> nil|errormsg: string)) -> nil | errormsg: string
 local function RunTestFunction(fn, failing)
     if failing then
-        local has_error = xpcall(fn, function(_errmsg) end)
+        local is_ok = xpcall(fn, function(_errmsg) end)
 
-        if has_error then
-            return nil
-        else
+        if is_ok then
             return "Function unexceptedly not errored"
+        else
+            return nil
         end
     end
     
@@ -66,9 +66,9 @@ local function RunAllTests(print)
         local error = RunTest(tbl)
         if error == nil then
             successes = successes + 1
-            print("Test '",name,"' succeeded")
+            print("+ Test '",name,"' succeeded")
         else
-            print("Test '",name,"' failed: ",error)
+            print("- Test '",name,"' failed: ",error)
         end
     end
     print("Result: ",successes,"/",total_cnt," succeeded.")
@@ -85,4 +85,23 @@ if CLIENT then
     concommand.Add("stplib_testing_runall_cl", function()
         RunAllTests(MsgN)
     end)
+end
+
+do -- Tests (for test system, yes)
+    libtest.RegisterTest("stp.testing.FailingTestDetectsFail", function()
+        local errormsg = RunTestFunction(function()
+            stp.Error("Faux-test errored")
+        end, true)
+
+        assert(errormsg == nil)
+    end)
+
+    libtest.RegisterTest("stp.testing.FailingTestErrorsOnSuccess", function()
+        local errormsg = RunTestFunction(function()
+            assert(2 + 2 == 4) -- Never fails
+        end, true)
+
+        assert(errormsg ~= nil)
+    end)
+    
 end
