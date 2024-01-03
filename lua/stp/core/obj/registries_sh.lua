@@ -58,6 +58,7 @@ function libobj.BeginExistingObject(meta)
 
     local typename = meta.TypeName
     assert(typename ~= nil, "You need to set .TypeName")
+    assert(meta.IsTrait ~= true, "You can't modify existing traits, only final objects")
 
     local existing_meta = Metas[typename]
     if existing_meta ~= nil and existing_meta ~= meta then

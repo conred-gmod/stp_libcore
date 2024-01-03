@@ -20,6 +20,7 @@ fn .BeginObject(typename: string) -> metatable(.Object)
 fn .BeginTrait(typename: string) -> metatable(.Object)
 
 -- Makes existing metatable registrable. You need to set `.TypeName`.
+-- Does not works for traits
 fn .BeginExistingObject(meta: metatable(.Object)) -> metatable(.Object)
 
 internal hook ._OnMetaCreated(meta: metatable(.Object))
