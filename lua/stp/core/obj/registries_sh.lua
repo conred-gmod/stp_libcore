@@ -2,10 +2,6 @@ local libobj = stp.obj
 
 local PREFIX = "stp.obj.registries."
 
-local RegTest = stp.testing.RegisterTest
-local RegTestFailing = stp.testing.RegisterTestFailing
-local PREFIX_TEST = PREFIX.."test."
-
 local Metas = stp.GetPersistedTable(PREFIX.."Metas", {})
 local Traits = stp.GetPersistedTable(PREFIX.."Traits", {})
 
@@ -126,6 +122,10 @@ function libobj.Register(meta)
 end
 
 do -- Tests
+    local PREFIX_TEST = PREFIX.."test."
+    local RegTest = stp.testing.RegisterTest
+    local RegTestFailing = stp.testing.RegisterTestFailing
+
     RegTest(PREFIX.."ObjectRegistration",function()
         local TYPE = PREFIX_TEST.."ObjectRegistration"
 

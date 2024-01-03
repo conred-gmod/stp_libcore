@@ -82,6 +82,7 @@ stp.IncludeList("stp/core/", {
     "debug_sh.lua",
     "algorithm_sh.lua",
     "testing_sh.lua",
+    "algorithm_tests_sh.lua",
 
     "obj/registries_sh.lua",
     "obj/mergables_sh.lua",
