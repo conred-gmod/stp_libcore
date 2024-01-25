@@ -221,4 +221,45 @@ do -- Tests
 
         libobj.BeginExistingObject(meta) -- Fails
     end)
+
+    RegTest(PREFIX.."MultipleInheritance", function()
+        local trBase = libobj.BeginTrait(PREFIX_TEST.."MultipleInheritance.TraitBase")
+        tr1.BaseValue = 108
+        libobj.Register(trBase)
+
+
+        local tr1 = libobj.BeginTrait(PREFIX_TEST.."MultipleInheritance.Trait1")
+        trBase(tr1)
+        tr1.Value1 = 4
+        libobj.Register(tr1)
+
+        local tr2 = libobj.BeginTrait(PREFIX_TEST.."MultipleInheritance.Trait2")
+        trBase(tr1)
+        tr2.Value2 = 8
+        libobj.Register(tr2)
+
+        local obj = libobj.BeginObj(PREFIX_TEST.."MultipleInheritance.Object")
+        tr1(obj)
+        tr2(obj)
+        libobj.Register(obj)
+
+        assert(obj.BaseValue == 108)
+        assert(obj.Value1 == 4)
+        assert(obj.Value2 == 8)
+    end)
+
+    -- https://github.com/conred-gmod/stp_libcore/issues/2
+    RegTest(PREFIX.."NoRepeatedTraitApplication", function()
+        local trait = libobj.BeginTrait(PREFIX_TEST.."NoRepeatedTraitApplication.Trait")
+        trait.Value = 108
+        libobj.Register(trait)
+
+        local obj = libobj.BeginObject(PREFIX_TEST.."NoRepeatedTraitApplication.Object")
+        trait(obj)
+        obj.Value = 23
+        trait(obj) -- Trait should not be re-applied here
+        libobj.Register(obj)
+
+        assert(obj.Value == 23)
+    end)
 end

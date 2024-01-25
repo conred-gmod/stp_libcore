@@ -1,8 +1,9 @@
-local LIB = stp.obj
+local libobj = stp.obj
+local PREFIX = "stp.obj.mergables."
 
 local Mergers = stp.GetPersistedTable("stp.obj.mergables.Mergers", {})
 
-function LIB.MergerRegister(name, fn)
+function libobj.MergerRegister(name, fn)
     if stp.DebugFlags.TypeSystem then
         print("stp.obj.MergerRegister", name, fn)
     end
@@ -10,8 +11,8 @@ function LIB.MergerRegister(name, fn)
     Mergers[name] = fn
 end
 
-function LIB.MergerRegisterArray(name, fn)
-    LIB.MergerRegister(name, function(meta, k, desc)
+function libobj.MergerRegisterArray(name, fn)
+    libobj.MergerRegister(name, function(meta, k, desc)
         local array = {}
         for itemk, itemdesc in pairs(desc.List) do
             array[itemdesc.Idx] = { Key = itemk, Value = itemdesc.Value }
@@ -21,7 +22,7 @@ function LIB.MergerRegisterArray(name, fn)
     end)
 end
 
-function LIB._MergablesInit()
+function libobj._MergablesInit()
     return {}
 end
 
@@ -34,7 +35,7 @@ local function GetInitMrgDesc(meta, key, merger_name)
     return mrg
 end
 
-function LIB.MergablesDeclare(meta, keyname, merger_name)
+function libobj.MergablesDeclare(meta, keyname, merger_name)
     if stp.DebugFlags.TypeSystem then
         MsgN("stp.obj.MergablesDeclare\t", meta, ".", keyname,":[",merger_name,"]")
     end
@@ -49,7 +50,7 @@ function LIB.MergablesDeclare(meta, keyname, merger_name)
     GetInitMrgDesc(meta, keyname, merger_name)
 end
 
-function LIB.MergablesAdd(meta, keyname, impl_name, merger_name, value)
+function libobj.MergablesAdd(meta, keyname, impl_name, merger_name, value)
     if stp.DebugFlags.TypeSystem then
         MsgN("stp.obj.MergablesDeclare\t", meta, ".", keyname,":[",merger_name,"]",
             "=\t[",impl_name,"]\t",value)
@@ -88,7 +89,7 @@ local APPLY_SPECIAL_FIELDS = {
     ["___mergables"] = true,
 }
 
-function LIB.ApplyTrait(traitmeta, targetmeta)
+function libobj.ApplyTrait(traitmeta, targetmeta)
     local debug_typesys = stp.DebugFlags.TypeSystem
 
     if debug_typesys then
@@ -98,7 +99,7 @@ function LIB.ApplyTrait(traitmeta, targetmeta)
     if not traitmeta.IsTrait or not traitmeta.IsFullyRegistered then
         stp.Error("Attempt to apply not a registered trait ",traitmeta," to object")
     end
-    assert(targetmeta.IsTrait ~= nil, "Attempt to apply to a non-stp_libcore object")
+    assert(targetmeta.IsTrait ~= nil, "Attempt to apply to a non-stp_libobjcore object")
     assert(not targetmeta.IsFullyRegistered, "Attempt to apply to a fully-registered object")
 
     for k, v in pairs(traitmeta) do
@@ -179,7 +180,7 @@ function LIB.ApplyTrait(traitmeta, targetmeta)
     end
 end
 
-function LIB._MergablesMerge(meta)
+function libobj._MergablesMerge(meta)
     local debug_typesys = stp.DebugFlags.TypeSystem
     if debug_typesys then MsgN("stp.obj._MergablesMerge ",meta) end
 
@@ -189,4 +190,30 @@ function LIB._MergablesMerge(meta)
 
         Mergers[merger](meta, k, desc)
     end
+end
+
+do --Testing
+    local PREFIX_TEST = PREFIX.."test."
+    local RegTest = stp.testing.RegisterTest
+    local RegTestFailing = stp.testing.RegisterTestFailing
+
+    local MERGABLE_NAME = PREFIX_TEST.."Mergable"
+    local function DefineSimpleMergable()
+        libobj.RegisterMerger(MERGABLE_NAME, function(meta, key, desc)
+            local parts = {}
+            for impl, impldesc in SortedPairsByMemberValue(desc, "Idx") do
+                table.insert(parts, impl.."="..tostring(impldesc.Value))
+            end
+
+            meta[key] = table.concat(parts)
+        end)
+    end
+    
+    local function AddSimpleMergable(meta, key, implname, value)
+        -- TODO
+    end
+
+    RegTest(PREFIX.."Simple", function()
+        -- TODO: test diamond inheritance pattern with mergables
+    end)
 end
