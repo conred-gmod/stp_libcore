@@ -11,6 +11,10 @@ local Net_RecvRemove
 local SEND = libo.BeginTrait("stp.obj.net.Sendable")
 local SENDREV = libo.BeginTrait("stp.obj.net.SendableRev")
 
+if SERVER then
+    SEND.NetTransmitNewlyAware = true
+end
+
 libn.Networkable(SEND)
 libn.NetworkableRev(SENDREV)
 
@@ -200,10 +204,11 @@ hook.Add("stp.obj.PreRemoved", "spt.obj.net.ClearDirty", function(obj, _)
     DirtyObjects[obj] = nil
 end)
 
-local function TransmitSingle_Data(obj)
+local function TransmitSingle_Data(obj, newly_aware)
 	if obj.NetTransmit == nil then return true end
+    if newly_aware and not obj.NetTransmitNewlyAware then return true end
+    
     local recip
-
     if SERVER then
         recip = libaware._GetRecipients(obj)
         -- We have no recipients for data
@@ -234,14 +239,14 @@ function libn._TransmitAll()
             local obj = data.Object
             TransmitSingle_Init(obj, data.NewlyAware)
 
-            if TransmitSingle_Data(obj) then
+            if TransmitSingle_Data(obj, true) then
                 DirtyObjects[obj] = nil
             end
         end
     end
 
     for obj, _ in pairs(DirtyObjects) do
-        if TransmitSingle_Data(obj) then
+        if TransmitSingle_Data(obj, false) then
             table.insert(cleaned, obj)
         end
     end

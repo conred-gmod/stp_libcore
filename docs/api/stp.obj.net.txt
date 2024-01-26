@@ -70,6 +70,9 @@ SV namespace .awareness {
 trait .Sendable {
     require .Networkable
 
+    -- Set to false to prevent automatic data transmission after initialization 
+    -- TODO: looks like a hack, move to other trait?
+    SV const .NetTransmitNewlyAware: bool = true 
     SV abstract fn :NetTransmit()
     SV abatract fn :NetIsUnreliable() -> bool
     CL abstract fn :NetReceive()

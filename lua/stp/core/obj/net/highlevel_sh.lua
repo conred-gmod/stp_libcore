@@ -39,7 +39,7 @@ if SERVER then
         libn._MarkDirty(self)
     end)
 
-    libo.HookAdd(VARF, "SubobjVariableOwner_Added", "stp.obj.net", function(self, params)
+    libo.HookAdd(VARF, "SubobjNetworkOwner_Added", "stp.obj.net", function(self, params)
         self:NetSetRestrictor(self.Owner)
     end)
 
@@ -86,6 +86,7 @@ libn.SendableRev(MSGR)
 
 local function Msg_InitMeta(meta, is_send_side)
     libo.MarkAbstract(meta, "SCHEMA", "table")
+    meta.NetTransmitNewlyAware = false
 
     if not is_send_side then
         libo.HookDefine(meta, "OnReceived")
@@ -115,7 +116,7 @@ if SERVER then
     MSGF.Send = Msg_Send
     MSGF.NetTransmit = Msg_Transmit
 
-    libo.HookAdd(MSGF, "SubobjVariableOwner_Added", "stp.obj.net", function(self, params)
+    libo.HookAdd(MSGF, "SubobjNetworkOwner_Added", "stp.obj.net", function(self, params)
         self:NetSetRestrictor(self.Owner)
     end)
 else
@@ -179,7 +180,7 @@ function libn.MakeMsgAccessors(send, receiver)
 
             libo.HookAdd(msgmeta, "OnReceived", "stp.obj.net.MakeMsgAccessors", function(self, data, sender)
                 local owner = self.Owner
-                owner[receiver](owner, data, receiver)
+                owner[receiver](owner, data, sender)
             end)
         end
     end

@@ -39,6 +39,7 @@ end
 
 if CLIENT then
     function META:PingRecv(val)
+        print("Got",val, "on client")
         self:ReplySend(val)
     end
 end
