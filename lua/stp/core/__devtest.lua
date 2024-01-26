@@ -24,6 +24,21 @@ libo.ConstructNestedType(META, "Rev",
     libn.MakeReliable
 )
 
+libo.ConstructNestedType(META, "Bank",
+    libo.MakeVariableField,
+    libo.MakeVariableAccessors(
+        "GetBank",
+        SERVER and "SetBank",
+        "OnBankChanged"
+    ),
+
+    SERVER and libo.VariableDefault(0),
+
+    libn.MakeVar(libn.schema.UInt(16)),
+    libn.MakeRecipientEveryone,
+    libn.MakeReliable
+)
+
 if SERVER then
     function META:NetGetRecipients(recip)
         recip:AddAllPlayers()
@@ -52,6 +67,14 @@ end
 
 function META:Ping(val)
     self:PingSend(val)
+end
+
+function META:OnBankChanged(old, new)
+    print(self, "New bank value = ", new)
+end
+
+function META:BankAdd(delta)
+    self:SetBank(self:GetBank() + delta)
 end
 
 libo.HookAdd(META, "OnPreRemove", "Devtest.Debug", function(self)
@@ -98,6 +121,24 @@ concommand.Add("stplib_devtest_ping", function(_,_,args)
     end
 
     game:Ping(val)
+end)
+
+concommand.Add("stplib_devtest_add", function(_,_,args)
+    local game = gameref.Value
+    if game == nil then 
+        print("Game is not initialized")
+        return
+    end
+
+    local val = args[1]
+    if val == nil then print("! One parameter required") return end
+    
+    local val = tonumber(val)
+    if val == nil or val < 0 or val > 65535 or bit.tobit(val) ~= val then 
+        print("! Parameter must be an integer from 0 to 65535") return 
+    end
+
+    game:BankAdd(val)
 end)
 
 print("---- __devtest.lua end")
