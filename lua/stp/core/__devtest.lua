@@ -10,17 +10,16 @@ libo.ApplyMany(META,
     libn.EasyComposite
 )
 
-libo.ConstructNestedType(META, "Bank",
-    libo.MakeVariableField,
-    libo.MakeVariableAccessors(
-        "GetBank",
-        SERVER and "SetBank",
-        "OnBankChanged"
-    ),
+libo.ConstructNestedType(META, "Fwd",
+    libn.MakeMsgFwd(libn.schema.UInt(16), false),
+    libn.MakeMsgAccessors("PingSend","PingRecv"),
+    libn.MakeRecipientEveryone,
+    libn.MakeReliable
+)
 
-    SERVER and libo.VariableDefault(0),
-
-    libn.MakeVar(libn.schema.UInt(16)),
+libo.ConstructNestedType(META, "Rev",
+    libn.MakeMsgRev(libn.schema.UInt(16), false),
+    libn.MakeMsgAccessors("ReplySend","ReplyRecv"),
     libn.MakeRecipientEveryone,
     libn.MakeReliable
 )
@@ -38,13 +37,20 @@ else
     end
 end
 
-
-function META:OnBankChanged(old, new)
-    print(self, "New bank value = ", new)
+if CLIENT then
+    function META:PingRecv(val)
+        self:ReplySend(val)
+    end
 end
 
-function META:BankAdd(delta)
-    self:SetBank(self:GetBank() + delta)
+if SERVER then
+    function META:ReplyRecv(val, ply)
+        print("Got",val,"from",ply)
+    end
+end
+
+function META:Ping(val)
+    self:PingSend(val)
 end
 
 libo.HookAdd(META, "OnPreRemove", "Devtest.Debug", function(self)
@@ -75,7 +81,7 @@ end)
 
 concommand.Add("stplib_devtest_remove", TryRemove)
 
-concommand.Add("stplib_devtest_add", function(_,_,args)
+concommand.Add("stplib_devtest_ping", function(_,_,args)
     local game = gameref.Value
     if game == nil then 
         print("Game is not initialized")
@@ -90,7 +96,7 @@ concommand.Add("stplib_devtest_add", function(_,_,args)
         print("! Parameter must be an integer from 0 to 65535") return 
     end
 
-    game:BankAdd(val)
+    game:Ping(val)
 end)
 
 print("---- __devtest.lua end")
