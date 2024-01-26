@@ -43,7 +43,9 @@ function libo.HookDefine(meta, keyname)
 end
 
 function libo.HookAdd(meta, keyname, valname, fn)
-    assert(isfunction(fn))
+    if not isfunction(fn) then
+        stp.Error("Attempt to add a non-function ",fn," as implementation '",valname,"' of ",meta,":",keyname)
+    end
     libo.MergablesAdd(meta, keyname, valname, "CallInOrder_Member", fn)
 end
 
