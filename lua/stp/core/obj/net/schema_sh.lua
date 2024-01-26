@@ -175,7 +175,7 @@ local function ReadStpObject_FinalId(revnet)
     end
 
     if bits ~= 0 then
-        subid = net.ReadUInt(objbits) + 1
+        subid = net.ReadUInt(bits) + 1
     end
 
     
