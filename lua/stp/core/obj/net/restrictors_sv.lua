@@ -39,13 +39,14 @@ end
 
 hook.Add("stp.obj.Tracker.OnPreTracked", "stp.obj.net.Restrictors", function(obj, id)
     if not ObjTracker.IsNetworkable(id) then return end
+    assert(obj.IsNetworkableFwd)
 
     RestrictedByThis[obj] = RestrictedByThis[obj] or {}
     Unrestricted[obj] = true
 end)
 
 hook.Add("stp.obj.PreRemoved", "spt.obj.net.Restrictors", function(obj)
-    if not obj.IsNetworkable then return end
+    if not obj.IsNetworkableFwd then return end
 
     Unrestricted[obj] = nil
     RestrictedByThis[obj] = nil
