@@ -177,7 +177,7 @@ function libn.MakeMsgAccessors(send, receiver)
         else
             libo.MarkAbstract(ownermeta, receiver, "function")
 
-            libo.HookAdd(msgmeta, "OnReceived", function(self, data, sender)
+            libo.HookAdd(msgmeta, "OnReceived", "stp.obj.net.MakeMsgAccessors", function(self, data, sender)
                 local owner = self.Owner
                 owner[receiver](owner, data, receiver)
             end)
