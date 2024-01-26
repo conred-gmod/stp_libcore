@@ -198,7 +198,7 @@ do --Testing
     local RegTestFailing = stp.testing.RegisterTestFailing
 
     local MERGABLE_NAME = PREFIX_TEST.."Mergable"
-    local function DefineSimpleMergable()
+    local function DefineSimpleMerger()
         libobj.RegisterMerger(MERGABLE_NAME, function(meta, key, desc)
             local parts = {}
             for impl, impldesc in SortedPairsByMemberValue(desc, "Idx") do
@@ -210,10 +210,106 @@ do --Testing
     end
     
     local function AddSimpleMergable(meta, key, implname, value)
-        -- TODO
+        libobj.MergablesAdd(meta, key, implname, MERGABLE_NAME, value)
     end
 
-    RegTest(PREFIX.."Simple", function()
-        -- TODO: test diamond inheritance pattern with mergables
+    local function DeclareSimpleMergable(meta, key)
+        libobj.MergablesDeclare(meta, key, MERGABLE_NAME)
+    end
+
+    RegTest(PREFIX.."Declare", function()
+        local ty = libobj.BeginObject(PREFIX_TEST.."Declare")
+        DeclareSimpleMergable(ty, "Keyname")
+        libobj.Register(ty)
+
+        assert(istable(ty.Keyname))
+        assert(table.IsEmpty(ty.Keyname))
+    end)
+
+    RegTestFailing(PREFIX.."DeclareUndefinedMerger", function()
+        local ty = libobj.BeginObject(PREFIX_TEST.."DeclareUndefinedMerger")
+        libobj.MergablesDeclare(ty, "Keyname", PREFIX_TEST.."NoSuchMergerExists")
+        libobj.Register(ty)
+    end)
+
+    RegTest(PREFIX.."SimpleUse", function()
+        DefineSimpleMerger()
+
+        local ty = libobj.BeginObject(PREFIX_TEST.."SimpleUse")
+        
+        AddSimpleMergable(ty, "First", "Impl1", 10)
+        AddSimpleMergable(ty, "Second", "Impl1", 10)
+        
+        AddSimpleMergable(ty, "First", "Impl2", 15) -- Add another implementation to mergable
+        AddSimpleMergable(ty, "Second", "Impl1", -10) -- Overwrite implementation of mergable
+
+        libobj.Register(ty)
+        
+        assert(ty.First[1] == "Impl1=10")
+        assert(ty.First[2] == "Impl2=15")
+
+        assert(#ty.Second == 1, "Overwriting not worked correctly, it created extra elements")
+        assert(ty.Second[1] == "Impl1=-10", "Value was not overwritten correctly")
+    end)
+
+    RegTest(PREFIX.."SimpleInheritance", function()
+        DefineSimpleMerger()
+
+        local tbase = libobj.BeginTrait(PREFIX_TEST.."SimpleInheritance.Base")
+        AddSimpleMergable(tbase, "Combined", "Base",4)
+        AddSimpleMergable(tbase, "Overwritten", "OnlyValue", 99)
+        libobj.Register(tbase)
+
+        local tfinal = libobj.BeginObject(PREFIX_TEST.."SimpleInheritance.Final")
+        AddSimpleMergable(tfinal, "Combined", "First", 0)
+        tbase(tfinal)
+        AddSimpleMergable(tfinal, "Combined", "Final", 8)
+        AddSimpleMergable(tfinal, "Overwritten", "OnlyValue", 110)
+        libobj.Register(tfinal)
+
+        assert(tfinal.Combined[1] == "First=0")
+        assert(tfinal.Combined[2] == "Base=4")
+        assert(tfinal.Combined[3] == "Final=8")
+
+        assert(#tfinal.Overwritten == 1)
+        assert(tfinal.Overwritten[1] == "OnlyValue=110")
+    end)
+
+    RegTest(PREFIX.."DiamondInheritance", function()
+        DefineSimpleMerger()
+
+        local ta = libobj.BeginTrait(PREFIX_TEST.."DiamondInheritance.A")
+        AddSimpleMergable(ta, "Keyname", "A", 4)
+        libobj.Register(ta)
+
+        local tb1 = libobj.BeginTrait(PREFIX_TEST.."DiamondInheritance.B1")
+        ta(tb1)
+        AddSimpleMergable(tb1, "Keyname", "B1", 8)
+        libobj.Register(tb1)
+
+        assert(#tb1.Keyname == 2)
+        assert(tb1.Keyname[1] == "A=4")
+        assert(tb1.Keyname[2] == "B1=8")
+
+        local tb2 = libobj.BeginTrait(PREFIX_TEST.."DiamondInheritance.B2")
+        ta(tb2)
+        AddSimpleMergable(tb2, "Keyname", "B2", 15)
+        libobj.Register(tb2)
+
+        assert(#tb2.Keyname == 2)
+        assert(tb2.Keyname[1] == "A=4")
+        assert(tb2.Keyname[2] == "B2=15")
+
+        local tfinal = libobj.BeginObject(PREFIX_TEST.."DiamondInheritance.Final")
+        tb1(tfinal)
+        tb2(tfinal)
+        AddSimpleMergable(tb2, "Keyname", "Final", 16)
+        libobj.Register(tfinal)
+
+        assert(#tfinal.Keyname == 4)
+        assert(tfinal.Keyname[1] == "A=4")
+        assert(tfinal.Keyname[2] == "B1=8")
+        assert(tfinal.Keyname[3] == "B2=15")
+        assert(tfinal.Keyname[4] == "Final=16")
     end)
 end
