@@ -187,7 +187,7 @@ end
 if SERVER then
     hook.Add("stp.obj.PreRemoved", "stp.obj.net.TransmitRemove", function(obj, cascaded)
         if not obj.IsNetInstantiatable then return end
-        if not cascaded then return end
+        if cascaded then return end -- If removal is cascaded on server, it will be cascaded on client too.
 
         local recip = libaware._GetRecipients(obj)
         if recip == nil then return end
