@@ -101,15 +101,15 @@ local function Msg_Send(self, data)
     libn._MarkDirty(self)
 end
 
-local function Msg_Transmit(self, bytes_left)
-    self.SCHEMA.transmit(self._msg_data, bytes_left)
+local function Msg_Transmit(self)
+    self.SCHEMA.transmit(self._msg_data)
     self._msg_data = nil
 end
 
-local function Msg_Receive(self, bytes)
+local function Msg_Receive(self, ply)
     local data = self.SCHEMA.receive(bytes)
 
-    self:OnReceived(data)
+    self:OnReceived(data, ply)
 end
 
 if SERVER then
