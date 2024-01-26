@@ -103,8 +103,7 @@ function libo.MakeVariableAttached(varmeta, parentmeta)
         self.Owner.SubobjVariable:SetByName(vartyname, self)
     end)
 
-    -- TODO: is it correct that 'parentmeta' is used here and not 'varmeta'?
-    libo.HookAdd(parentmeta, "OnRemove", "stp.obj.MakeVariableAttached", function(self)
+    libo.HookAdd(varmeta, "OnRemove", "stp.obj.MakeVariableAttached", function(self)
         self.Owner.SubobjVariable:SetByName(vartyname, nil)
     end)
 
