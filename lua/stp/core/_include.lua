@@ -1,14 +1,14 @@
-local function RemoveFalseValues(tbl)
+local function RecursiveRemoveFalseValues(tbl)
     local result = {}
     
     for k, v in pairs(tbl) do
-        if v ~= false then result[k] = RemoveFalseValues(v) end
+        if v ~= false then result[k] = RecursiveRemoveFalseValues(v) end
     end
 
     return result
 end
 
-stp = stp or RemoveFalseValues({
+stp = stp or RecursiveRemoveFalseValues({
     obj = { net = {
         schema = {},
         restrictors = SERVER and {},
@@ -18,6 +18,8 @@ stp = stp or RemoveFalseValues({
 
     db = {}
 })
+
+stp.RecursiveRemoveFalseValues = RecursiveRemoveFalseValues
 
 local function IsLuaFile(filename)
     return string.EndsWith(filename, ".lua")

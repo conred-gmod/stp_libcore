@@ -37,6 +37,22 @@ fn .IsAnyType(val: any|nil, types: array(string)) -> bool
 
 fn .ToString(val: any|nil, pretty_print: bool|nil = false) -> string
 
+-- Use like this:
+
+-- RecursiveRemoveFalseValues({
+--    obj = { net = {
+--        schema = {},
+--        restrictors = SERVER and {},
+--        awareness = SERVER and {}
+--    } },
+--    testing = {},
+--
+--    db = {}
+--})
+
+-- On CLIENT it will remove obj.net.restrictors and obj.net.awareness.
+fn .RecursiveRemoveFalseValues(tbl: table(any, false|table)) -> table(any, table)
+
 -- Different algorithms
 
 namespace table {
