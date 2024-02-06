@@ -250,7 +250,7 @@ function libn.MakeEasyMsg(schema, dir, accessor_send, accessor_recv, extraparams
         MakeGenericMsg(is_fwd and MSGF or MSGR, schema)(meta)
 
         if accessor_send ~= nil then
-            libn.MakeMsgAccessors(accessor_send, accessor_recv)
+            libn.MakeMsgAccessors(accessor_send, accessor_recv)(meta)
         end
 
         function meta:NetIsUnreliable() return is_reliable end
