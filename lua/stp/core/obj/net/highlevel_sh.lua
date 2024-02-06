@@ -215,8 +215,12 @@ function libn.MakeEasyVar(schema, getter, setter, default, extraparams)
     end
 
     return function(meta)
-        libn.MakeVar(schema)(meta)
         libo.MakeVariableField(meta)
+        libn.MakeVar(schema)(meta)
+
+        if has_default then
+            libo.VariableDefault(default)(meta)
+        end
 
         libo.MakeVariableAccessors(getter, setter, callback)(meta)
 
@@ -224,10 +228,6 @@ function libn.MakeEasyVar(schema, getter, setter, default, extraparams)
 
         if add_autorecip then
             libn.MakeRecipientEveryone(meta)
-        end
-
-        if has_default then
-            libo.VariableDefault(default)(meta)
         end
     end
 end
@@ -249,14 +249,14 @@ function libn.MakeEasyMsg(schema, dir, accessor_send, accessor_recv, extraparams
     return function(meta)
         MakeGenericMsg(is_fwd and MSGF or MSGR, schema)(meta)
 
+        if accessor_send ~= nil then
+            libn.MakeMsgAccessors(accessor_send, accessor_recv)
+        end
+
         function meta:NetIsUnreliable() return is_reliable end
 
         if add_autorecip then
             libn.MakeRecipientEveryone(meta)
-        end
-
-        if accessor_send ~= nil then
-            libn.MakeMsgAccessors(accessor_send, accessor_recv)
         end
     end
 end
