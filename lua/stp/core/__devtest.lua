@@ -14,20 +14,11 @@ libo.ConstructNestedType(META, "Fwd", libn.MakeEasyMsg(libn.schema.UInt(16), "fw
 
 libo.ConstructNestedType(META, "Rev", libn.MakeEasyMsg(libn.schema.UInt(16), "rev", "ReplySend","ReplyRecv"))
 
-libo.ConstructNestedType(META, "Bank",
-    libo.MakeVariableField,
-    libo.MakeVariableAccessors(
-        "GetBank",
-        SERVER and "SetBank",
-        "OnBankChanged"
-    ),
-
-    SERVER and libo.VariableDefault(0),
-
-    libn.MakeVar(libn.schema.UInt(16)),
-    libn.MakeRecipientEveryone,
-    libn.MakeReliable
-)
+libo.ConstructNestedType(META, "Bank", libn.MakeEasyVar(libn.schema.UInt(16), 
+    "GetBank", SERVER and "SetBank",
+    0, -- Default
+    { Callback = "OnBankChanged"}
+))
 
 if SERVER then
     function META:NetGetRecipients(recip)

@@ -198,6 +198,40 @@ libo.ApplyMany(ECOMP,
 libo.Register(ECOMP)
 libn.EasyComposite = ECOMP
 
+function libn.MakeEasyVar(schema, getter, setter, default, extraparams)
+    check_ty(schema, "schema", "table")
+    extraparams = check_ty(extraprams, "extraparams", {"table", "nil"}) or {}
+
+    local callback = extraparams.Callback
+
+    local is_reliable = not extraparams.Unreliable
+    local add_autorecip = not extraparams.NoAutoRecipientEveryoune
+    
+    local has_default = default ~= nil
+    if extraparams.DefaultIsNil then
+        assert(default == nil, "Setting 'default' to non-nil value and 'extraparams.DefaultIsNil' to true simultenously is not allowed")
+
+        has_default = true
+    end
+
+    return function(meta)
+        MakeVar(schema)(meta)
+        MakeVariableField(meta)
+
+        libo.MakeVariableAccessors(getter, setter, callback)(meta)
+
+        function meta:NetIsUnreliable() return is_reliable end
+
+        if add_autorecip then
+            libn.MakeRecipientEveryone(meta)
+        end
+
+        if has_default then
+            libo.VariableDefault(default)(meta)
+        end
+    end
+end
+
 function libn.MakeEasyMsg(schema, dir, accessor_send, accessor_recv, extraparams)
     check_ty(schema, "schema", "table")
     assert(dir == "fwd" or dir == "rev", "'dir' is netiher \"fwd\" nor \"rev\"")

@@ -137,6 +137,9 @@ fn .MakeVar(schema: .schema.Schema({ TData = mixin.Var.TData})) -> mixin: mixin 
     require .Var
 
     impl const .SCHEMA = schema
+
+    -- DOCTODO: this function does hidden work: it attaches message to owner
+    -- and does not works when there is no owner (.OwnerType == nil)
 }
 
 -- A server-to-client net message (like `net.Begin`/`net.Send(players)`).
@@ -201,11 +204,33 @@ trait .EasyComposite {
     SV require .MakeReliable
 }
 
+fn .MakeEasyVar(
+    schema: .schema.Schema, 
+    getter: string|nil|false, -- See stp.obj.MakeVariableAccessors
+    setter: string|nil|false, -- See stp.obj.MakeVariableAccessors
+    default: nil|any, -- 'nil' marks that there is no default. To make 'nil' the default value, set `DefaultIsNil = true` in `extraparams`
+
+    extraparams: nil|{
+        Callback: string|nil|false, -- See stp.obj.MakeVariableAccessors
+        Unreliable: bool|nil=false,
+        NoAutoRecipientEveryoune: bool|nil=false, -- If not false|nil, applies .MakeRecipientEveryone
+
+        DefaultIsNil: bool|nil = false
+    }
+) -> mixin {
+    require stp.obj.MakeVariableField
+    require .Var
+
+
+    -- DOCTODO: this function does hidden work: it attaches message to owner
+    -- and does not works when there is no owner (.OwnerType == nil)
+}
+
 fn .MakeEasyMsg(
     schema: .schema.Schema, 
     dir: "fwd"|"rev", 
-    accessor_send: string|nil, -- See MakeMsgAccessors
-    accessor_recv: string|nil, -- See MakeMsgAccessors
+    accessor_send: string|nil, -- See .MakeMsgAccessors
+    accessor_recv: string|nil, -- See .MakeMsgAccessors
     extraparams: nil|{ -- If nil, all fields in table are considered nil
         Buffered: false|nil=false, -- TODO: in future, buffered messages will be supported
         Unreliable: bool|nil=false,
@@ -216,6 +241,9 @@ fn .MakeEasyMsg(
     require .MsgUnbuffered
 
     impl const .SCHEMA = schema
+
+    -- DOCTODO: this function does hidden work: it attaches message to owner
+    -- and does not works when there is no owner (.OwnerType == nil)
 
     -- +other misc stuff
 }
