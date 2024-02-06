@@ -200,7 +200,7 @@ libn.EasyComposite = ECOMP
 
 function libn.MakeEasyVar(schema, getter, setter, default, extraparams)
     check_ty(schema, "schema", "table")
-    extraparams = check_ty(extraprams, "extraparams", {"table", "nil"}) or {}
+    extraparams = check_ty(extraparams, "extraparams", {"table", "nil"}) or {}
 
     local callback = extraparams.Callback
 
@@ -236,7 +236,7 @@ function libn.MakeEasyMsg(schema, dir, accessor_send, accessor_recv, extraparams
     check_ty(schema, "schema", "table")
     assert(dir == "fwd" or dir == "rev", "'dir' is netiher \"fwd\" nor \"rev\"")
     
-    extraparams = check_ty(extraprams, "extraparams", {"table", "nil"}) or {}
+    extraparams = check_ty(extraparams, "extraparams", {"table", "nil"}) or {}
 
     local is_buffered = extraparams.Buffered or false
     local is_reliable = not extraparams.Unreliable
