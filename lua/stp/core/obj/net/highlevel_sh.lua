@@ -215,8 +215,8 @@ function libn.MakeEasyVar(schema, getter, setter, default, extraparams)
     end
 
     return function(meta)
-        MakeVar(schema)(meta)
-        MakeVariableField(meta)
+        libn.MakeVar(schema)(meta)
+        libo.MakeVariableField(meta)
 
         libo.MakeVariableAccessors(getter, setter, callback)(meta)
 
