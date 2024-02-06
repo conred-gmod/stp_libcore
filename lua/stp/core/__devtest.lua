@@ -5,7 +5,7 @@ local libn = stp.obj.net
 
 print("---- __devtest.lua start")
 
-local META = libo.BeginObject("PerfectCasino.Poker")
+local META = libo.BeginObject("__devtest")
 libo.ApplyMany(META,
     libn.EasyComposite
 )
