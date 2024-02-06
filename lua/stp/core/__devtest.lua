@@ -10,19 +10,9 @@ libo.ApplyMany(META,
     libn.EasyComposite
 )
 
-libo.ConstructNestedType(META, "Fwd",
-    libn.MakeMsgFwd(libn.schema.UInt(16), false),
-    libn.MakeMsgAccessors("PingSend","PingRecv"),
-    libn.MakeRecipientEveryone,
-    libn.MakeReliable
-)
+libo.ConstructNestedType(META, "Fwd", libn.MakeEasyMsg(libn.schema.UInt(16), "fwd", "PingSend","PingRecv"))
 
-libo.ConstructNestedType(META, "Rev",
-    libn.MakeMsgRev(libn.schema.UInt(16), false),
-    libn.MakeMsgAccessors("ReplySend","ReplyRecv"),
-    libn.MakeRecipientEveryone,
-    libn.MakeReliable
-)
+libo.ConstructNestedType(META, "Rev", libn.MakeEasyMsg(libn.schema.UInt(16), "rev", "ReplySend","ReplyRecv"))
 
 libo.ConstructNestedType(META, "Bank",
     libo.MakeVariableField,

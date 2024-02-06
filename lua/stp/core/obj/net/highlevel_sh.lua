@@ -1,5 +1,6 @@
 local libn = stp.obj.net
 local libo = stp.obj
+local check_ty = stp.CheckType
 
 local function Attach(varmeta)
     local parentmeta = varmeta.OwnerType
@@ -196,3 +197,32 @@ libo.ApplyMany(ECOMP,
 
 libo.Register(ECOMP)
 libn.EasyComposite = ECOMP
+
+function libn.MakeEasyMsg(schema, dir, accessor_send, accessor_recv, extraparams)
+    check_ty(schema, "schema", "table")
+    assert(dir == "fwd" or dir == "rev", "'dir' is netiher \"fwd\" nor \"rev\"")
+    
+    extraparams = check_ty(extraprams, "extraparams", {"table", "nil"}) or {}
+
+    local is_buffered = extraparams.Buffered or false
+    local is_reliable = not extraparams.Unreliable
+    local is_fwd = dir == "fwd"
+    local add_autorecip = not extraparams.NoAutoRecipientEveryoune
+
+    assert((accessor_send == nil) == (accessor_recv == nil))
+    assert(not is_buffered, "Buffered messages are not implemented yet")
+
+    return function(meta)
+        MakeGenericMsg(is_fwd and MSGF or MSGR, schema)(meta)
+
+        function meta:NetIsUnreliable() return is_reliable end
+
+        if add_autorecip then
+            libn.MakeRecipientEveryone(meta)
+        end
+
+        if accessor_send ~= nil then
+            libn.MakeMsgAccessors(accessor_send, accessor_recv)
+        end
+    end
+end

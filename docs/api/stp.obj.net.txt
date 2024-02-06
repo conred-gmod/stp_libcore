@@ -16,7 +16,9 @@ trait .Networkable {
     SV abstract fn .NetGetRecipients(recip: CRecipientList)
 }
 
-fn .MakeRecipientEveryone(meta: metatable(.Networkable)) -> mixin {
+mixin .MakeRecipientEveryone {
+    require .Networkable
+
     SV impl fn .NetGetRecipients(recip: CRecipientList) {
         recip:AddAllPlayers() -- Just like that
     }
@@ -128,10 +130,10 @@ trait .Var {
     require .Sendable
     --require .SendableInit -- For now, this is not required nor used
  
-    abstract const .SCHEMA: .Schema({ TData = .TData })
+    abstract const .SCHEMA: .schema.Schema({ TData = .TData })
 }
 
-fn .MakeVar(schema: .Schema({ TData = mixin.Var.TData})) -> mixin: mixin {
+fn .MakeVar(schema: .schema.Schema({ TData = mixin.Var.TData})) -> mixin: mixin {
     require .Var
 
     impl const .SCHEMA = schema
@@ -144,17 +146,20 @@ trait .MsgUnbuffered {
     doconly param type .TData;
     require .Sendable
 
-    abstract const .SCHEMA: .Schema({ TData = .TData })
+    abstract const .SCHEMA: .schema.Schema({ TData = .TData })
 
 
     SV function :Send(data: .TData)
     CL hook :OnReceived(data: .TData)
 }
 
-fn .MakeMsgFwd(schema: .Schema({ TData = mixin.MsgUnbuffered.TData}), buffered: false) -> mixin: mixin {
+fn .MakeMsgFwd(schema: .schema.Schema({ TData = mixin.MsgUnbuffered.TData}), buffered: false) -> mixin: mixin {
     require .MsgUnbuffered
 
     impl const .SCHEMA = schema
+
+    -- DOCTODO: this function does hidden work: it attaches message to owner
+    -- and does not works when there is no owner (.OwnerType == nil)
 }
 
 -- A client-to-server net message (like `net.Begin`/`net.SendToServer()`).
@@ -163,16 +168,19 @@ trait .MsgRevUnbuffered {
     doconly param type .TData;
     require .SendableRev
 
-    abstract const .SCHEMA: .Schema({ TData = .TData })
+    abstract const .SCHEMA: .schema.Schema({ TData = .TData })
 
     CL function :Send(data: .TData)
     SV hook :OnReceived(data: .TData, sender: Player)
 }
 
-fn .MakeMsgRev(schema: .Schema({ TData = mixin.MsgRevUnbuffered.TData}), buffered: false) -> mixin: mixin {
+fn .MakeMsgRev(schema: .schema.Schema({ TData = mixin.MsgRevUnbuffered.TData}), buffered: false) -> mixin: mixin {
     require .MsgRevUnbuffered
 
     impl const .SCHEMA = schema
+
+    -- DOCTODO: this function does hidden work: it attaches message to owner
+    -- and does not works when there is no owner (.OwnerType == nil)
 }
 
 fn .MakeMsgAccessors(send: string, receiver: string) -> mixin {
@@ -191,6 +199,25 @@ trait .EasyComposite {
     require .Instantiatable
     require stp.obj.VariableContainer
     SV require .MakeReliable
+}
+
+fn .MakeEasyMsg(
+    schema: .schema.Schema, 
+    dir: "fwd"|"rev", 
+    accessor_send: string|nil, -- See MakeMsgAccessors
+    accessor_recv: string|nil, -- See MakeMsgAccessors
+    extraparams: nil|{ -- If nil, all fields in table are considered nil
+        Buffered: false|nil=false, -- TODO: in future, buffered messages will be supported
+        Unreliable: bool|nil=false,
+        NoAutoRecipientEveryoune: bool|nil=false, -- If not false|nil, applies .MakeRecipientEveryone
+    }
+) -> mixin {
+
+    require .MsgUnbuffered
+
+    impl const .SCHEMA = schema
+
+    -- +other misc stuff
 }
 
 ------- Standard Schemas
