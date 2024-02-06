@@ -208,7 +208,9 @@ fn .MakeEasyVar(
     schema: .schema.Schema, 
     getter: string|nil|false, -- See stp.obj.MakeVariableAccessors
     setter: string|nil|false, -- See stp.obj.MakeVariableAccessors
-    default: nil|any, -- 'nil' marks that there is no default. To make 'nil' the default value, set `DefaultIsNil = true` in `extraparams`
+    -- Default value is only set on server.
+    -- 'nil' marks that there is no default. To make 'nil' the default value, set `DefaultIsNil = true` in `extraparams`
+    default: nil|any, 
 
     extraparams: nil|{
         Callback: string|nil|false, -- See stp.obj.MakeVariableAccessors

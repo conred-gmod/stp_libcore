@@ -1,8 +1,5 @@
 # Типичные объекты
 
-***TODO: эти примеры надо будет обновить, когда система объектов будет приведена в рабочее состояние!***
-
-
 ## Простой несетевой объект
 ```lua
 if CLIENT then return end -- Или просто назовите файл yourname_sv.lua
@@ -19,7 +16,7 @@ function META:DoStuff()
 end
 
 libo.HookAdd(META, "Init", "TopLevelCtorHookName", function(self, params) -- Аналог конструктора
-    self._data = params.Data
+    self._data = params.Data -- Получение параметра из конструктора
 end)
 
 libo.HookAdd(META, "OnPreRemove", "TopLevelDtorName", function(self)
@@ -30,7 +27,7 @@ libo.Register(META)
 --..
 
 local function WorkWithStuff()
-    local obj = META:Create({ Data = "some data"})
+    local obj = META:Create({ Data = "some data"}) -- Вызов конструктора с одним параметром
     print(IsValid(obj)) --> true
 
     obj:DoStuff() --> I store some data
@@ -98,18 +95,15 @@ function META:NetGetRecipients(recip)
 end
 
 libo.ConstructNestedType(META, "SomeCounterName", -- Type name is `META.TypeName..".".."VariableName"`
-    libo.MakeVariableField, 
-    libo.MakeVariableAccessors(
+    libn.MakeEasyVar(libn.schema.UInt(16),
         "GetSomeCounterName", 
         SERVER and "SetSomeCounterName", -- Булев тип тут эквивалентен nil - соотв. функция не будет создана
-        "OnSomeCounterNameChanged")
-
-    SERVER and libo.VariableRequireInit(), -- This will be used only on server...
-    CLIENT and libo.VariableDefault(0), -- ...and this - only on client
-
-    libn.MakeVar(libn.schema.UInt(16)),
-    libn.MakeRecipientEveryone,
-    libn.MakeReliable,
+        nil, -- Тут можно задать значение по-умолчанию. Оно используется только на сервере
+        { -- В этой таблице есть ещё несколько параметров, см. документацию
+            Callback = "OnSomeCounterNameChanged"
+        }
+    )
+    SERVER and libo.VariableRequireInit() -- Значение по-умолчанию мы берём из конструктора
 )
 
 function META:OnSomeCounterNameChanged(old, new)
@@ -139,7 +133,9 @@ function libyour.Create(counter_value)
     assert(counter_value >= 0, "Counter value is not nonnegative")
 
     local obj = META:Create({
-        SomeCounterName = counter_value
+        -- Благодаря этой строчке сетевая переменная будет инициализирована на сервере.
+        -- Без неё конструктор кинул бы ошибку.
+        SomeCounterName = counter_value 
     })
 
     -- Тут объект уже в рабочем состоянии

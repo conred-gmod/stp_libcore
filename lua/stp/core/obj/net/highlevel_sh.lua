@@ -207,8 +207,8 @@ function libn.MakeEasyVar(schema, getter, setter, default, extraparams)
     local is_reliable = not extraparams.Unreliable
     local add_autorecip = not extraparams.NoAutoRecipientEveryoune
     
-    local has_default = default ~= nil
-    if extraparams.DefaultIsNil then
+    local has_default = SERVER and default ~= nil
+    if SERVER and extraparams.DefaultIsNil then
         assert(default == nil, "Setting 'default' to non-nil value and 'extraparams.DefaultIsNil' to true simultenously is not allowed")
 
         has_default = true
