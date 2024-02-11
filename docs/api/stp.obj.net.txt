@@ -289,8 +289,8 @@ namespace schema {
     var .EntityPlayer: .Schema({TData = Player})
 
     -- Size: depends
-    var .StpNetworkable: .Schema({TData = .Networkable})
-    var .StpNetworkableRev: .Schema({TData = .NetworkableRev})
+    var .StpNetworkable: .Schema({TData = .Networkable|nil})
+    var .StpNetworkableRev: .Schema({TData = .NetworkableRev|nil})
 
     -- Size: depends
     fn .ReadNetworkableAny_FinalId(revnet: bool) -> owner: .NetworkableComposite|nil, id: pint
