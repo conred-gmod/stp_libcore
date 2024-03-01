@@ -63,6 +63,9 @@ namespace table {
 
     -- Iterates whole array and returns key of item == value
     fn .SeqFindValue(array: array(any), value: any) -> key: uint|nil
+
+    -- Removes `value` from `tbl`, moves item from end of the array to its place, returns index of this place.
+    fn .RemoveFastByValue(tbl: array(any), value: any) -> replacement_index: uint|nil
 }
 
 

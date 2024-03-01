@@ -60,3 +60,13 @@ RegTest(PREFIX.."tableSeqFindValue", function()
     assert(seqfind(array, 4) == 4)
     assert(seqfind(array, "notexists") == nil)
 end)
+
+RegTest(PREFIX.."tableRemoveFastByValue", function()
+    local remfast = table.RemoveFastByValue
+
+    local tbl_entry = {"tbl_entry"}
+    local array = {"a", "b", tbl_entry, 1, 2 }
+
+    assert(remfast(array, tbl_entry) == 3)
+    assert(#array == 4)    
+end)

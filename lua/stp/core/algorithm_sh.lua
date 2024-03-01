@@ -29,3 +29,15 @@ function table.SeqFindValue(tbl, value)
 
     return nil
 end
+
+
+function table.RemoveFastByValue(tbl, value)
+    for i, v in ipairs(tbl) do
+        if v == value then
+            tbl[i] = tbl[#tbl]
+            tbl[#tbl] = nil
+
+            return i
+        end
+    end
+end
