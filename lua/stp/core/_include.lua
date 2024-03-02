@@ -15,6 +15,7 @@ stp = stp or RecursiveRemoveFalseValues({
         awareness = SERVER and {}
     } },
     testing = {},
+    algo = {},
 
     db = {}
 })

@@ -41,3 +41,11 @@ function table.RemoveFastByValue(tbl, value)
         end
     end
 end
+
+function stp.algo.RandomInRangeOrValue(arg)
+    if istable(arg) then
+        return math.Rand(arg[1], arg[2])
+    else
+        return arg
+    end
+end

@@ -68,6 +68,13 @@ namespace table {
     fn .RemoveFastByValue(tbl: array(any), value: any) -> replacement_index: uint|nil
 }
 
+namespace .algo {
+    -- If `arg` is number, returns that number
+    -- If `arg` is an array of two elements, returns a random number between first and second element.
+    fn .RandomInRangeOrValue(arg: number|{[1]: number, [2]: number}) -> number
+}
+
+-- Debugging tools
 
 var .DebugFlags: {
     -- stplib_debug_typesys 1 | developer >1
