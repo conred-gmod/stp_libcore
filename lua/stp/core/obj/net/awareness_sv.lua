@@ -13,6 +13,8 @@ local InitRecips = {}
 
 -- table(obj: .Networkable, table(Player, true))
 local AwarePlys = stp.GetPersistedTable("stp.obj.net.awareness.AwarePlys", {})
+-- table(Player, true)
+local NetReadyPlys = stp.GetPersistedTable("stp.obj.net.awareness.NetReadyPlys", {})
 
 -- Returns false if results in no recipients
 local function CheckAndFilterRecipients(recip, filter)
@@ -47,7 +49,10 @@ local function ProcessObject(obj, restrictor, restrictor_recip)
     local aware = AwarePlys[obj] or {}
     local init_plys = {}
     for _, ply in ipairs(recip:GetPlayers()) do
-        if not aware[ply] then
+        -- Players can receive netmessages reliably only after they appear in NetReadyPlys.
+        --
+        -- TODO: Add way to allow networking some objects to players who are not yet net-ready.
+        if not aware[ply] and NetReadyPlys[ply] then
             table.insert(init_plys, ply)
         end
     end
@@ -91,12 +96,23 @@ function libaware._MarkAware(obj, plys)
     end
 end
 
+gameevent.Listen("OnRequestFullUpdate")
+hook.Add("OnRequestFullUpdate", "stp.obj.net.awareness", function(data)
+    local ply = Player(data.userid)
+    if ply:IsBot() then return end
+
+    NetReadyPlys[ply] = true
+end)
+
+
 hook.Add("PlayerDisconnected", "stp.obj.net.awareness", function(ply)
     if ply:IsBot() then return end
 
     for _, plys in pairs(AwarePlys) do
         plys[ply] = nil
     end
+
+    NetReadyPlys[ply] = nil
 end)
 
 hook.Add("stp.obj.PreRemoved", "stp.obj.net.awareness", function(obj)
