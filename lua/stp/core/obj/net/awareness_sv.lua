@@ -47,7 +47,8 @@ local function ProcessObject(obj, restrictor, restrictor_recip)
     local aware = AwarePlys[obj] or {}
     local init_plys = {}
     for _, ply in ipairs(recip:GetPlayers()) do
-        if not aware[ply] then
+        -- TODO: Add ability to init object before ply.stp_NetReady == true (first call of "OnRequestFullUpdate" game event)
+        if not aware[ply] and ply.stp_NetReady then
             table.insert(init_plys, ply)
         end
     end
