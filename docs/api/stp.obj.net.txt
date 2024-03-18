@@ -13,13 +13,13 @@ trait .Networkable {
     SV fn :NetGetRestrictor() -> .Networkable|nil
     SV fn :NetSetRestrictor(restr: .Networkable|nil)
 
-    SV abstract fn .NetGetRecipients(recip: CRecipientList)
+    SV abstract fn :NetGetRecipients(recip: CRecipientList)
 }
 
 mixin .MakeRecipientEveryone {
     require .Networkable
 
-    SV impl fn .NetGetRecipients(recip: CRecipientList) {
+    SV impl fn :NetGetRecipients(recip: CRecipientList) {
         recip:AddAllPlayers() -- Just like that
     }
 }
@@ -316,4 +316,77 @@ namespace schema {
 
     -- Size: 32
     var .ColorRGBA: .Schema({TData = Color})
+}
+
+------- Recipient Provider
+--[[
+    Usage example:
+    Say, you have:
+    struct Item { 
+        require stp.obj.net.RecipientProivder;
+        -- ...
+
+        fn :GetOwnerPlayer() -> Player|nil
+        fn :GetWorldPosition() -> Vector|nil
+    }
+
+    local item = ... -- item: Item
+
+    Then you can do following:
+
+    -- In initializer, serverside only.
+    -- Send the item to its owner and/or players who can see the item.
+    item:AddRecipientProvider("Item_CoreProviders", function(self, recip)
+        local owner = self:GetOwnerPlayer()
+        if IsValid(owner) then recip:AddPlayer(owner) end
+
+        local pos = self:GetWorldPosition()
+        if pos ~= nil then recip:AddPVS(pos) end
+    end)
+
+    -- In root scope
+    if SERVER then
+        -- Open a window on `tracker_ply` that tracks information
+        -- about the item in real time.
+        function Item:AdminTrackThis(tracker_ply)
+            local name = "Track_"..tracker_ply:SteamID()
+
+            self:AddRecipientProvider(name, function(self, recip)
+                if IsValid(tracker_ply) then
+                    recip:AddPlayer(tracker_ply)
+                end
+            end)
+
+            -- NOTE: `"Untrack_"..self` is a pseudocode, actually, it will probably always return the same string
+            tracker_ply:CallOnRemove("Untrack_"..self, function()
+                self:AdminUntrackThis_Impl(tracker_ply)
+            end)
+
+            net.Start("OpenTrackWindow")
+                -- Write 'self' here
+            net.Send(tracker_ply)
+        end
+
+        -- Closes the information-tracking window on `tracker_ply`
+        function Item:AdminUntrackThis(tracker_ply)
+            tracker_ply:RemoveCallOnRemove("Untrack_"..self)
+
+            self:AdminUntrackThis_Impl(tracker_ply)
+        end
+
+        function Item:AdminUntrackThis_Impl(tracker_ply)
+            local name = "Track_"..tracker_ply:SteamID()
+            self:RemoveRecipientProvider(name)
+        end
+    end
+]]
+
+trait .RecipientProivder {
+    require .Networkable;
+    require stp.obj.Initializable;
+
+    SV impl fn :NetGetRecipients(recip: CRecipientList)
+    
+    SV fn :AddRecipientProvider(name: string, fn: fn(self, target_recip: CRecipientList))
+    SV fn :RemoveRecipientProvider(name: string)
 }

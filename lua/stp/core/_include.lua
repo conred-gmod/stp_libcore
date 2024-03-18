@@ -102,6 +102,7 @@ stp.IncludeList("stp/core/", {
     "obj/net/awareness_sv.lua",
     "obj/net/networking_sh.lua",
     "obj/net/var_msg_sh.lua",
+    "obj/net/recipprovider_sh.lua",
 
     "enginehooks_sh.lua", -- Must be close to end
     "__devtest.lua",
