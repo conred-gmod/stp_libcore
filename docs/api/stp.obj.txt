@@ -25,8 +25,9 @@ fn .BeginExistingObject(meta: metatable(.Object)) -> metatable(.Object)
 
 internal hook ._OnMetaCreated(meta: metatable(.Object))
 
--- Registers an object
-fn .Register(meta: metatable(.Object))
+-- Registers an object.
+-- Returns the object it registered.
+fn .Register(meta: metatable(.Object)) -> meta
 hook .OnMetaRegistered(meta: metatable(.Object))
 
 fn .GetObjectMetatables() -> table(typename: string, metatable(.Object))

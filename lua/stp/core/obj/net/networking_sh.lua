@@ -30,10 +30,8 @@ end
 MakeAbstractTxRx(SEND, SERVER)
 MakeAbstractTxRx(SENDREV, CLIENT)
 
-sobj.Register(SEND)
-sobj.Register(SENDREV)
-snet.Sendable = SEND
-snet.SendableRev = SENDREV
+snet.Sendable = sobj.Register(SEND)
+snet.SendableRev = sobj.Register(SENDREV)
 
 local SENDINIT = sobj.BeginTrait("stp.obj.net.SendableInit")
 snet.Networkable(SENDINIT)
@@ -44,8 +42,7 @@ else
     sobj.MarkAbstract(SENDINIT, "NetReceiveInit", "function")
 end
 
-sobj.Register(SENDINIT)
-snet.SendableInit = SENDINIT
+snet.SendableInit = sobj.Register(SENDINIT)
 
 local INST = sobj.BeginTrait("stp.obj.net.Instantiatable")
 
@@ -78,8 +75,7 @@ end
 
 INST.IsNetInstantiatable = true
 
-sobj.Register(INST)
-snet.Instantiatable = INST
+snet.Instantiatable = sobj.Register(INST)
 
 
 ---------------------- Dirty Objects

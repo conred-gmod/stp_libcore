@@ -119,6 +119,8 @@ function sobj.Register(meta)
     sobj._MergablesMerge(meta)
 
     hook.Run("stp.obj.OnMetaRegistered", meta)
+
+    return meta
 end
 
 do -- Tests

@@ -21,8 +21,7 @@ function sobj.ConstructNestedType(owner, postfix, ...)
 
     sobj.ApplyMany(META, ...)
 
-    sobj.Register(META)
-    return META
+    return sobj.Register(META)
 end
 
 sobj.MergerRegisterArray("CallInOrder_Member", function(meta, key, values)

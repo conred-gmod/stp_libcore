@@ -195,8 +195,7 @@ sobj.ApplyMany(ECOMP,
     sobj.VariableContainer
 )
 
-sobj.Register(ECOMP)
-snet.EasyComposite = ECOMP
+snet.EasyComposite = sobj.Register(ECOMP)
 
 function snet.MakeEasyVar(schema, getter, setter, default, extraparams)
     check_ty(schema, "schema", "table")

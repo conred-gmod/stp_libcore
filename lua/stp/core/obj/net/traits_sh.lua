@@ -32,15 +32,12 @@ if SERVER then
     sobj.MarkAbstract(NETABLE, "NetGetRecipients", "function")
 end
 
-sobj.Register(NETABLE)
-snet.Networkable = NETABLE
-sobj.Register(NETREV)
-snet.NetworkableRev = NETREV
+snet.Networkable = sobj.Register(NETABLE)
+snet.NetworkableRev = sobj.Register(NETREV)
 
 
 NETABLE(NETCOMP)
-sobj.Register(NETCOMP)
-snet.NetworkableComposite = NETCOMP
+snet.NetworkableComposite = sobj.Register(NETCOMP)
 
 function snet.MakeRecipientEveryone(meta)
     sobj.CheckNotFullyRegistered(meta)

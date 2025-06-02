@@ -5,9 +5,7 @@ local INITABLE = sobj.BeginTrait("stp.obj.Initializable")
 sobj.HookDefine(INITABLE, "Init")
 sobj.HookDefine(INITABLE, "PostInit")
 
-
-sobj.Register(INITABLE)
-sobj.Initializable = INITABLE
+sobj.Initializable = sobj.Register(INITABLE)
 
 
 local REMOVABLE = sobj.BeginTrait("stp.obj.Removable")
@@ -16,8 +14,7 @@ INITABLE(REMOVABLE)
 sobj.HookDefine(REMOVABLE, "OnPreRemove")
 sobj.HookDefine(REMOVABLE, "OnRemove")
 
-sobj.Register(REMOVABLE)
-sobj.Removable = REMOVABLE
+sobj.Removable = sobj.Register(REMOVABLE)
 
 local INST = sobj.BeginTrait("stp.obj.Instantiatable")
 REMOVABLE(INST)
@@ -55,5 +52,4 @@ function INST:Remove(cascaded)
 end
 
 
-sobj.Register(INST)
-sobj.Instantiatable = INST
+sobj.Instantiatable = sobj.Register(INST)

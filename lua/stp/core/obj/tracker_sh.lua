@@ -99,8 +99,7 @@ sobj.HookDefine(TRK, "OnPostTracked")
 
 sobj.HookAdd(TRK, "OnRemove", TRK.TypeName, Untrack)
 
-sobj.Register(TRK)
-sobj.Trackable = TRK
+sobj.Trackable = sobj.Register(TRK)
 
 
 
@@ -111,8 +110,7 @@ sobj.HookAdd(TRKL, "PostInit", TRKL.TypeName, function(self)
     Track(self, GenerateIdLocal())
 end)
 
-sobj.Register(TRKL)
-sobj.TrackableLocal = TRKL
+sobj.TrackableLocal = sobj.Register(TRKL)
 
 local TRKN = sobj.BeginTrait("stp.obj.TrackableNetworked")
 TRK(TRKN)
@@ -129,5 +127,4 @@ sobj.HookAdd(TRKN, "PostInit", TRKN.TypeName, function(self, params)
 
     Track(self, id)
 end)
-sobj.Register(TRKN)
-sobj.TrackableNetworked = TRKN
+sobj.TrackableNetworked = sobj.Register(TRKN)

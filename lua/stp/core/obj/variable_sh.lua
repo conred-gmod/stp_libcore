@@ -12,10 +12,8 @@ sobj.MarkAbstract(VAR, "VariableSet", "function")
 
 sobj.HookDefine(VAR, "VariableOnSet")
 
-sobj.Register(VAR)
-sobj.Register(VARCONT)
-sobj.Variable = VAR
-sobj.VariableContainer = VARCONT
+sobj.Variable = sobj.Register(VAR)
+sobj.VariableContainer = sobj.Register(VARCONT)
 
 local VARF = sobj.BeginTrait("stp.obj.VariableField")
 
@@ -33,8 +31,7 @@ function VARF:VariableSet(val)
     self._var_value = val
 end
 
-sobj.Register(VARF)
-sobj.VariableField = VARF
+sobj.VariableField = sobj.Register(VARF)
 
 function sobj.MakeAttached(accessor)
     return function(meta)

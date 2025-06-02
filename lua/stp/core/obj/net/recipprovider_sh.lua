@@ -33,5 +33,4 @@ if SERVER then
     end
 end
 
-sobj.Register(RPR)
-snet.RecipientProivder = RPR
+snet.RecipientProivder = sobj.Register(RPR)
