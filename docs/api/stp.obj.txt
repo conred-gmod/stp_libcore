@@ -1,6 +1,7 @@
 namespace stp.obj;
 
 ------- Objects/Traits
+
 interface .Object {
     const .TypeName: string,
     const .IsFullyRegistered: bool -- Modified by .BeginMeta / .Register
@@ -33,7 +34,11 @@ hook .OnMetaRegistered(meta: metatable(.Object))
 fn .GetObjectMetatables() -> table(typename: string, metatable(.Object))
 fn .GetTraitMetatables() -> table(typename: string, metatable(.Object))
 
+
+
+
 ------- Trait application stuff
+
 internal fn ._MergablesInit() -> table
 
 -- `traitmeta` should be a registered trait.
@@ -65,7 +70,11 @@ fn .MergerRegisterArray(name: string, fn: fn(
     meta: metatable(.Object), key: string, array: array({Key: string, Value: any|nil})))
 
 
+
+
+
 ------- Utilities
+
 interface .NestedObject {
     require .Object
 
@@ -93,6 +102,9 @@ fn .HookAdd(meta: metatable(.Object), keyname: string, valname: string, fn: fn(s
 -- See stp.CheckType for type format.
 fn .MarkAbstract(meta: metatable(.Object), keyname: string, valtype: string | array(string))
 
+
+
+
 ------- Instantiatable Objects
 
 trait .Instance {
@@ -114,7 +126,12 @@ hook .PostInit(obj: .Instance, args: table)
 
 hook .PreRemove(obj: .Instance, cascaded: bool)
 hook .PostRemove(obj: .Instance, cascaded: bool)
+
+
+
+
 ------- Generic Managers
+
 struct .ManagerDesc = {
     GenerateKey: fn(mgr: .Instance + .Manager(self), item: .Removable + ManagedItem(self), userdata: ...any) -> any,
 
@@ -176,7 +193,11 @@ fn .MakeManager(
     item: metatable(.Instance), manager: metatable(.Object),
     desc: .ManagerDesc) -> .ManagerData
 
+
+
+
 ------- Trackable objects
+
 trait .Trackable {
     require .Instance
 
@@ -226,7 +247,10 @@ namespace .Tracker = {
     fn .IsNetworkable(arg: .Id|.Trackable) -> bool
 }
 
+
+
 ------- Subobjects
+
 -- Subobject of one key can only be stored in one subobject container and only in one subobject slot.
 -- Subobject loops are not allowed.
 
@@ -282,6 +306,8 @@ nonpubctor mixin(key: string) .SubobjectStorable {
 fn .MakeSubobjectContainer(meta: metatable(.Instance), key: string)
 -- Adds .SubobjectStorable(key) to meta
 fn .MakeSubobjectStorable(meta: metatable(.Instance), key: string)
+
+
 
 ------- Variables
 

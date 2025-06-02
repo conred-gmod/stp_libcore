@@ -53,6 +53,9 @@ fn .ToString(val: any|nil, pretty_print: bool|nil = false) -> string
 -- On CLIENT it will remove obj.net.restrictors and obj.net.awareness.
 fn .RecursiveRemoveFalseValues(tbl: table(any, false|table)) -> table(any, table)
 
+
+
+
 -- Different algorithms
 
 namespace table {
@@ -73,6 +76,9 @@ namespace .algo {
     -- If `arg` is an array of two elements, returns a random number between first and second element.
     fn .RandomInRangeOrValue(arg: number|{[1]: number, [2]: number}) -> number
 }
+
+
+
 
 -- Debugging tools
 

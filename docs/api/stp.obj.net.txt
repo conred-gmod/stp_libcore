@@ -40,6 +40,9 @@ trait .NetworkableComposite {
     require .obj.SubobjectContainer("NetworkRev")
 }
 
+
+
+
 ------- Restrictors
 
 SV namespace .restrictors {
@@ -50,6 +53,10 @@ SV namespace .restrictors {
 
     internal fn ._Set(obj: .Networkable, restrictor: .Networkable|nil)
 }
+
+
+
+
 
 ------- Awareness
 
@@ -65,6 +72,9 @@ SV namespace .awareness {
         NewlyAware: array(Player)
     })
 }
+
+
+
 
 ------- Low-level Sendable traits
 
@@ -117,6 +127,9 @@ fn .MakeUnreliable(meta: metatable(.Sendable | .SendableRev))
 fn .MakeReliable(meta: metatable(.Sendable | .SendableRev))
 
 --- ??? something meduim-level
+
+
+
 
 ------- High-level traits
 
@@ -250,6 +263,10 @@ fn .MakeEasyMsg(
     -- +other misc stuff
 }
 
+
+
+
+
 ------- Standard Schemas
 
 internal fn ._GetNetworkableFromParentAndId(parent: .NetworkableComposite|nil, id: uint, revnet: bool)
@@ -317,6 +334,9 @@ namespace schema {
     -- Size: 32
     var .ColorRGBA: .Schema({TData = Color})
 }
+
+
+
 
 ------- Recipient Provider
 --[[
