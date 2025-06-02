@@ -91,7 +91,7 @@ end
 
 
 local TRK = sobj.BeginTrait("stp.obj.Trackable")
-sobj.Instantiatable(TRK)
+sobj.Instance(TRK)
 TRK.IsTrackable = true
 
 sobj.HookDefine(TRK, "OnPreTracked")

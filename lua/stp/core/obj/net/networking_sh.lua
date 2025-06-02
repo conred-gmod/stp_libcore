@@ -44,7 +44,7 @@ end
 
 snet.SendableInit = sobj.Register(SENDINIT)
 
-local INST = sobj.BeginTrait("stp.obj.net.Instantiatable")
+local INST = sobj.BeginTrait("stp.obj.net.Instance")
 
 sobj.ApplyMany(INST,
     snet.NetworkableComposite,
@@ -73,9 +73,9 @@ if CLIENT then
     end)
 end
 
-INST.IsNetInstantiatable = true
+INST.IsNetInstance = true
 
-snet.Instantiatable = sobj.Register(INST)
+snet.Instance = sobj.Register(INST)
 
 
 ---------------------- Dirty Objects
@@ -127,7 +127,7 @@ if SERVER then
     end
 
     Net_SendRemove = function(obj, recip)
-        assert(obj.IsNetInstantiatable)
+        assert(obj.IsNetInstance)
 
         net.Start(NETSTRING)
             Net_WriteObj(obj)
@@ -149,7 +149,7 @@ net.Receive(NETSTRING, function(_, sender)
         local params = meta:NetReceiveInit()
 
         Net_RecvCreate(parentobj, id, meta, params)
-    elseif obj.IsNetInstantiatable then -- Remove 
+    elseif obj.IsNetInstance then -- Remove 
         if SERVER then return end
 
         Net_RecvRemove(obj)
@@ -186,7 +186,7 @@ end
 
 if SERVER then
     hook.Add("stp.obj.PreRemoved", "stp.obj.net.TransmitRemove", function(obj, cascaded)
-        if not obj.IsNetInstantiatable then return end
+        if not obj.IsNetInstance then return end
         if cascaded then return end -- If removal is cascaded on server, it will be cascaded on client too.
 
         local recip = snetaware._GetRecipients(obj)

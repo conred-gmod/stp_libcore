@@ -43,8 +43,8 @@ function sobj.MakeAttached(accessor)
         sobj.CheckNotFullyRegistered(meta)
         sobj.CheckNotFullyRegistered(parentmeta)
 
-        sobj.Instantiatable(meta)
-        sobj.Instantiatable(parentmeta)
+        sobj.Instance(meta)
+        sobj.Instance(parentmeta)
     
         local typename = meta.TypeName
         local keyname = "__attached_"..typename

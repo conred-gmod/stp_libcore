@@ -13,8 +13,8 @@ function sobj.MakeManager(item, manager, desc)
 
     local key_mixin = "___mixin_manager_"..isg
 
-    sobj.Removable(item)
-    sobj.Initializable(manager)
+    sobj.Instance(item)
+    sobj.Instance(manager)
 
     local function makehook(prefix)
         sobj.HookDefine(item, prefix..isg)

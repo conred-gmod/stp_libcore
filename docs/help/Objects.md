@@ -8,7 +8,7 @@ local sobj = stp.obj
 
 local META = sobj.BeginObject("your.namespace.ObjectName")
 sobj.ApplyMany(META,
-    sobj.Instantiatable -- Или sobj.TrackableLocal, если нужна возможность получить по универсальному ID
+    sobj.Instance -- Или sobj.TrackableLocal, если нужна возможность получить по универсальному ID
 )
 
 function META:DoStuff()
@@ -44,7 +44,7 @@ local libyour = your.namespace
 local sobj = stp.obj
 
 local META = sobj.BeginTrait("your.namespace.YourTraitName")
-sobj.Initializable(META) -- Реализовать типаж 'stp.obj.Initializable' на '.YourTraitName'
+sobj.Instance(META) -- Реализовать типаж 'stp.obj.Instance' на '.YourTraitName'
 
 function META:DoStuff()
     print("stuff is being done")

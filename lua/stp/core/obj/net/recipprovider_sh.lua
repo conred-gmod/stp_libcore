@@ -4,7 +4,7 @@ local check_ty = stp.CheckType
 
 local RPR = sobj.BeginTrait("stp.obj.net.RecipientProivder") 
 sobj.ApplyMany(RPR,
-    sobj.Initializable,
+    sobj.Instance,
     snet.Networkable
 )
 

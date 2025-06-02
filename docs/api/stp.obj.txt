@@ -94,39 +94,29 @@ fn .HookAdd(meta: metatable(.Object), keyname: string, valname: string, fn: fn(s
 fn .MarkAbstract(meta: metatable(.Object), keyname: string, valtype: string | array(string))
 
 ------- Instantiatable Objects
-trait .Initializable {
+
+trait .Instance {
+    -- Run on metatable, *not* on instance
+    fn :Create(args: table) -> .Instance
     hook :Init(args: table)
     hook :PostInit(args: table)
-}
-
-trait .Removable {
-    require .Initializable
-
-    hook :OnPreRemove(cascaded: bool)
-    hook :OnRemove(cascaded: bool)
-}
-
-trait .Instantiatable {
-    require .Removable
-    require .Initializable
-
-    -- Run on metatable, *not* on instance
-    fn :Create(args: table) -> .Instantiatable
 
     fn :Remove(cascaded: bool)
+    hook :OnPreRemove(cascaded: bool)
+    hook :OnRemove(cascaded: bool)
 
     -- Object considered to be valid after :Init and before :Remove
     fn :IsValid() -> bool
 }
 
-hook .PreInit(obj: .Instantiatable, args: table)
-hook .PostInit(obj: .Instantiatable, args: table)
+hook .PreInit(obj: .Instance, args: table)
+hook .PostInit(obj: .Instance, args: table)
 
-hook .PreRemove(obj: .Instantiatable, cascaded: bool)
-hook .PostRemove(obj: .Instantiatable, cascaded: bool)
+hook .PreRemove(obj: .Instance, cascaded: bool)
+hook .PostRemove(obj: .Instance, cascaded: bool)
 ------- Generic Managers
 struct .ManagerDesc = {
-    GenerateKey: fn(mgr: .Initializable + .Manager(self), item: .Removable + ManagedItem(self), userdata: ...any) -> any,
+    GenerateKey: fn(mgr: .Instance + .Manager(self), item: .Removable + ManagedItem(self), userdata: ...any) -> any,
 
     -- Following fields are used for generated functions' names
     ItemSg: string, -- Item name in singular
@@ -136,12 +126,12 @@ struct .ManagerDesc = {
 
 struct .ManagerData = {
     Item: metatable(.Removable + .ManagedItem(Desc)),
-    Manager: metatable(.Initializable + .Manager(Desc)),
+    Manager: metatable(.Instance + .Manager(Desc)),
     Desc: .ManagerDesc
 }
 
 nonpubctor mixin(md: .ManagerDesc) .Manager {
-    require .Initializable
+    require .Instance
 
     type Item: .ManagedItem(md);
     type Key;
@@ -165,7 +155,7 @@ nonpubctor mixin(md: .ManagerDesc) .Manager {
 }
 
 nonpubctor mixin(md: .ManagerDesc) .ManagedItem {
-    require .Removable
+    require .Instance
 
     type Key;
     type Manager: .Manager(md);
@@ -183,12 +173,12 @@ nonpubctor mixin(md: .ManagerDesc) .ManagedItem {
 
 -- Adds .Manager(desc) to manager, .ManagedItem(desc) to item
 fn .MakeManager(
-    item: metatable(.Removable), manager: metatable(.Object),
+    item: metatable(.Instance), manager: metatable(.Object),
     desc: .ManagerDesc) -> .ManagerData
 
 ------- Trackable objects
 trait .Trackable {
-    require .Instantiatable
+    require .Instance
 
     const .IsTrackable: bool = true
     -- Id is nil while object is not tracked
@@ -289,19 +279,19 @@ nonpubctor mixin(key: string) .SubobjectStorable {
 }
 
 -- Adds .SubobjectContainer(key) to meta
-fn .MakeSubobjectContainer(meta: metatable(.Instantiatable), key: string)
+fn .MakeSubobjectContainer(meta: metatable(.Instance), key: string)
 -- Adds .SubobjectStorable(key) to meta
-fn .MakeSubobjectStorable(meta: metatable(.Instantiatable), key: string)
+fn .MakeSubobjectStorable(meta: metatable(.Instance), key: string)
 
 ------- Variables
 
 trait .VariableContainer {
-    require .Instantiatable
+    require .Instance
     require .SubobjectContainer("Variable")
 }
 
 trait .Variable {
-    require .Instantiatable
+    require .Instance
     require .SubobjectStorable("Variable")
 
     doconly param type .TData
@@ -326,11 +316,11 @@ trait .VariableField {
 
 fn .MakeAttached(accessor: string) -> mixin {
     require .NestedObject
-    require .Instantiatable
+    require .Instance
 
     var .Owner: .NestedObject.OwnerType
     -- Object is created on creation of owner object and removed after it's removal
-    .Owner require .Instantiatable
+    .Owner require .Instance
 
     -- Modify `attach_params` here
     hook .FillInitParams(owner_params: table, attach_params: table)

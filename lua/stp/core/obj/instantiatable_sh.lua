@@ -1,23 +1,6 @@
 local sobj = stp.obj
 
-local INITABLE = sobj.BeginTrait("stp.obj.Initializable")
-
-sobj.HookDefine(INITABLE, "Init")
-sobj.HookDefine(INITABLE, "PostInit")
-
-sobj.Initializable = sobj.Register(INITABLE)
-
-
-local REMOVABLE = sobj.BeginTrait("stp.obj.Removable")
-INITABLE(REMOVABLE)
-
-sobj.HookDefine(REMOVABLE, "OnPreRemove")
-sobj.HookDefine(REMOVABLE, "OnRemove")
-
-sobj.Removable = sobj.Register(REMOVABLE)
-
-local INST = sobj.BeginTrait("stp.obj.Instantiatable")
-REMOVABLE(INST)
+local INST = sobj.BeginTrait("stp.obj.Instance")
 
 function INST:Create(args)
     local meta = self.FinalMeta
@@ -33,9 +16,11 @@ function INST:Create(args)
     instance:PostInit(args)
     hook.Run("stp.obj.PostInit",instance, args)
 
-
     return instance
 end
+
+sobj.HookDefine(INST, "Init")
+sobj.HookDefine(INST, "PostInit")
 
 function INST:IsValid()
     return self.___isValid == true
@@ -51,5 +36,8 @@ function INST:Remove(cascaded)
     hook.Run("stp.obj.PostRemoved", self, cascaded)
 end
 
+sobj.HookDefine(INST, "OnPreRemove")
+sobj.HookDefine(INST, "OnRemove")
 
-sobj.Instantiatable = sobj.Register(INST)
+
+sobj.Instance = sobj.Register(INST)

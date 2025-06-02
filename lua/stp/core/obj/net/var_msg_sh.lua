@@ -190,7 +190,7 @@ end
 
 local ECOMP = sobj.BeginTrait("stp.net.EasyComposite")
 sobj.ApplyMany(ECOMP,
-    snet.Instantiatable,
+    snet.Instance,
     snet.MakeReliable,
     sobj.VariableContainer
 )

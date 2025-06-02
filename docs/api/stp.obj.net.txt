@@ -98,12 +98,12 @@ trait .SendableInit {
     CL abstract fn :NetReceiveInit() -> ctor_params: table
 }
 
-trait .Instantiatable {
+trait .Instance {
     require .NetworkableComposite
     require .TrackableNetworked
     require .SendableInit
 
-    const .IsNetInstantiatable = true
+    const .IsNetInstance = true
 
     CL hook :Init(args: table) -- Clientside, object can only be constructed when init data received from server
     CL hook :OnPreRemove(cascaded: bool) -- Clientside, non-cascaded remove can only be initiated by server 
@@ -199,7 +199,7 @@ fn .MakeMsgAccessors(send: string, receiver: string) -> mixin {
 }
 
 trait .EasyComposite {
-    require .Instantiatable
+    require .Instance
     require stp.obj.VariableContainer
     SV require .MakeReliable
 }
@@ -383,7 +383,7 @@ namespace schema {
 
 trait .RecipientProivder {
     require .Networkable;
-    require stp.obj.Initializable;
+    require stp.obj.Instance;
 
     SV impl fn :NetGetRecipients(recip: CRecipientList)
     
