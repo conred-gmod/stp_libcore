@@ -1,5 +1,5 @@
-local LIB = stp.obj.net.schema
-local libobj = stp.obj
+local snetschema = stp.obj.net.schema
+local sobj = stp.obj
 
 -- Do not add:
 --[[
@@ -9,31 +9,31 @@ local libobj = stp.obj
 ]]
 
 
-LIB.String = {
+snetschema.String = {
     transmit = net.WriteString,
     receive = net.ReadString
 }
 
-LIB.Float32 = {
+snetschema.Float32 = {
     transmit = net.WriteFloat,
     receive = net.ReadFloat
 }
 
-LIB.Float64 = {
+snetschema.Float64 = {
     transmit = net.WriteDouble,
     receive = net.ReadDouble
 }
 
-LIB.Nothing_ReturnDefault = function(default)
+snetschema.Nothing_ReturnDefault = function(default)
     return {
         transmit = function() end,
         receive = function() return default end
     }
 end
 
-LIB.Int = function(bits)
+snetschema.Int = function(bits)
     if bits == 0 then
-        return LIB.Nothing_ReturnDefault(0)
+        return snetschema.Nothing_ReturnDefault(0)
     end
 
     return {
@@ -42,9 +42,9 @@ LIB.Int = function(bits)
     }
 end
 
-LIB.UInt = function(bits)
+snetschema.UInt = function(bits)
     if bits == 0 then
-        return LIB.Nothing_ReturnDefault(0)
+        return snetschema.Nothing_ReturnDefault(0)
     end
 
     return {
@@ -53,7 +53,7 @@ LIB.UInt = function(bits)
     }
 end
 
-LIB.Bool = {
+snetschema.Bool = {
     transmit = net.WriteBool,
     receive = net.ReadBool
 }
@@ -61,7 +61,7 @@ LIB.Bool = {
 
 ---
 
-LIB.Entity = {
+snetschema.Entity = {
     transmit = net.WriteEntity,
     receive = net.ReadEntity
 }
@@ -70,7 +70,7 @@ LIB.Entity = {
 local _, PLAYER_BITS = math.frexp(game.MaxPlayers() - 1)
 
 if PLAYER_BITS ~= 0 then
-    LIB.EntityPlayer = {
+    snetschema.EntityPlayer = {
         transmit = function(ply)
             net.WriteUInt(ply:EntIndex() - 1, PLAYER_BITS)
         end,
@@ -79,7 +79,7 @@ if PLAYER_BITS ~= 0 then
         end
     }
 else
-    LIB.EntityPlayer = {
+    snetschema.EntityPlayer = {
         transmit = function(ply) end,
         receive = function()
             return Entity(1)
@@ -87,7 +87,7 @@ else
     }
 end
 
-local OBJ_TRK_BITS = libobj.Tracker.ID_BITS_NET
+local OBJ_TRK_BITS = sobj.Tracker.ID_BITS_NET
 local OBJ_PARTS_BITS = 4
 
 local function WriteStpObject(obj, revnet)
@@ -150,7 +150,7 @@ local function ReadStpObject_FinalId(revnet)
     local root = net.ReadUInt(OBJ_TRK_BITS)
     if root == 0 then return nil end
     
-    local obj = libobj.Tracker.Get(root)
+    local obj = sobj.Tracker.Get(root)
     
     local subobj_count = net.ReadUInt(OBJ_PARTS_BITS)
     if obj == nil or subobj_count == 0 then return nil, root end
@@ -182,12 +182,12 @@ local function ReadStpObject_FinalId(revnet)
     return obj, subid
 end
 
-LIB.ReadNetworkableAny_FinalId = ReadStpObject_FinalId
+snetschema.ReadNetworkableAny_FinalId = ReadStpObject_FinalId
 
 
 local function GetStpObject(parent, id, revnet)
     if parent == nil then
-        return libobj.Tracker.Get(id)
+        return sobj.Tracker.Get(id)
     elseif revnet then
         return parent.SubobjNetworkRev.ById[id]
     else
@@ -204,44 +204,44 @@ local function ReadStpObject(revnet)
     return GetStpObject(parent, id, revnet)
 end
 
-LIB.StpNetworkable = {
+snetschema.StpNetworkable = {
     transmit = function(obj) WriteStpObject(obj, false) end,
     receive = function() return ReadStpObject(false) end
 }
 
-LIB.StpNetworkableRev = {
+snetschema.StpNetworkableRev = {
     transmit = function(obj) WriteStpObject(obj, true) end,
     receive = function() return ReadStpObject(true) end
 }
 
 ---
 
-LIB.VectorWorldPos = {
+snetschema.VectorWorldPos = {
     transmit = net.WriteVector,
     receive = net.ReadVector
 }
 
-LIB.VectorUnit = {
+snetschema.VectorUnit = {
     transmit = net.WriteNormal,
     receive = net.ReadNormal
 }
 
-LIB.Angle = {
+snetschema.Angle = {
     transmit = net.WriteAngle,
     receive = net.ReadAngle
 }
 
-LIB.Matrix4x4 = {
+snetschema.Matrix4x4 = {
     transmit = net.WriteMatrix,
     receive = net.ReadMatrix
 }
 
-LIB.ColorRGB = {
+snetschema.ColorRGB = {
     transmit = function(clr) net.WriteColor(clr, false) end,
     receive = function() return net.ReadColor(false) end
 }
 
-LIB.ColorRGBA = {
+snetschema.ColorRGBA = {
     transmit = net.WriteColor,
     receive = net.ReadColor
 }

@@ -1,4 +1,4 @@
-local libn = stp.obj.net 
+local snet = stp.obj.net 
 
 -- Add a signle hook handler here if specific order of handler execution is necessary:
 --[[
@@ -13,7 +13,7 @@ local libn = stp.obj.net
 
 hook.Add("Tick", "stp.DoAllStuff", function()
     if SERVER then
-        libn.awareness._Update()
+        snet.awareness._Update()
     end
-    libn._TransmitAll()
+    snet._TransmitAll()
 end)

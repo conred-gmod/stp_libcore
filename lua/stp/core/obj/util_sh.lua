@@ -1,6 +1,6 @@
-local libo = stp.obj
+local sobj = stp.obj
 
-function libo.ApplyMany(target, ...)
+function sobj.ApplyMany(target, ...)
     for i = 1, select("#", ...) do
         local fn = select(i, ...)
 
@@ -12,20 +12,20 @@ function libo.ApplyMany(target, ...)
     return target
 end
 
-function libo.ConstructNestedType(owner, postfix, ...)
+function sobj.ConstructNestedType(owner, postfix, ...)
     local typename = owner.TypeName.."."..postfix
 
-    local META = libo.BeginObject(typename)
+    local META = sobj.BeginObject(typename)
     META.PostfixName = postfix
     META.OwnerType = owner
 
-    libo.ApplyMany(META, ...)
+    sobj.ApplyMany(META, ...)
 
-    libo.Register(META)
+    sobj.Register(META)
     return META
 end
 
-libo.MergerRegisterArray("CallInOrder_Member", function(meta, key, values)
+sobj.MergerRegisterArray("CallInOrder_Member", function(meta, key, values)
     local fns = {} -- Hope this will get inlined
     for i, pair in ipairs(values) do
         fns[i] = pair.Value
@@ -38,19 +38,19 @@ libo.MergerRegisterArray("CallInOrder_Member", function(meta, key, values)
     end
 end)
 
-function libo.HookDefine(meta, keyname)
-    libo.MergablesDeclare(meta, keyname, "CallInOrder_Member")
+function sobj.HookDefine(meta, keyname)
+    sobj.MergablesDeclare(meta, keyname, "CallInOrder_Member")
 end
 
-function libo.HookAdd(meta, keyname, valname, fn)
+function sobj.HookAdd(meta, keyname, valname, fn)
     if not isfunction(fn) then
         stp.Error("Attempt to add a non-function ",fn," as implementation '",valname,"' of ",meta,":",keyname)
     end
-    libo.MergablesAdd(meta, keyname, valname, "CallInOrder_Member", fn)
+    sobj.MergablesAdd(meta, keyname, valname, "CallInOrder_Member", fn)
 end
 
 
-function libo.CheckNotFullyRegistered(meta)
+function sobj.CheckNotFullyRegistered(meta)
     if meta.IsFullyRegistered == nil or meta.IsTrait == nil then
         stp.Error("Passed non-trait/object '",meta,"'")
     elseif meta.IsFullyRegistered then
@@ -58,7 +58,7 @@ function libo.CheckNotFullyRegistered(meta)
     end
 end
 
-function libo.CheckFullyRegistered(meta)
+function sobj.CheckFullyRegistered(meta)
     if meta.IsFullyRegistered == nil or meta.IsTrait == nil then
         stp.Error("Passed non-trait/object '",meta,"'")
     elseif not meta.IsFullyRegistered then
@@ -71,7 +71,7 @@ do
     local MRG = "stp.obj.util.AbstractField"
     local MRG_FIELD = "__abstract_fields"
 
-    libo.MergerRegisterArray(MRG, function(meta, mrg_field, abstracts)
+    sobj.MergerRegisterArray(MRG, function(meta, mrg_field, abstracts)
         assert(mrg_field == MRG_FIELD)
         if meta.IsTrait then return end
         for _, pair in ipairs(abstracts) do
@@ -86,9 +86,9 @@ do
         end
     end)
     
-    function libo.MarkAbstract(meta, keyname, valtype)
+    function sobj.MarkAbstract(meta, keyname, valtype)
         if isstring(valtype) then valtype = { valtype } end
 
-        libo.MergablesAdd(meta, MRG_FIELD, keyname, MRG, valtype)
+        sobj.MergablesAdd(meta, MRG_FIELD, keyname, MRG, valtype)
     end
 end

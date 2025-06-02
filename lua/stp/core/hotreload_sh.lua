@@ -1,4 +1,4 @@
-local LIB = stp
+local stp = stp
 
 local function UnlockPersistData()
     __stp_persistdata_unlocked = true
@@ -17,7 +17,7 @@ UnlockPersistData()
 hook.Add("OnReloaded", "stp.hotreload.PersistTableUnlock", UnlockPersistData)
 
 
-function LIB.GetPersistedTable(name, default)
+function stp.GetPersistedTable(name, default)
     if __stp_persistdata[name] ~= nil then
         return __stp_persistdata[name]
     else

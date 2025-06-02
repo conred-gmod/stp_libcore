@@ -1,8 +1,8 @@
-local LIB = stp.obj
+local sobj = stp.obj
 
 local MERGER = "stp.obj.Subobject"
 
-LIB.MergerRegisterArray(MERGER, function(meta, key, array)
+sobj.MergerRegisterArray(MERGER, function(meta, key, array)
     local _, bitcount = math.frexp(math.max(#array - 1, 0))
     local desc = {
         IdToName = {},
@@ -24,15 +24,15 @@ LIB.MergerRegisterArray(MERGER, function(meta, key, array)
     meta[key.."Desc"] = desc
 end)
 
-function LIB.MakeSubobjectStorable(meta, key)
+function sobj.MakeSubobjectStorable(meta, key)
     if stp.DebugFlags.TypeSystem then
         print("stp.obj.MakeSubobjectStorable", meta, key)
     end
 
     meta["IsSubobj"..key.."Storable"] = true
 
-    LIB.HookDefine(meta, "Subobj"..key.."Owner_Added")
-    LIB.HookDefine(meta, "Subobj"..key.."Owner_PreRemoved")
+    sobj.HookDefine(meta, "Subobj"..key.."Owner_Added")
+    sobj.HookDefine(meta, "Subobj"..key.."Owner_PreRemoved")
 end
 
 local CONT = {}
@@ -140,24 +140,24 @@ function CONT:ClearAll()
     end
 end
 
-function LIB.MakeSubobjectContainer(meta, key)
+function sobj.MakeSubobjectContainer(meta, key)
     if stp.DebugFlags.TypeSystem then
         print("stp.obj.MakeSubobjectContainer", meta, key)
     end
 
     meta["Is"..key.."SubobjContainer"] = true
 
-    LIB.MergablesDeclare(meta, "Subobj"..key, MERGER)
+    sobj.MergablesDeclare(meta, "Subobj"..key, MERGER)
 
     meta["RegisterSubobj"..key] = function(self, name)
-        LIB.MergablesAdd(self, "Subobj"..key, name, MERGER)
+        sobj.MergablesAdd(self, "Subobj"..key, name, MERGER)
     end
 
-    LIB.HookAdd(meta, "Init", "___subobj_container_"..key, function(self, args)
+    sobj.HookAdd(meta, "Init", "___subobj_container_"..key, function(self, args)
         self["Subobj"..key] = MakeContainer(self["Subobj"..key.."Desc"], self, key)
     end)
 
-    LIB.HookAdd(meta, "OnPreRemove", "___subobj_container_"..key, function(self, cascaded)
+    sobj.HookAdd(meta, "OnPreRemove", "___subobj_container_"..key, function(self, cascaded)
         self["Subobj"..key]:ClearAll()
     end)
 

@@ -4,25 +4,25 @@
 ```lua
 if CLIENT then return end -- Или просто назовите файл yourname_sv.lua
 
-local libo = stp.obj
+local sobj = stp.obj
 
-local META = libo.BeginObject("your.namespace.ObjectName")
-libo.ApplyMany(META,
-    libo.Instantiatable -- Или libo.TrackableLocal, если нужна возможность получить по универсальному ID
+local META = sobj.BeginObject("your.namespace.ObjectName")
+sobj.ApplyMany(META,
+    sobj.Instantiatable -- Или sobj.TrackableLocal, если нужна возможность получить по универсальному ID
 )
 
 function META:DoStuff()
     print("I store", self._data)
 end
 
-libo.HookAdd(META, "Init", "TopLevelCtorHookName", function(self, params) -- Аналог конструктора
+sobj.HookAdd(META, "Init", "TopLevelCtorHookName", function(self, params) -- Аналог конструктора
     self._data = params.Data -- Получение параметра из конструктора
 end)
 
-libo.HookAdd(META, "OnPreRemove", "TopLevelDtorName", function(self)
+sobj.HookAdd(META, "OnPreRemove", "TopLevelDtorName", function(self)
     print("I stored",self._data,", but now is being deleted")
 end)
-libo.Register(META)
+sobj.Register(META)
 
 --..
 
@@ -41,10 +41,10 @@ end
 ## Типаж
 ```lua
 local libyour = your.namespace
-local libo = stp.obj
+local sobj = stp.obj
 
-local META = libo.BeginTrait("your.namespace.YourTraitName")
-libo.Initializable(META) -- Реализовать типаж 'stp.obj.Initializable' на '.YourTraitName'
+local META = sobj.BeginTrait("your.namespace.YourTraitName")
+sobj.Initializable(META) -- Реализовать типаж 'stp.obj.Initializable' на '.YourTraitName'
 
 function META:DoStuff()
     print("stuff is being done")
@@ -56,36 +56,36 @@ end
 -- Обозначить поле как абстрактное:
 -- Его значение этот типаж не устанавливает, но при регистрации конечного объекта оно должно иметь указанный тип.
 -- В качаестве типа можно использовать 'number', 'string, 'table' и другие - для абстрактных констант.
-libo.MarkAbstract(META, "ActuallyDoStuff", "function")
+sobj.MarkAbstract(META, "ActuallyDoStuff", "function")
 
 -- Хуки. Как `hook.Add`/`hook.Run`, но:
 --  1. вызываются как функции
 --  2. не изменяются после регистрации объекта (типажа или конечного)
 --  3. это нужно проверить, но они не должны оказывать влияния на производительность
 --  4. возвращать значения нельзя, всегда вызываются все реализации хука.
-libo.HookDefine(META, "StuffIsDone")
+sobj.HookDefine(META, "StuffIsDone")
 
 -- А вот так хук добавляется. 
 -- META.TypeName тут равен "your.namespace.YourTraitName", в конечном типе он будет другой.
-libo.HookAdd(META, "Init", META.TypeName, function(self, params)
+sobj.HookAdd(META, "Init", META.TypeName, function(self, params)
     print("I am initialized")
 
     self:DoStuff()
 end)
 
-libo.Register(META)
+sobj.Register(META)
 ```
 
 ## Сетевой объект
 
 ```lua
 local libyour = your.namespace -- Для того, чтобы сделать тип публично доступным. Можно и не делать этого
-local libo = stp.obj
-local libn = stp.obj.net
+local sobj = stp.obj
+local snet = stp.obj.net
 
-local META = libo.BeginObject("your.namespace.YourObjectName")
-libo.ApplyMany(META,
-    libn.EasyComposite -- Для реализации типичного сетевого объекта с сетевыми переменными
+local META = sobj.BeginObject("your.namespace.YourObjectName")
+sobj.ApplyMany(META,
+    snet.EasyComposite -- Для реализации типичного сетевого объекта с сетевыми переменными
     -- Your traits here
 )
 
@@ -94,8 +94,8 @@ function META:NetGetRecipients(recip)
     recip:AddPAS(other_position)
 end
 
-libo.ConstructNestedType(META, "SomeCounterName", -- Type name is `META.TypeName..".".."VariableName"`
-    libn.MakeEasyVar(libn.schema.UInt(16),
+sobj.ConstructNestedType(META, "SomeCounterName", -- Type name is `META.TypeName..".".."VariableName"`
+    snet.MakeEasyVar(snet.schema.UInt(16),
         "GetSomeCounterName", 
         SERVER and "SetSomeCounterName", -- Булев тип тут эквивалентен nil - соотв. функция не будет создана
         nil, -- Тут можно задать значение по-умолчанию. Оно используется только на сервере
@@ -103,7 +103,7 @@ libo.ConstructNestedType(META, "SomeCounterName", -- Type name is `META.TypeName
             Callback = "OnSomeCounterNameChanged"
         }
     )
-    SERVER and libo.VariableRequireInit() -- Значение по-умолчанию мы берём из конструктора
+    SERVER and sobj.VariableRequireInit() -- Значение по-умолчанию мы берём из конструктора
 )
 
 function META:OnSomeCounterNameChanged(old, new)
@@ -122,7 +122,7 @@ function META:Decrement()
     return true
 end
 
-libo.Register(META)
+sobj.Register(META)
 libyour.YourObjectName = META
 
 function libyour.Create(counter_value)

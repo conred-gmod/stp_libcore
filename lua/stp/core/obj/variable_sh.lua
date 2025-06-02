@@ -1,23 +1,23 @@
-local libo = stp.obj
+local sobj = stp.obj
 
-local VAR = libo.BeginTrait("stp.obj.Variable")
-local VARCONT = libo.BeginTrait("stp.obj.VariableContainer")
+local VAR = sobj.BeginTrait("stp.obj.Variable")
+local VARCONT = sobj.BeginTrait("stp.obj.VariableContainer")
 
-libo.MakeSubobjectStorable(VAR, "Variable")
-libo.MakeSubobjectContainer(VARCONT, "Variable")
+sobj.MakeSubobjectStorable(VAR, "Variable")
+sobj.MakeSubobjectContainer(VARCONT, "Variable")
 
-libo.MarkAbstract(VAR, "VariableInit", "function")
-libo.MarkAbstract(VAR, "VariableGet", "function")
-libo.MarkAbstract(VAR, "VariableSet", "function")
+sobj.MarkAbstract(VAR, "VariableInit", "function")
+sobj.MarkAbstract(VAR, "VariableGet", "function")
+sobj.MarkAbstract(VAR, "VariableSet", "function")
 
-libo.HookDefine(VAR, "VariableOnSet")
+sobj.HookDefine(VAR, "VariableOnSet")
 
-libo.Register(VAR)
-libo.Register(VARCONT)
-libo.Variable = VAR
-libo.VariableContainer = VARCONT
+sobj.Register(VAR)
+sobj.Register(VARCONT)
+sobj.Variable = VAR
+sobj.VariableContainer = VARCONT
 
-local VARF = libo.BeginTrait("stp.obj.VariableField")
+local VARF = sobj.BeginTrait("stp.obj.VariableField")
 
 function VARF:VariableInit(param)
     if param == nil then return nil end
@@ -33,28 +33,28 @@ function VARF:VariableSet(val)
     self._var_value = val
 end
 
-libo.Register(VARF)
-libo.VariableField = VARF
+sobj.Register(VARF)
+sobj.VariableField = VARF
 
-function libo.MakeAttached(accessor)
+function sobj.MakeAttached(accessor)
     return function(meta)
         local parentmeta = meta.OwnerType
         if parentmeta == nil then
             stp.Error(meta," is not a 'stp.obj.NestedObject'")
         end
     
-        libo.CheckNotFullyRegistered(meta)
-        libo.CheckNotFullyRegistered(parentmeta)
+        sobj.CheckNotFullyRegistered(meta)
+        sobj.CheckNotFullyRegistered(parentmeta)
 
-        libo.Instantiatable(meta)
-        libo.Instantiatable(parentmeta)
+        sobj.Instantiatable(meta)
+        sobj.Instantiatable(parentmeta)
     
         local typename = meta.TypeName
         local keyname = "__attached_"..typename
     
-        libo.HookDefine(meta, "FillInitParams")
+        sobj.HookDefine(meta, "FillInitParams")
     
-        libo.HookAdd(parentmeta, "Init", "attach_"..typename, function(self, params)
+        sobj.HookAdd(parentmeta, "Init", "attach_"..typename, function(self, params)
             local attachparams = {}
             meta.FillInitParams(params, attachparams)
             attachparams.Owner = self
@@ -65,11 +65,11 @@ function libo.MakeAttached(accessor)
             self[keyname] = obj
         end)
 
-        libo.HookAdd(meta, "Init", "init_"..typename, function(self, params)
+        sobj.HookAdd(meta, "Init", "init_"..typename, function(self, params)
             self.Owner = params.Owner
         end)
     
-        libo.HookAdd(parentmeta, "OnRemove", "remove_"..typename, function(self)
+        sobj.HookAdd(parentmeta, "OnRemove", "remove_"..typename, function(self)
             local obj = self[keyname]
             assert(IsValid(obj), typename.." is not valid at owner remove time")
     
@@ -84,38 +84,38 @@ function libo.MakeAttached(accessor)
     end
 end
 
-function libo.MakeVariableAttached(varmeta, parentmeta)
+function sobj.MakeVariableAttached(varmeta, parentmeta)
     local parentmeta = parentmeta or varmeta.OwnerType
     if parentmeta == nil then
         stp.Error("Attempt to attach variable type ",varmeta,", but attachment target found ",
             "(both second argument of `stp.obj.MakeVariableAttached` and `.OwnerType` of variable type are nil)")
     end
 
-    libo.CheckNotFullyRegistered(parentmeta)
+    sobj.CheckNotFullyRegistered(parentmeta)
 
     local vartyname = varmeta.TypeName
 
     local accessorname = "__Get"..vartyname
-    libo.MakeAttached(accessorname)(varmeta)
+    sobj.MakeAttached(accessorname)(varmeta)
 
-    libo.HookAdd(varmeta, "Init", "stp.obj.MakeVariableAttached", function(self, param)
+    sobj.HookAdd(varmeta, "Init", "stp.obj.MakeVariableAttached", function(self, param)
         self:VariableSet(self:VariableInit(param.VarInit))
         self.Owner.SubobjVariable:SetByName(vartyname, self)
     end)
 
-    libo.HookAdd(varmeta, "OnRemove", "stp.obj.MakeVariableAttached", function(self)
+    sobj.HookAdd(varmeta, "OnRemove", "stp.obj.MakeVariableAttached", function(self)
         self.Owner.SubobjVariable:SetByName(vartyname, nil)
     end)
 
     parentmeta:RegisterSubobjVariable(vartyname)
 end
 
-function libo.MakeVariableField(meta)
+function sobj.MakeVariableField(meta)
     VARF(meta)
-    libo.MakeVariableAttached(meta)
+    sobj.MakeVariableAttached(meta)
 end
 
-function libo.MakeVariableAccessors(getter, setter, listener)
+function sobj.MakeVariableAccessors(getter, setter, listener)
     if getter == false then getter = nil end
     if setter == false then setter = nil end
     if listener == false then listener = nil end
@@ -125,7 +125,7 @@ function libo.MakeVariableAccessors(getter, setter, listener)
         if parentmeta == nil then
             stp.Error(varmeta," not implements `stp.obj.NestedObject`")
         end
-        libo.CheckNotFullyRegistered(parentmeta)
+        sobj.CheckNotFullyRegistered(parentmeta)
         local vartyname = varmeta.TypeName
 
         if getter ~= nil then
@@ -141,9 +141,9 @@ function libo.MakeVariableAccessors(getter, setter, listener)
         end
 
         if listener ~= nil then
-            libo.MarkAbstract(parentmeta, listener, "function")
+            sobj.MarkAbstract(parentmeta, listener, "function")
 
-            libo.HookAdd(varmeta, "VariableOnSet", "listener_"..parentmeta.TypeName, 
+            sobj.HookAdd(varmeta, "VariableOnSet", "listener_"..parentmeta.TypeName, 
                 function(self, old, new)
                     local owner = self.Owner
                     owner[listener](owner, old, new)
@@ -152,7 +152,7 @@ function libo.MakeVariableAccessors(getter, setter, listener)
     end
 end
 
-function libo.VariableRequireInit(ctorkey)
+function sobj.VariableRequireInit(ctorkey)
     return function(varmeta)
         function varmeta:VariableInit(param)
             if ctorkey == nil then ctorkey = self.PostfixName end
@@ -167,7 +167,7 @@ function libo.VariableRequireInit(ctorkey)
     end
 end
 
-function libo.VariableDefault(default)
+function sobj.VariableDefault(default)
     return function(varmeta)
         function varmeta:VariableInit(_)
             return default

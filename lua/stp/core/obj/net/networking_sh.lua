@@ -1,69 +1,69 @@
-local libo = stp.obj
-local libn = stp.obj.net
-local libsch = stp.obj.net.schema
-local libaware = stp.obj.net.awareness
+local sobj = stp.obj
+local snet = stp.obj.net
+local snetschema = stp.obj.net.schema
+local snetaware = stp.obj.net.awareness
 
 local Net_RecvCreate
 local Net_RecvRemove
 
 ---------------------- Traits
 
-local SEND = libo.BeginTrait("stp.obj.net.Sendable")
-local SENDREV = libo.BeginTrait("stp.obj.net.SendableRev")
+local SEND = sobj.BeginTrait("stp.obj.net.Sendable")
+local SENDREV = sobj.BeginTrait("stp.obj.net.SendableRev")
 
 if SERVER then
     SEND.NetTransmitNewlyAware = true
 end
 
-libn.Networkable(SEND)
-libn.NetworkableRev(SENDREV)
+snet.Networkable(SEND)
+snet.NetworkableRev(SENDREV)
 
 local function MakeAbstractTxRx(meta, is_tx_side)
     if is_tx_side then
-        libo.MarkAbstract(meta, "NetIsUnreliable", "function")
-        libo.MarkAbstract(meta, "NetTransmit", "function")
+        sobj.MarkAbstract(meta, "NetIsUnreliable", "function")
+        sobj.MarkAbstract(meta, "NetTransmit", "function")
     else
-        libo.MarkAbstract(meta, "NetReceive", "function")
+        sobj.MarkAbstract(meta, "NetReceive", "function")
     end
 end
 
 MakeAbstractTxRx(SEND, SERVER)
 MakeAbstractTxRx(SENDREV, CLIENT)
 
-libo.Register(SEND)
-libo.Register(SENDREV)
-libn.Sendable = SEND
-libn.SendableRev = SENDREV
+sobj.Register(SEND)
+sobj.Register(SENDREV)
+snet.Sendable = SEND
+snet.SendableRev = SENDREV
 
-local SENDINIT = libo.BeginTrait("stp.obj.net.SendableInit")
-libn.Networkable(SENDINIT)
+local SENDINIT = sobj.BeginTrait("stp.obj.net.SendableInit")
+snet.Networkable(SENDINIT)
 
 if SERVER then
-    libo.MarkAbstract(SENDINIT, "NetTransmitInit", "function")
+    sobj.MarkAbstract(SENDINIT, "NetTransmitInit", "function")
 else
-    libo.MarkAbstract(SENDINIT, "NetReceiveInit", "function")
+    sobj.MarkAbstract(SENDINIT, "NetReceiveInit", "function")
 end
 
-libo.Register(SENDINIT)
-libn.SendableInit = SENDINIT
+sobj.Register(SENDINIT)
+snet.SendableInit = SENDINIT
 
-local INST = libo.BeginTrait("stp.obj.net.Instantiatable")
+local INST = sobj.BeginTrait("stp.obj.net.Instantiatable")
 
-libo.ApplyMany(INST,
-    libn.NetworkableComposite,
-    libo.TrackableNetworked,
+sobj.ApplyMany(INST,
+    snet.NetworkableComposite,
+    sobj.TrackableNetworked,
     SENDINIT
 )
 
 if CLIENT then
-    libo.HookAdd(INST, "Init", INST.TypeName, function(self, params)
+    sobj.HookAdd(INST, "Init", INST.TypeName, function(self, params)
         if params.__InitFromNetwork ~= true then
             stp.Error("Attempt to manually create object of type '",self.TypeName,"' clientside.\n",
                 "Objects of this type can only be created on server and networked to client!")
         end
     end)
 
-    libo.HookAdd(INST, "OnPreRemove", INST.TypeName, function(self, cascaded)
+    sobj.HookAdd(INST, "OnPreRemove", INST.TypeName, function(self, cascaded)
         
         if (not cascaded and self.__RemoveFromNetwork ~= true)
             or (cascaded and SubobjNetworkDesc.Owner.__RemoveFromNetwork ~= true) 
@@ -78,15 +78,15 @@ end
 
 INST.IsNetInstantiatable = true
 
-libo.Register(INST)
-libn.Instantiatable = INST
+sobj.Register(INST)
+snet.Instantiatable = INST
 
 
 ---------------------- Dirty Objects
 
 local DirtyObjects = stp.GetPersistedTable("stp.obj.net.DirtyObjects", {})
 
-function libn._MarkDirty(obj)
+function snet._MarkDirty(obj)
     assert(obj.NetTransmit ~= nil)
 
     DirtyObjects[obj] = true
@@ -100,8 +100,8 @@ if SERVER then
     util.AddNetworkString(NETSTRING)
 end
 
-local Net_WriteObj = libsch[SERVER and "StpNetworkable" or "StpNetworkableRev"].transmit
-local Net_ReadObj_FinalId = libsch.ReadNetworkableAny_FinalId
+local Net_WriteObj = snetschema[SERVER and "StpNetworkable" or "StpNetworkableRev"].transmit
+local Net_ReadObj_FinalId = snetschema.ReadNetworkableAny_FinalId
 
 local function Net_SendData(obj, recip, unreliable)
     net.Start(NETSTRING, unreliable)
@@ -143,13 +143,13 @@ net.Receive(NETSTRING, function(_, sender)
     local parentobj, id = Net_ReadObj_FinalId(SERVER)
     if parentobj == nil and id == 0 then return end
 
-    local obj = libn._GetNetworkableFromParentAndId(parentobj, id, SERVER)
+    local obj = snet._GetNetworkableFromParentAndId(parentobj, id, SERVER)
 
     if obj == nil then -- Initialize 
         if SERVER then return end
 
         local typename = net.ReadString()
-        local meta = libo.GetObjectMetatables()[typename]
+        local meta = sobj.GetObjectMetatables()[typename]
         local params = meta:NetReceiveInit()
 
         Net_RecvCreate(parentobj, id, meta, params)
@@ -193,7 +193,7 @@ if SERVER then
         if not obj.IsNetInstantiatable then return end
         if cascaded then return end -- If removal is cascaded on server, it will be cascaded on client too.
 
-        local recip = libaware._GetRecipients(obj)
+        local recip = snetaware._GetRecipients(obj)
         if recip == nil then return end
 
         Net_SendRemove(obj, recip)
@@ -210,7 +210,7 @@ local function TransmitSingle_Data(obj, newly_aware)
     
     local recip
     if SERVER then
-        recip = libaware._GetRecipients(obj)
+        recip = snetaware._GetRecipients(obj)
         -- We have no recipients for data
         if recip == nil then return true end
     end
@@ -227,15 +227,15 @@ local TransmitSingle_Init
 if SERVER then
     TransmitSingle_Init = function(obj, recip)
         Net_SendInit(obj, recip)
-        libaware._MarkAware(obj, recip)  
+        snetaware._MarkAware(obj, recip)  
     end
 end
 
-function libn._TransmitAll()
+function snet._TransmitAll()
     local cleaned = {}
 
     if SERVER then
-        for _, data in ipairs(libaware._GetNewlyAware()) do
+        for _, data in ipairs(snetaware._GetNewlyAware()) do
             local obj = data.Object
             TransmitSingle_Init(obj, data.NewlyAware)
 
@@ -258,10 +258,10 @@ end
 
 --------------------
 
-function libn.MakeUnreliable(meta)
+function snet.MakeUnreliable(meta)
     function meta:NetIsUnreliable() return true end
 end
 
-function libn.MakeReliable(meta)
+function snet.MakeReliable(meta)
     function meta:NetIsUnreliable() return false end
 end

@@ -1,5 +1,5 @@
-local libn = stp.obj.net
-local libo = stp.obj
+local snet = stp.obj.net
+local sobj = stp.obj
 local check_ty = stp.CheckType
 
 local function Attach(varmeta)
@@ -17,30 +17,30 @@ local function Attach(varmeta)
         container_name = "SubobjNetworkRev"
     end
     
-    libo.HookAdd(varmeta, "Init", "stp.obj.net.HighLevelAttach", function(self)    
+    sobj.HookAdd(varmeta, "Init", "stp.obj.net.HighLevelAttach", function(self)    
         self.Owner[container_name]:SetByName(vartyname, self)
     end)
 
-    libo.HookAdd(varmeta, "OnRemove", "stp.obj.net.HighLevelDetach", function(self)
+    sobj.HookAdd(varmeta, "OnRemove", "stp.obj.net.HighLevelDetach", function(self)
         self.Owner[container_name]:SetByName(vartyname, nil)
     end)
 end
 
 
-local VARF = libo.BeginTrait("stp.obj.net.Var")
-libn.Sendable(VARF)
-libo.Variable(VARF)
---libn.SendableInit(VARF)
+local VARF = sobj.BeginTrait("stp.obj.net.Var")
+snet.Sendable(VARF)
+sobj.Variable(VARF)
+--snet.SendableInit(VARF)
 
-libo.MarkAbstract(VARF, "SCHEMA", "table")
+sobj.MarkAbstract(VARF, "SCHEMA", "table")
 
 if SERVER then
-    libo.HookAdd(VARF, "VariableOnSet", "stp.obj.net", function(self, old, new)
+    sobj.HookAdd(VARF, "VariableOnSet", "stp.obj.net", function(self, old, new)
         if old == new then return end
-        libn._MarkDirty(self)
+        snet._MarkDirty(self)
     end)
 
-    libo.HookAdd(VARF, "SubobjNetworkOwner_Added", "stp.obj.net", function(self, params)
+    sobj.HookAdd(VARF, "SubobjNetworkOwner_Added", "stp.obj.net", function(self, params)
         self:NetSetRestrictor(self.Owner)
     end)
 
@@ -64,11 +64,11 @@ else
     end]]
 end
 
-libo.Register(VARF)
+sobj.Register(VARF)
 
-function libn.MakeVar(schema)
+function snet.MakeVar(schema)
     return function(varmeta)
-        libo.CheckNotFullyRegistered(varmeta)
+        sobj.CheckNotFullyRegistered(varmeta)
 
         VARF(varmeta)
         varmeta.SCHEMA = schema
@@ -79,18 +79,18 @@ end
 
 
 -- TODO: do not call :NetTransmitInit/:NetReceiveInit for these traits.
-local MSGF = libo.BeginTrait("stp.obj.net.MsgUnbuffered")
-local MSGR = libo.BeginTrait("stp.obj.net.MsgRevUnbuffered")
+local MSGF = sobj.BeginTrait("stp.obj.net.MsgUnbuffered")
+local MSGR = sobj.BeginTrait("stp.obj.net.MsgRevUnbuffered")
 
-libn.Sendable(MSGF)
-libn.SendableRev(MSGR)
+snet.Sendable(MSGF)
+snet.SendableRev(MSGR)
 
 local function Msg_InitMeta(meta, is_send_side)
-    libo.MarkAbstract(meta, "SCHEMA", "table")
+    sobj.MarkAbstract(meta, "SCHEMA", "table")
     meta.NetTransmitNewlyAware = false
 
     if not is_send_side then
-        libo.HookDefine(meta, "OnReceived")
+        sobj.HookDefine(meta, "OnReceived")
     end
 end
 
@@ -99,7 +99,7 @@ Msg_InitMeta(MSGR, CLIENT)
 
 local function Msg_Send(self, data)
     self._msg_data = data
-    libn._MarkDirty(self)
+    snet._MarkDirty(self)
 end
 
 local function Msg_Transmit(self)
@@ -117,7 +117,7 @@ if SERVER then
     MSGF.Send = Msg_Send
     MSGF.NetTransmit = Msg_Transmit
 
-    libo.HookAdd(MSGF, "SubobjNetworkOwner_Added", "stp.obj.net", function(self, params)
+    sobj.HookAdd(MSGF, "SubobjNetworkOwner_Added", "stp.obj.net", function(self, params)
         self:NetSetRestrictor(self.Owner)
     end)
 else
@@ -131,8 +131,8 @@ else
     MSGR.NetReceive = Msg_Receive
 end
 
-libo.Register(MSGF)
-libo.Register(MSGR)
+sobj.Register(MSGF)
+sobj.Register(MSGR)
 
 local function GetAccessorName(msgmeta)
     return "__message_"..msgmeta.TypeName
@@ -140,7 +140,7 @@ end
 
 local function MakeGenericMsg(trait, schema)
     return function(msgmeta)
-        libo.MakeAttached(GetAccessorName(msgmeta))(msgmeta)
+        sobj.MakeAttached(GetAccessorName(msgmeta))(msgmeta)
 
         trait(msgmeta)
         msgmeta.SCHEMA = schema
@@ -148,25 +148,25 @@ local function MakeGenericMsg(trait, schema)
     end
 end
 
-function libn.MakeMsgFwd(schema, buffered)
+function snet.MakeMsgFwd(schema, buffered)
     assert(buffered == false, "Buffered messages are not supported yet")
 
     return MakeGenericMsg(MSGF, schema)
 end
 
-function libn.MakeMsgRev(schema, buffered)
+function snet.MakeMsgRev(schema, buffered)
     assert(buffered == false, "Buffered messages are not supported yet")
 
     return MakeGenericMsg(MSGR, schema)
 end
 
-function libn.MakeMsgAccessors(send, receiver)
+function snet.MakeMsgAccessors(send, receiver)
     return function(msgmeta)
-        libo.CheckNotFullyRegistered(msgmeta)
+        sobj.CheckNotFullyRegistered(msgmeta)
 
         local ownermeta = msgmeta.OwnerType
         assert(ownermeta ~= nil)
-        libo.CheckNotFullyRegistered(ownermeta)
+        sobj.CheckNotFullyRegistered(ownermeta)
 
         local msg_accessor = GetAccessorName(msgmeta)
 
@@ -177,9 +177,9 @@ function libn.MakeMsgAccessors(send, receiver)
                 msg:Send(data)
             end
         else
-            libo.MarkAbstract(ownermeta, receiver, "function")
+            sobj.MarkAbstract(ownermeta, receiver, "function")
 
-            libo.HookAdd(msgmeta, "OnReceived", "stp.obj.net.MakeMsgAccessors", function(self, data, sender)
+            sobj.HookAdd(msgmeta, "OnReceived", "stp.obj.net.MakeMsgAccessors", function(self, data, sender)
                 local owner = self.Owner
                 owner[receiver](owner, data, sender)
             end)
@@ -188,17 +188,17 @@ function libn.MakeMsgAccessors(send, receiver)
 end
 
 
-local ECOMP = libo.BeginTrait("stp.net.EasyComposite")
-libo.ApplyMany(ECOMP,
-    libn.Instantiatable,
-    libn.MakeReliable,
-    libo.VariableContainer
+local ECOMP = sobj.BeginTrait("stp.net.EasyComposite")
+sobj.ApplyMany(ECOMP,
+    snet.Instantiatable,
+    snet.MakeReliable,
+    sobj.VariableContainer
 )
 
-libo.Register(ECOMP)
-libn.EasyComposite = ECOMP
+sobj.Register(ECOMP)
+snet.EasyComposite = ECOMP
 
-function libn.MakeEasyVar(schema, getter, setter, default, extraparams)
+function snet.MakeEasyVar(schema, getter, setter, default, extraparams)
     check_ty(schema, "schema", "table")
     extraparams = check_ty(extraparams, "extraparams", {"table", "nil"}) or {}
 
@@ -215,24 +215,24 @@ function libn.MakeEasyVar(schema, getter, setter, default, extraparams)
     end
 
     return function(meta)
-        libo.MakeVariableField(meta)
-        libn.MakeVar(schema)(meta)
+        sobj.MakeVariableField(meta)
+        snet.MakeVar(schema)(meta)
 
         if has_default then
-            libo.VariableDefault(default)(meta)
+            sobj.VariableDefault(default)(meta)
         end
 
-        libo.MakeVariableAccessors(getter, setter, callback)(meta)
+        sobj.MakeVariableAccessors(getter, setter, callback)(meta)
 
         function meta:NetIsUnreliable() return is_reliable end
 
         if add_autorecip then
-            libn.MakeRecipientEveryone(meta)
+            snet.MakeRecipientEveryone(meta)
         end
     end
 end
 
-function libn.MakeEasyMsg(schema, dir, accessor_send, accessor_recv, extraparams)
+function snet.MakeEasyMsg(schema, dir, accessor_send, accessor_recv, extraparams)
     check_ty(schema, "schema", "table")
     assert(dir == "fwd" or dir == "rev", "'dir' is netiher \"fwd\" nor \"rev\"")
     
@@ -250,13 +250,13 @@ function libn.MakeEasyMsg(schema, dir, accessor_send, accessor_recv, extraparams
         MakeGenericMsg(is_fwd and MSGF or MSGR, schema)(meta)
 
         if accessor_send ~= nil then
-            libn.MakeMsgAccessors(accessor_send, accessor_recv)(meta)
+            snet.MakeMsgAccessors(accessor_send, accessor_recv)(meta)
         end
 
         function meta:NetIsUnreliable() return is_reliable end
 
         if add_autorecip then
-            libn.MakeRecipientEveryone(meta)
+            snet.MakeRecipientEveryone(meta)
         end
     end
 end

@@ -1,10 +1,9 @@
-local LIB = stp.obj
-local libo = stp.obj
-local libn = stp.obj.net
+local sobj = stp.obj
+local snet = stp.obj.net
 
-local NETABLE = libo.BeginTrait("stp.obj.net.Networkable")
-local NETREV = libo.BeginTrait("stp.obj.net.NetworkableRev")
-local NETCOMP = libo.BeginTrait("stp.obj.net.NetworkableComposite")
+local NETABLE = sobj.BeginTrait("stp.obj.net.Networkable")
+local NETREV = sobj.BeginTrait("stp.obj.net.NetworkableRev")
+local NETCOMP = sobj.BeginTrait("stp.obj.net.NetworkableComposite")
 
 NETABLE.IsNetworkable = true
 NETREV.IsNetworkable = true
@@ -14,37 +13,37 @@ NETCOMP.IsNetworkableComp = true
 
 
 
-LIB.MakeSubobjectStorable(NETABLE, "Network")
-LIB.MakeSubobjectStorable(NETREV, "NetworkRev")
+sobj.MakeSubobjectStorable(NETABLE, "Network")
+sobj.MakeSubobjectStorable(NETREV, "NetworkRev")
 
-LIB.MakeSubobjectContainer(NETCOMP, "Network")
-LIB.MakeSubobjectContainer(NETCOMP, "NetworkRev")
+sobj.MakeSubobjectContainer(NETCOMP, "Network")
+sobj.MakeSubobjectContainer(NETCOMP, "NetworkRev")
 
 function NETABLE:NetGetRestrictor()
     return self.__net_restrictor
 end
 
 function NETABLE:NetSetRestrictor(restrictor)
-    libn.restrictors._Set(self, restrictor)
+    snet.restrictors._Set(self, restrictor)
     self.__net_restrictor = restrictor
 end
 
 if SERVER then
-    libo.MarkAbstract(NETABLE, "NetGetRecipients", "function")
+    sobj.MarkAbstract(NETABLE, "NetGetRecipients", "function")
 end
 
-libo.Register(NETABLE)
-libn.Networkable = NETABLE
-libo.Register(NETREV)
-libn.NetworkableRev = NETREV
+sobj.Register(NETABLE)
+snet.Networkable = NETABLE
+sobj.Register(NETREV)
+snet.NetworkableRev = NETREV
 
 
 NETABLE(NETCOMP)
-libo.Register(NETCOMP)
-libn.NetworkableComposite = NETCOMP
+sobj.Register(NETCOMP)
+snet.NetworkableComposite = NETCOMP
 
-function libn.MakeRecipientEveryone(meta)
-    libo.CheckNotFullyRegistered(meta)
+function snet.MakeRecipientEveryone(meta)
+    sobj.CheckNotFullyRegistered(meta)
 
     if CLIENT then return end
 

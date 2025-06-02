@@ -1,4 +1,4 @@
-local libobj = stp.obj
+local sobj = stp.obj
 
 local PREFIX = "stp.obj.registries."
 
@@ -13,11 +13,11 @@ local function TraitToString(self)
     return "[stp_libcore Trait '"..self.TypeName.."']"
 end
 
-function libobj.GetObjectMetatables()
+function sobj.GetObjectMetatables()
     return Metas
 end
 
-function libobj.GetTraitMetatables()
+function sobj.GetTraitMetatables()
     return Traits
 end
 
@@ -27,7 +27,7 @@ local function MakeIndex(meta)
     end
 end
 
-function libobj.BeginObject(typename)
+function sobj.BeginObject(typename)
     if stp.DebugFlags.TypeSystem then
         print("\nstp.obj.BeginObject", typename)
     end
@@ -35,7 +35,7 @@ function libobj.BeginObject(typename)
     local meta = Metas[typename] or {}
     MakeIndex(meta)
     meta.__tostring = ObjectToString
-    meta.___mergables = libobj._MergablesInit()
+    meta.___mergables = sobj._MergablesInit()
     meta.IsTrait = false
     setmetatable(meta, meta)
 
@@ -47,7 +47,7 @@ function libobj.BeginObject(typename)
     return meta
 end
 
-function libobj.BeginExistingObject(meta)
+function sobj.BeginExistingObject(meta)
     if stp.DebugFlags.TypeSystem then
         print("\nstp.obj.BeginExistingObject", meta)
     end
@@ -62,7 +62,7 @@ function libobj.BeginExistingObject(meta)
             "for type '",typename,"'")
     end
 
-    meta.___mergables = libobj._MergablesInit()
+    meta.___mergables = sobj._MergablesInit()
     meta.FinalMeta = meta
     meta.IsTrait = false
     meta.IsFullyRegistered = false
@@ -71,16 +71,16 @@ function libobj.BeginExistingObject(meta)
     return meta
 end
 
-function libobj.BeginTrait(typename)
+function sobj.BeginTrait(typename)
     if stp.DebugFlags.TypeSystem then
         print("\nstp.obj.BeginTrait", typename)
     end
 
     local meta = Traits[typename] or {}
     MakeIndex(meta)
-    meta.__call = libobj.ApplyTrait
+    meta.__call = sobj.ApplyTrait
     meta.__tostring = TraitToString
-    meta.___mergables = libobj._MergablesInit()
+    meta.___mergables = sobj._MergablesInit()
     meta.IsTrait = true
     setmetatable(meta, meta)
 
@@ -91,7 +91,7 @@ function libobj.BeginTrait(typename)
     return meta
 end
 
-function libobj.Register(meta)
+function sobj.Register(meta)
     local typename = meta.TypeName
     assert(typename ~= nil)
 
@@ -116,7 +116,7 @@ function libobj.Register(meta)
     else
         Metas[typename] = meta
     end
-    libobj._MergablesMerge(meta)
+    sobj._MergablesMerge(meta)
 
     hook.Run("stp.obj.OnMetaRegistered", meta)
 end
@@ -129,24 +129,24 @@ do -- Tests
     RegTest(PREFIX.."ObjectRegistration",function()
         local TYPE = PREFIX_TEST.."ObjectRegistration"
 
-        local meta = libobj.BeginObject(TYPE)
+        local meta = sobj.BeginObject(TYPE)
         meta.TheNumber = 42
 
         assert(not meta.IsTrait)
         assert(not meta.IsFullyRegistered)
         assert(meta.TheNumber == 42)
 
-        libobj.Register(meta)
+        sobj.Register(meta)
         
         assert(meta.IsFullyRegistered)
-        assert(libobj.GetObjectMetatables()[TYPE] == meta)
-        assert(libobj.GetTraitMetatables()[TYPE] == nil)
+        assert(sobj.GetObjectMetatables()[TYPE] == meta)
+        assert(sobj.GetTraitMetatables()[TYPE] == nil)
     end)
 
     RegTest(PREFIX.."TraitRegistrationAndImplementation",function()
         -- Definition of the trait
         local TYPE_TRAIT = PREFIX_TEST.."TraitRegistration"
-        local traitmeta = libobj.BeginTrait(TYPE_TRAIT)
+        local traitmeta = sobj.BeginTrait(TYPE_TRAIT)
 
         traitmeta.TheNumber = 42
         traitmeta.TheDupe = 23
@@ -156,20 +156,20 @@ do -- Tests
         assert(traitmeta.TheNumber == 42)
         assert(traitmeta.TheDupe == 23)
 
-        libobj.Register(traitmeta)
+        sobj.Register(traitmeta)
         
         assert(traitmeta.IsFullyRegistered)
-        assert(libobj.GetTraitMetatables()[TYPE_TRAIT] == traitmeta)
-        assert(libobj.GetObjectMetatables()[TYPE_TRAIT] == nil)
+        assert(sobj.GetTraitMetatables()[TYPE_TRAIT] == traitmeta)
+        assert(sobj.GetObjectMetatables()[TYPE_TRAIT] == nil)
 
         -- Definition of the object
         local TYPE_OBJ = PREFIX_TEST.."TraitRegistrationObject"
-        local objmeta = libobj.BeginObject(TYPE_OBJ)
+        local objmeta = sobj.BeginObject(TYPE_OBJ)
         
         traitmeta(objmeta)
         objmeta.TheDupe = 108
 
-        libobj.Register(objmeta)
+        sobj.Register(objmeta)
 
         -- Inheritance check
         assert(objmeta.TheNumber == 42)
@@ -177,71 +177,71 @@ do -- Tests
     end)
 
     RegTestFailing(PREFIX.."DoubleRegistration", function()
-        local meta = libobj.BeginObject(PREFIX_TEST.."DoubleRegistration")
+        local meta = sobj.BeginObject(PREFIX_TEST.."DoubleRegistration")
 
-        libobj.Register(meta)
-        libobj.Register(meta)
+        sobj.Register(meta)
+        sobj.Register(meta)
     end)
 
     RegTestFailing(PREFIX.."UnregisteredTraitUsage", function()
-        local trait = libobj.BeginTrait(PREFIX_TEST.."UnregisteredTrait")
+        local trait = sobj.BeginTrait(PREFIX_TEST.."UnregisteredTrait")
 
-        local object = libobj.BeginObject(PREFIX_TEST.."UnregisteredTraitObject")
+        local object = sobj.BeginObject(PREFIX_TEST.."UnregisteredTraitObject")
         trait(object)
     end)
 
     RegTestFailing(PREFIX.."AddingTraitToRegisteredObject", function()
-        local trait = libobj.BeginTrait(PREFIX_TEST.."AddingTraitToRegisteredObject.Trait")
-        libobj.Register(trait)
+        local trait = sobj.BeginTrait(PREFIX_TEST.."AddingTraitToRegisteredObject.Trait")
+        sobj.Register(trait)
 
-        local object = libobj.BeginObject(PREFIX_TEST.."AddingTraitToRegisteredObject.Object")
-        libobj.Register(object)
+        local object = sobj.BeginObject(PREFIX_TEST.."AddingTraitToRegisteredObject.Object")
+        sobj.Register(object)
 
         trait(object)
     end)
 
     RegTest(PREFIX.."ObjectReregistration", function()
-        local meta = libobj.BeginObject(PREFIX_TEST.."ObjectReregistration")
+        local meta = sobj.BeginObject(PREFIX_TEST.."ObjectReregistration")
         meta.TheNumber = 42
-        libobj.Register(meta)
+        sobj.Register(meta)
 
         assert(meta.TheNumber == 42)
 
-        local samemeta = libobj.BeginExistingObject(meta)
+        local samemeta = sobj.BeginExistingObject(meta)
         samemeta.TheNumber = 108
-        libobj.Register(samemeta)
+        sobj.Register(samemeta)
 
         assert(meta == samemeta)
         assert(meta.TheNumber == 108)
     end)
 
     RegTestFailing(PREFIX.."ObjectReregistrationOnTrait", function()
-        local meta = libobj.BeginTrait(PREFIX_TEST.."ObjectReregistrationOnTrait")
-        libobj.Register(meta)
+        local meta = sobj.BeginTrait(PREFIX_TEST.."ObjectReregistrationOnTrait")
+        sobj.Register(meta)
 
-        libobj.BeginExistingObject(meta) -- Fails
+        sobj.BeginExistingObject(meta) -- Fails
     end)
 
     RegTest(PREFIX.."MultipleInheritance", function()
-        local trBase = libobj.BeginTrait(PREFIX_TEST.."MultipleInheritance.TraitBase")
+        local trBase = sobj.BeginTrait(PREFIX_TEST.."MultipleInheritance.TraitBase")
         tr1.BaseValue = 108
-        libobj.Register(trBase)
+        sobj.Register(trBase)
 
 
-        local tr1 = libobj.BeginTrait(PREFIX_TEST.."MultipleInheritance.Trait1")
+        local tr1 = sobj.BeginTrait(PREFIX_TEST.."MultipleInheritance.Trait1")
         trBase(tr1)
         tr1.Value1 = 4
-        libobj.Register(tr1)
+        sobj.Register(tr1)
 
-        local tr2 = libobj.BeginTrait(PREFIX_TEST.."MultipleInheritance.Trait2")
+        local tr2 = sobj.BeginTrait(PREFIX_TEST.."MultipleInheritance.Trait2")
         trBase(tr1)
         tr2.Value2 = 8
-        libobj.Register(tr2)
+        sobj.Register(tr2)
 
-        local obj = libobj.BeginObj(PREFIX_TEST.."MultipleInheritance.Object")
+        local obj = sobj.BeginObj(PREFIX_TEST.."MultipleInheritance.Object")
         tr1(obj)
         tr2(obj)
-        libobj.Register(obj)
+        sobj.Register(obj)
 
         assert(obj.BaseValue == 108)
         assert(obj.Value1 == 4)
@@ -250,15 +250,15 @@ do -- Tests
 
     -- https://github.com/conred-gmod/stp_libcore/issues/2
     RegTest(PREFIX.."NoRepeatedTraitApplication", function()
-        local trait = libobj.BeginTrait(PREFIX_TEST.."NoRepeatedTraitApplication.Trait")
+        local trait = sobj.BeginTrait(PREFIX_TEST.."NoRepeatedTraitApplication.Trait")
         trait.Value = 108
-        libobj.Register(trait)
+        sobj.Register(trait)
 
-        local obj = libobj.BeginObject(PREFIX_TEST.."NoRepeatedTraitApplication.Object")
+        local obj = sobj.BeginObject(PREFIX_TEST.."NoRepeatedTraitApplication.Object")
         trait(obj)
         obj.Value = 23
         trait(obj) -- Trait should not be re-applied here
-        libobj.Register(obj)
+        sobj.Register(obj)
 
         assert(obj.Value == 23)
     end)

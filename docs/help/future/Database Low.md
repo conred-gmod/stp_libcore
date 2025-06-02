@@ -3,7 +3,7 @@
 -- namespace stp.rp
 local librp = stp.rp
 
-local libo = stp.obj
+local sobj = stp.obj
 local libdb = stp.db
 
 librp.Database = libdb.SqliteDatabase("stp.rp.production")
@@ -14,40 +14,40 @@ librp.Database = libdb.SqliteDatabase("stp.rp.production")
 -- namespace stp.rp
 local librp = stp.rp
 
-local libo = stp.obj
+local sobj = stp.obj
 local libdb = stp.db
 
 -- Assume 'stp.rp.Player' is defined elsewhere
-local PLY = libo.BeginObject("stp.rp.Player.Data")
-libo.ApplyMany(PLY,
+local PLY = sobj.BeginObject("stp.rp.Player.Data")
+sobj.ApplyMany(PLY,
         libdb.MakeTableObject(PLY.TypeName, "0.1") -- Table Name, Version
     )
 
-libo.ConstructNestedType(PLY, "SteamID",
+sobj.ConstructNestedType(PLY, "SteamID",
         libdb.MakeVariable(libdb.Schema.String),
         libdb.MakePrimaryKey
     )
 
-libo.ConstructNestedType(PLY, "TotalTime",
+sobj.ConstructNestedType(PLY, "TotalTime",
         libdb.MakeVariable(libdb.Schema.Number),
         libdb.VariableConstrained(
             libdb.Constraint.Compare(libdb.Constraint.CMP_GREATER_EQUALS, 0)
             ),
         
-        libo.VariableDefault(0)
+        sobj.VariableDefault(0)
     )
 
-libo.ConstructNestedType(PLY, "LastJoinTime",
+sobj.ConstructNestedType(PLY, "LastJoinTime",
         libdb.MakeVariable(libdb.Schema.Number),
         libdb.VariableConstrained(
             libdb.Constraint.Compare(stp.CMP.GREATER_EQUALS, 0)
             ),
 
-        libdb.VariableNullable, libo.VariableDefaultNull
+        libdb.VariableNullable, sobj.VariableDefaultNull
     )
 
 
-libo.Register(PLY)
+sobj.Register(PLY)
 librp.Player.Data = PLY
 
 local Query_RemoveOldPlayers

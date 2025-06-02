@@ -1,8 +1,8 @@
-local LIB = stp.obj
+local sobj = stp.obj
 
-function LIB.MakeManager(item, manager, desc)
-    LIB.CheckNotFullyRegistered(item)
-    LIB.CheckNotFullyRegistered(manager)
+function sobj.MakeManager(item, manager, desc)
+    sobj.CheckNotFullyRegistered(item)
+    sobj.CheckNotFullyRegistered(manager)
     local data = { Item = item, Manager = manager, Desc = desc }
 
     local isg = desc.ItemSg
@@ -13,12 +13,12 @@ function LIB.MakeManager(item, manager, desc)
 
     local key_mixin = "___mixin_manager_"..isg
 
-    LIB.Removable(item)
-    LIB.Initializable(manager)
+    sobj.Removable(item)
+    sobj.Initializable(manager)
 
     local function makehook(prefix)
-        LIB.HookDefine(item, prefix..isg)
-        LIB.HookDefine(manager, prefix..isg)
+        sobj.HookDefine(item, prefix..isg)
+        sobj.HookDefine(manager, prefix..isg)
     end
 
     makehook("OnPreRegistered")
@@ -26,14 +26,14 @@ function LIB.MakeManager(item, manager, desc)
     makehook("OnPreUnregistered")
     makehook("OnPostUnregistered")
 
-    LIB.MergablesAdd(item, "Init", key_mixin, "CallInOrder", function(self, _)
+    sobj.MergablesAdd(item, "Init", key_mixin, "CallInOrder", function(self, _)
         self[key_mixin] = {
             Key = nil,
             Manager = nil
         }
     end)
 
-    LIB.MergablesAdd(manager, "Init", key_mixin, "CallInOrder", function(self, _)
+    sobj.MergablesAdd(manager, "Init", key_mixin, "CallInOrder", function(self, _)
         self[key_mixin] = {
             Items = {},
         }

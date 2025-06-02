@@ -1,11 +1,11 @@
-local librest = stp.obj.net.restrictors
+local snetrestrictor = stp.obj.net.restrictors
 local ObjTracker = stp.obj.Tracker
 
 local Unrestricted = stp.GetPersistedTable("stp.obj.net.restrictors.Unrestricted", {})
 local RestrictedByThis = stp.GetPersistedTable("stp.obj.net.restrictors.RestrictedByThis", {})
 
-librest.Unrestricted = Unrestricted
-librest.RestrictedByThis = RestrictedByThis
+snetrestrictor.Unrestricted = Unrestricted
+snetrestrictor.RestrictedByThis = RestrictedByThis
 
 local function CheckRestrictorLoop(cur, added)
     while cur ~= nil do
@@ -15,7 +15,7 @@ local function CheckRestrictorLoop(cur, added)
     end
 end
 
-function librest._Set(obj, restrictor)
+function snetrestrictor._Set(obj, restrictor)
     local oldrestrictor = obj:NetGetRestrictor()
     CheckRestrictorLoop(restrictor, obj)
 

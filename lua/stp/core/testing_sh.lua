@@ -1,4 +1,4 @@
-local libtest = stp.testing
+local stest = stp.testing
 local chkty = stp.CheckType
 
 local tests = stp.GetPersistedTable("stp.testing.Tests", {})
@@ -7,14 +7,14 @@ local TYPES = {
 }
 
 
-function libtest.RegisterTest(name, action)
+function stest.RegisterTest(name, action)
     chkty(name, "name", "string")
     chkty(action, "action", "function")
 
     tests[name] = { Type = TYPES.SIMPLE, Fn = action, Failing = false }
 end
 
-function libtest.RegisterTestFailing(name, action)
+function stest.RegisterTestFailing(name, action)
     chkty(name, "name", "string")
     chkty(action, "action", "function")
 
@@ -88,7 +88,7 @@ if CLIENT then
 end
 
 do -- Tests (for test system, yes)
-    libtest.RegisterTest("stp.testing.FailingTestDetectsFail", function()
+    stest.RegisterTest("stp.testing.FailingTestDetectsFail", function()
         local errormsg = RunTestFunction(function()
             stp.Error("Faux-test errored")
         end, true)
@@ -96,7 +96,7 @@ do -- Tests (for test system, yes)
         assert(errormsg == nil)
     end)
 
-    libtest.RegisterTest("stp.testing.FailingTestErrorsOnSuccess", function()
+    stest.RegisterTest("stp.testing.FailingTestErrorsOnSuccess", function()
         local errormsg = RunTestFunction(function()
             assert(2 + 2 == 4) -- Never fails
         end, true)

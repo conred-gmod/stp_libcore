@@ -1,20 +1,20 @@
 -- Add test code into this file. Clear this file in release commits.
 
-local libo = stp.obj
-local libn = stp.obj.net
+local sobj = stp.obj
+local snet = stp.obj.net
 
 print("---- __devtest.lua start")
 
-local META = libo.BeginObject("__devtest")
-libo.ApplyMany(META,
-    libn.EasyComposite
+local META = sobj.BeginObject("__devtest")
+sobj.ApplyMany(META,
+    snet.EasyComposite
 )
 
-libo.ConstructNestedType(META, "Fwd", libn.MakeEasyMsg(libn.schema.UInt(16), "fwd", "PingSend","PingRecv"))
+sobj.ConstructNestedType(META, "Fwd", snet.MakeEasyMsg(snet.schema.UInt(16), "fwd", "PingSend","PingRecv"))
 
-libo.ConstructNestedType(META, "Rev", libn.MakeEasyMsg(libn.schema.UInt(16), "rev", "ReplySend","ReplyRecv"))
+sobj.ConstructNestedType(META, "Rev", snet.MakeEasyMsg(snet.schema.UInt(16), "rev", "ReplySend","ReplyRecv"))
 
-libo.ConstructNestedType(META, "Bank", libn.MakeEasyVar(libn.schema.UInt(16), 
+sobj.ConstructNestedType(META, "Bank", snet.MakeEasyVar(snet.schema.UInt(16), 
     "GetBank", SERVER and "SetBank",
     0, -- Default
     { Callback = "OnBankChanged"}
@@ -58,11 +58,11 @@ function META:BankAdd(delta)
     self:SetBank(self:GetBank() + delta)
 end
 
-libo.HookAdd(META, "OnPreRemove", "Devtest.Debug", function(self)
+sobj.HookAdd(META, "OnPreRemove", "Devtest.Debug", function(self)
     print(self, "Removing...")
 end)
 
-libo.Register(META)
+sobj.Register(META)
 --Poker.Game = META
 
 local gameref = stp.GetPersistedTable("Devtest_Gameref", {})

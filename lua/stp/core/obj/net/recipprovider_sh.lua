@@ -1,15 +1,15 @@
-local libo = stp.obj
-local libn = stp.obj.net
+local sobj = stp.obj
+local snet = stp.obj.net
 local check_ty = stp.CheckType
 
-local RPR = libo.BeginTrait("stp.obj.net.RecipientProivder") 
-libo.ApplyMany(RPR,
-    libo.Initializable,
-    libn.Networkable
+local RPR = sobj.BeginTrait("stp.obj.net.RecipientProivder") 
+sobj.ApplyMany(RPR,
+    sobj.Initializable,
+    snet.Networkable
 )
 
 if SERVER then
-    libo.HookAdd(RPR, "Init", RPR.TypeName, function(self)
+    sobj.HookAdd(RPR, "Init", RPR.TypeName, function(self)
         self._recipientProviders = {}
     end)
 
@@ -33,5 +33,5 @@ if SERVER then
     end
 end
 
-libo.Register(RPR)
-libn.RecipientProivder = RPR
+sobj.Register(RPR)
+snet.RecipientProivder = RPR

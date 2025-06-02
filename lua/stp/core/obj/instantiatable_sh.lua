@@ -1,25 +1,25 @@
-local LIB = stp.obj
+local sobj = stp.obj
 
-local INITABLE = LIB.BeginTrait("stp.obj.Initializable")
+local INITABLE = sobj.BeginTrait("stp.obj.Initializable")
 
-LIB.HookDefine(INITABLE, "Init")
-LIB.HookDefine(INITABLE, "PostInit")
-
-
-LIB.Register(INITABLE)
-LIB.Initializable = INITABLE
+sobj.HookDefine(INITABLE, "Init")
+sobj.HookDefine(INITABLE, "PostInit")
 
 
-local REMOVABLE = LIB.BeginTrait("stp.obj.Removable")
+sobj.Register(INITABLE)
+sobj.Initializable = INITABLE
+
+
+local REMOVABLE = sobj.BeginTrait("stp.obj.Removable")
 INITABLE(REMOVABLE)
 
-LIB.HookDefine(REMOVABLE, "OnPreRemove")
-LIB.HookDefine(REMOVABLE, "OnRemove")
+sobj.HookDefine(REMOVABLE, "OnPreRemove")
+sobj.HookDefine(REMOVABLE, "OnRemove")
 
-LIB.Register(REMOVABLE)
-LIB.Removable = REMOVABLE
+sobj.Register(REMOVABLE)
+sobj.Removable = REMOVABLE
 
-local INST = LIB.BeginTrait("stp.obj.Instantiatable")
+local INST = sobj.BeginTrait("stp.obj.Instantiatable")
 REMOVABLE(INST)
 
 function INST:Create(args)
@@ -55,5 +55,5 @@ function INST:Remove(cascaded)
 end
 
 
-LIB.Register(INST)
-LIB.Instantiatable = INST
+sobj.Register(INST)
+sobj.Instantiatable = INST

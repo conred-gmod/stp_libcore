@@ -1,9 +1,9 @@
-local libobj = stp.obj
+local sobj = stp.obj
 local PREFIX = "stp.obj.mergables."
 
 local Mergers = stp.GetPersistedTable("stp.obj.mergables.Mergers", {})
 
-function libobj.MergerRegister(name, fn)
+function sobj.MergerRegister(name, fn)
     if stp.DebugFlags.TypeSystem then
         print("stp.obj.MergerRegister", name, fn)
     end
@@ -11,8 +11,8 @@ function libobj.MergerRegister(name, fn)
     Mergers[name] = fn
 end
 
-function libobj.MergerRegisterArray(name, fn)
-    libobj.MergerRegister(name, function(meta, k, desc)
+function sobj.MergerRegisterArray(name, fn)
+    sobj.MergerRegister(name, function(meta, k, desc)
         local array = {}
         for itemk, itemdesc in pairs(desc.List) do
             array[itemdesc.Idx] = { Key = itemk, Value = itemdesc.Value }
@@ -22,7 +22,7 @@ function libobj.MergerRegisterArray(name, fn)
     end)
 end
 
-function libobj._MergablesInit()
+function sobj._MergablesInit()
     return {}
 end
 
@@ -35,7 +35,7 @@ local function GetInitMrgDesc(meta, key, merger_name)
     return mrg
 end
 
-function libobj.MergablesDeclare(meta, keyname, merger_name)
+function sobj.MergablesDeclare(meta, keyname, merger_name)
     if stp.DebugFlags.TypeSystem then
         MsgN("stp.obj.MergablesDeclare\t", meta, ".", keyname,":[",merger_name,"]")
     end
@@ -50,7 +50,7 @@ function libobj.MergablesDeclare(meta, keyname, merger_name)
     GetInitMrgDesc(meta, keyname, merger_name)
 end
 
-function libobj.MergablesAdd(meta, keyname, impl_name, merger_name, value)
+function sobj.MergablesAdd(meta, keyname, impl_name, merger_name, value)
     if stp.DebugFlags.TypeSystem then
         MsgN("stp.obj.MergablesDeclare\t", meta, ".", keyname,":[",merger_name,"]",
             "=\t[",impl_name,"]\t",value)
@@ -89,7 +89,7 @@ local APPLY_SPECIAL_FIELDS = {
     ["___mergables"] = true,
 }
 
-function libobj.ApplyTrait(traitmeta, targetmeta)
+function sobj.ApplyTrait(traitmeta, targetmeta)
     local debug_typesys = stp.DebugFlags.TypeSystem
 
     if debug_typesys then
@@ -180,7 +180,7 @@ function libobj.ApplyTrait(traitmeta, targetmeta)
     end
 end
 
-function libobj._MergablesMerge(meta)
+function sobj._MergablesMerge(meta)
     local debug_typesys = stp.DebugFlags.TypeSystem
     if debug_typesys then MsgN("stp.obj._MergablesMerge ",meta) end
 
@@ -199,7 +199,7 @@ do --Testing
 
     local MERGABLE_NAME = PREFIX_TEST.."Mergable"
     local function DefineSimpleMerger()
-        libobj.RegisterMerger(MERGABLE_NAME, function(meta, key, desc)
+        sobj.RegisterMerger(MERGABLE_NAME, function(meta, key, desc)
             local parts = {}
             for impl, impldesc in SortedPairsByMemberValue(desc, "Idx") do
                 table.insert(parts, impl.."="..tostring(impldesc.Value))
@@ -210,32 +210,32 @@ do --Testing
     end
     
     local function AddSimpleMergable(meta, key, implname, value)
-        libobj.MergablesAdd(meta, key, implname, MERGABLE_NAME, value)
+        sobj.MergablesAdd(meta, key, implname, MERGABLE_NAME, value)
     end
 
     local function DeclareSimpleMergable(meta, key)
-        libobj.MergablesDeclare(meta, key, MERGABLE_NAME)
+        sobj.MergablesDeclare(meta, key, MERGABLE_NAME)
     end
 
     RegTest(PREFIX.."Declare", function()
-        local ty = libobj.BeginObject(PREFIX_TEST.."Declare")
+        local ty = sobj.BeginObject(PREFIX_TEST.."Declare")
         DeclareSimpleMergable(ty, "Keyname")
-        libobj.Register(ty)
+        sobj.Register(ty)
 
         assert(istable(ty.Keyname))
         assert(table.IsEmpty(ty.Keyname))
     end)
 
     RegTestFailing(PREFIX.."DeclareUndefinedMerger", function()
-        local ty = libobj.BeginObject(PREFIX_TEST.."DeclareUndefinedMerger")
-        libobj.MergablesDeclare(ty, "Keyname", PREFIX_TEST.."NoSuchMergerExists")
-        libobj.Register(ty)
+        local ty = sobj.BeginObject(PREFIX_TEST.."DeclareUndefinedMerger")
+        sobj.MergablesDeclare(ty, "Keyname", PREFIX_TEST.."NoSuchMergerExists")
+        sobj.Register(ty)
     end)
 
     RegTest(PREFIX.."SimpleUse", function()
         DefineSimpleMerger()
 
-        local ty = libobj.BeginObject(PREFIX_TEST.."SimpleUse")
+        local ty = sobj.BeginObject(PREFIX_TEST.."SimpleUse")
         
         AddSimpleMergable(ty, "First", "Impl1", 10)
         AddSimpleMergable(ty, "Second", "Impl1", 10)
@@ -243,7 +243,7 @@ do --Testing
         AddSimpleMergable(ty, "First", "Impl2", 15) -- Add another implementation to mergable
         AddSimpleMergable(ty, "Second", "Impl1", -10) -- Overwrite implementation of mergable
 
-        libobj.Register(ty)
+        sobj.Register(ty)
         
         assert(ty.First[1] == "Impl1=10")
         assert(ty.First[2] == "Impl2=15")
@@ -255,17 +255,17 @@ do --Testing
     RegTest(PREFIX.."SimpleInheritance", function()
         DefineSimpleMerger()
 
-        local tbase = libobj.BeginTrait(PREFIX_TEST.."SimpleInheritance.Base")
+        local tbase = sobj.BeginTrait(PREFIX_TEST.."SimpleInheritance.Base")
         AddSimpleMergable(tbase, "Combined", "Base",4)
         AddSimpleMergable(tbase, "Overwritten", "OnlyValue", 99)
-        libobj.Register(tbase)
+        sobj.Register(tbase)
 
-        local tfinal = libobj.BeginObject(PREFIX_TEST.."SimpleInheritance.Final")
+        local tfinal = sobj.BeginObject(PREFIX_TEST.."SimpleInheritance.Final")
         AddSimpleMergable(tfinal, "Combined", "First", 0)
         tbase(tfinal)
         AddSimpleMergable(tfinal, "Combined", "Final", 8)
         AddSimpleMergable(tfinal, "Overwritten", "OnlyValue", 110)
-        libobj.Register(tfinal)
+        sobj.Register(tfinal)
 
         assert(tfinal.Combined[1] == "First=0")
         assert(tfinal.Combined[2] == "Base=4")
@@ -278,33 +278,33 @@ do --Testing
     RegTest(PREFIX.."DiamondInheritance", function()
         DefineSimpleMerger()
 
-        local ta = libobj.BeginTrait(PREFIX_TEST.."DiamondInheritance.A")
+        local ta = sobj.BeginTrait(PREFIX_TEST.."DiamondInheritance.A")
         AddSimpleMergable(ta, "Keyname", "A", 4)
-        libobj.Register(ta)
+        sobj.Register(ta)
 
-        local tb1 = libobj.BeginTrait(PREFIX_TEST.."DiamondInheritance.B1")
+        local tb1 = sobj.BeginTrait(PREFIX_TEST.."DiamondInheritance.B1")
         ta(tb1)
         AddSimpleMergable(tb1, "Keyname", "B1", 8)
-        libobj.Register(tb1)
+        sobj.Register(tb1)
 
         assert(#tb1.Keyname == 2)
         assert(tb1.Keyname[1] == "A=4")
         assert(tb1.Keyname[2] == "B1=8")
 
-        local tb2 = libobj.BeginTrait(PREFIX_TEST.."DiamondInheritance.B2")
+        local tb2 = sobj.BeginTrait(PREFIX_TEST.."DiamondInheritance.B2")
         ta(tb2)
         AddSimpleMergable(tb2, "Keyname", "B2", 15)
-        libobj.Register(tb2)
+        sobj.Register(tb2)
 
         assert(#tb2.Keyname == 2)
         assert(tb2.Keyname[1] == "A=4")
         assert(tb2.Keyname[2] == "B2=15")
 
-        local tfinal = libobj.BeginObject(PREFIX_TEST.."DiamondInheritance.Final")
+        local tfinal = sobj.BeginObject(PREFIX_TEST.."DiamondInheritance.Final")
         tb1(tfinal)
         tb2(tfinal)
         AddSimpleMergable(tb2, "Keyname", "Final", 16)
-        libobj.Register(tfinal)
+        sobj.Register(tfinal)
 
         assert(#tfinal.Keyname == 4)
         assert(tfinal.Keyname[1] == "A=4")

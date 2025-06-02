@@ -1,5 +1,5 @@
-local libaware = stp.obj.net.awareness
-local librest = stp.obj.net.restrictors
+local snetaware = stp.obj.net.awareness
+local snetrestrictor = stp.obj.net.restrictors
 
 -- table(obj: .Networkable, CRecipientList)
 local ObserverdRecips = {}
@@ -66,29 +66,29 @@ local function ProcessObject(obj, restrictor, restrictor_recip)
 
     ObserverdRecips[obj] = recip
 
-    for child in pairs(librest.RestrictedByThis[obj] or {}) do
+    for child in pairs(snetrestrictor.RestrictedByThis[obj] or {}) do
         ProcessObject(child, obj, recip)
     end
 end
 
-function libaware._Update()
+function snetaware._Update()
     ObserverdRecips = {}
     InitRecips = {}
 
-    for obj in pairs(librest.Unrestricted) do
+    for obj in pairs(snetrestrictor.Unrestricted) do
         ProcessObject(obj, nil, nil)
     end
 end
 
-function libaware._GetNewlyAware()
+function snetaware._GetNewlyAware()
     return InitRecips
 end
 
-function libaware._GetRecipients(obj)
+function snetaware._GetRecipients(obj)
     return ObserverdRecips[obj]
 end
 
-function libaware._MarkAware(obj, plys)
+function snetaware._MarkAware(obj, plys)
     local aware = AwarePlys[obj] or {}
     AwarePlys[obj] = aware
     for _, ply in ipairs(plys) do

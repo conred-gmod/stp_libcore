@@ -1,20 +1,20 @@
-local libo = stp.obj
-local libtrack = {}
+local sobj = stp.obj
+local sobjtrack = {}
 
-libo.Tracker = libtrack
+sobj.Tracker = sobjtrack
 
 local ID_BITS_NET = 23
-libtrack.ID_BITS_NET = ID_BITS_NET
+sobjtrack.ID_BITS_NET = ID_BITS_NET
 local ID_MAX = bit.lshift(1, ID_BITS_NET) - 1
-libtrack.ID_MAX = ID_MAX
+sobjtrack.ID_MAX = ID_MAX
 local ID_MIN = -bit.lshift(1, ID_BITS_NET)
-libtrack.ID_MIN = ID_MIN
+sobjtrack.ID_MIN = ID_MIN
 
 local ObjectsNet = stp.GetPersistedTable("stp.obj.tracker.ObjectsNet", {})
 local ObjectsLocal = stp.GetPersistedTable("stp.obj.tracker.ObjectsLocal", {})
 
 local function Track(obj, id)
-    libo.CheckFullyRegistered(obj)
+    sobj.CheckFullyRegistered(obj)
 
     if not obj.IsTrackable then
         stp.Error(obj," is not trackable")
@@ -47,7 +47,7 @@ local function GenerateIdNet()
 end
 
 local function Untrack(obj)
-    libo.CheckFullyRegistered(obj)
+    sobj.CheckFullyRegistered(obj)
     
     if not obj.IsTrackable then
         stp.Error(obj," is not trackable")
@@ -64,15 +64,15 @@ local function Untrack(obj)
     end
 end
 
-function libtrack.GetAllNetworkable()
+function sobjtrack.GetAllNetworkable()
     return ObjectsNet
 end
 
-function libtrack.GetAllLocal()
+function sobjtrack.GetAllLocal()
     return ObjectsLocal
 end
 
-function libtrack.Get(id)
+function sobjtrack.Get(id)
     if id > 0 then
         return ObjectsNet[id]
     else
@@ -80,7 +80,7 @@ function libtrack.Get(id)
     end
 end
 
-function libtrack.IsNetworkable(arg)
+function sobjtrack.IsNetworkable(arg)
     local id = arg
     if istable(arg) then
         id = arg.TrackId
@@ -90,36 +90,36 @@ function libtrack.IsNetworkable(arg)
 end
 
 
-local TRK = libo.BeginTrait("stp.obj.Trackable")
-libo.Instantiatable(TRK)
+local TRK = sobj.BeginTrait("stp.obj.Trackable")
+sobj.Instantiatable(TRK)
 TRK.IsTrackable = true
 
-libo.HookDefine(TRK, "OnPreTracked")
-libo.HookDefine(TRK, "OnPostTracked")
+sobj.HookDefine(TRK, "OnPreTracked")
+sobj.HookDefine(TRK, "OnPostTracked")
 
-libo.HookAdd(TRK, "OnRemove", TRK.TypeName, Untrack)
+sobj.HookAdd(TRK, "OnRemove", TRK.TypeName, Untrack)
 
-libo.Register(TRK)
-libo.Trackable = TRK
+sobj.Register(TRK)
+sobj.Trackable = TRK
 
 
 
-local TRKL = libo.BeginTrait("stp.obj.TrackableLocal")
+local TRKL = sobj.BeginTrait("stp.obj.TrackableLocal")
 TRK(TRKL)
 
-libo.HookAdd(TRKL, "PostInit", TRKL.TypeName, function(self)
+sobj.HookAdd(TRKL, "PostInit", TRKL.TypeName, function(self)
     Track(self, GenerateIdLocal())
 end)
 
-libo.Register(TRKL)
-libo.TrackableLocal = TRKL
+sobj.Register(TRKL)
+sobj.TrackableLocal = TRKL
 
-local TRKN = libo.BeginTrait("stp.obj.TrackableNetworked")
+local TRKN = sobj.BeginTrait("stp.obj.TrackableNetworked")
 TRK(TRKN)
 
 TRKN.IsTrackableNet = true
 
-libo.HookAdd(TRKN, "PostInit", TRKN.TypeName, function(self, params)
+sobj.HookAdd(TRKN, "PostInit", TRKN.TypeName, function(self, params)
     local id = params.TrackId
     if SERVER then
         id = GenerateIdNet()
@@ -129,5 +129,5 @@ libo.HookAdd(TRKN, "PostInit", TRKN.TypeName, function(self, params)
 
     Track(self, id)
 end)
-libo.Register(TRKN)
-libo.TrackableNetworked = TRKN
+sobj.Register(TRKN)
+sobj.TrackableNetworked = TRKN
